@@ -1,0 +1,13 @@
+"starts","ends","scores","top.k","top.k.N","top.k.seq","top.k.cov","top.k.count","ID"
+4001,8000,89.6275818954739,5,7,"ttaatta",124.806201550388,713,1
+38001,42000,96.4758689672418,10,2,"at",49.5123780945236,990,2
+48001,90000,85.1816822617698,10,59,"tgtccgaattttcgaaaaaatccggaattcgagtttcgggcacacgttgggccgaaaaa",58.0180480487631,413,3
+104001,106000,78,5,90,"ctttgaggaatacgaaaagcgaatggaggaagaagaggaatactttgaggaatacgaaaagcgaattgaggatcaaggaacagaagaatg",22.5112556278139,5,4
+192001,222000,70.6216147449466,10,88,"tcggccaaacgggagcccgaaactcgaattctgcattttttcgaaattcgagccatttttcgccccagcgtttgcccgacgctatttt",77.1492383079436,263,5
+226001,236000,88.6718819250346,10,87,"tttcaaattcgagccattttttggccgaacgtgtgcgaaacgctatttttcggtcaaacacgaaacacgaattctaaattttttcga",33.0633063306331,38,6
+252001,254000,98.6,5,24,"ttttgaactcagtgagtaactacc",4.8024012006003,4,7
+268001,278000,79.3396570863891,10,173,"tataatgcaatccttttgaatttttaatatcataaacttattctccactgtataaagagcttaaatatagatttttgcgatcaaatgacttaaaacaaatgcacaatcgcttgaaatgttccaattctgtccagaacgtgcatttcttgcattctatgtgcgtaattactacg",79.5879587958796,46,8
+286001,290000,97.2756689172293,5,7,"cactaa",68.4421105276319,391,9
+302001,314000,77.3510875906325,10,172,"gcgtaagtacctggtataatcaaatatttttgaataatcaagatatgaatcatattctagacagtataaagtgtttaaatttagattattgtgataaaatgacttagaatgaatccagaaacgattgaaatgctcaaatgatactcagaattgcattatttgctctttatat",88.8740728394033,62,10
+330001,332000,97.6,20,68,"taccggtttttctaaaaaaccggtactaaagataaaccgttttttattttttttcgccaacattttag",10.2051025512756,3,11
+334001,336000,97.6,10,70,"tctttagtaccggtttttctaaaaaatcggtactaaagatactatttttagtaccggtttttaataaaaa",10.5052526263132,3,12
