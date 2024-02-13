@@ -1,4 +1,4 @@
-split_and_check_arrays <- function(start, end, sequence, seqID, numID) {
+split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repeat) {
   
   kmer <- 12
   min_kmers_count = 2
@@ -13,7 +13,6 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID) {
   small_window_for_N_count = 1000 
   small_window_step_for_N_count = 100
   small_window_min_percentage_of_distances = small_window_for_N_count / 10
-  
 
   kmers_list <- unlist(lapply(X = (start : (end - kmer)), FUN = extract_kmers, kmer, sequence))
   counts_kmers <- table(kmers_list)
@@ -41,75 +40,125 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID) {
   for (i in seq_along(collapsed_kmers)) {
     collapsed_kmers[[i]]$locations <- which(kmers_list %in% collapsed_kmers[[i]]$kmers)
   }
-
-  plot(x = NULL, y = NULL, xlim = c(0,100000), ylim = c(0, length(collapsed_kmers)))
-  for (i in seq_along(collapsed_kmers)) {
-   points(x = collapsed_kmers[[i]]$locations, y = rep(i, collapsed_kmers[[i]]$count), pch = ".")
-  }
-  
-  window_starts = NULL
-  window_ends = NULL
-  
-  window_starts <- genomic_bins_starts(start = start, end = end, bin_size = window_size)
-  if (length(window_starts) < 2) {
-    window_ends <- end
-  } else {
-    window_ends <- c((window_starts[2:length(window_starts)] - 1), end)
-  }
-  if (length(window_ends) != length(window_starts)) window_ends <- end
-  
-  window_top_1_distance <- rep(0, length(window_starts))
-  window_top_2_distance <- rep(0, length(window_starts))
-  window_top_3_distance <- rep(0, length(window_starts))
-  window_top_4_distance <- rep(0, length(window_starts))
-  window_top_5_distance <- rep(0, length(window_starts))
-  window_count <- rep(0, length(window_starts))
   
   distances <- NULL
   kmer_starts <- NULL
   for (i in seq_along(collapsed_kmers)) {
     collapsed_kmers[[i]]$distances = (collapsed_kmers[[i]]$locations[2:length(collapsed_kmers[[i]]$locations)] -
                                         collapsed_kmers[[i]]$locations[1:(length(collapsed_kmers[[i]]$locations)-1)])
-    
-    distances <- c(distances, collapsed_kmers[[i]]$distances)
     kmer_starts <- c(kmer_starts, collapsed_kmers[[i]]$locations[1:(length(collapsed_kmers[[i]]$locations)-1)])
+    distances <- c(distances, collapsed_kmers[[i]]$distances)
+    collapsed_kmers[[i]]$distances = collapsed_kmers[[i]]$distances[collapsed_kmers[[i]]$distances <= max_repeat]
   }
   
-  for (i in seq_along(window_starts)) {
-    window_count[i] <- length(which(kmer_starts >= window_starts[i] & kmer_starts <= window_ends[i]))
-    window_distances <- table(distances[which(kmer_starts >= window_starts[i] & kmer_starts <= window_ends[i])])
-    window_distances <- window_distances[order(window_distances, decreasing = TRUE)]
+  {  
+    # Find breaks, method 1 <
+    
+    window_starts = NULL
+    window_ends = NULL
+    
+    window_starts <- genomic_bins_starts(start = start, end = end, bin_size = window_size)
+    if (length(window_starts) < 2) {
+      window_ends <- end
+    } else {
+      window_ends <- c((window_starts[2:length(window_starts)] - 1), end)
+    }
+    if (length(window_ends) != length(window_starts)) window_ends <- end
+    
+    window_top_1_distance <- rep(0, length(window_starts))
+    window_top_2_distance <- rep(0, length(window_starts))
+    window_top_3_distance <- rep(0, length(window_starts))
+    window_top_4_distance <- rep(0, length(window_starts))
+    window_top_5_distance <- rep(0, length(window_starts))
+    window_count <- rep(0, length(window_starts))
+    
+    for (i in seq_along(window_starts)) {
+      window_count[i] <- length(which(kmer_starts >= window_starts[i] & kmer_starts <= window_ends[i]))
+      window_distances <- table(distances[which(kmer_starts >= window_starts[i] & kmer_starts <= window_ends[i])])
+      window_distances <- window_distances[order(window_distances, decreasing = TRUE)]
+      
+      window_top_1_distance[i] <- if(length(as.numeric(names(window_distances)[1])) == 0) 0 else as.numeric(names(window_distances)[1]) 
+      window_top_2_distance[i] <- if(length(as.numeric(names(window_distances)[2])) == 0) 0 else as.numeric(names(window_distances)[2]) 
+      window_top_3_distance[i] <- if(length(as.numeric(names(window_distances)[3])) == 0) 0 else as.numeric(names(window_distances)[3]) 
+      window_top_4_distance[i] <- if(length(as.numeric(names(window_distances)[4])) == 0) 0 else as.numeric(names(window_distances)[4]) 
+      window_top_5_distance[i] <- if(length(as.numeric(names(window_distances)[5])) == 0) 0 else as.numeric(names(window_distances)[5]) 
+    }
+    
+    connected_next_windows <- rep(0, length(window_starts))
+    
+    for(i in 1 : (length(window_starts) - 1)) {
+      next_distances = c(window_top_1_distance[i + 1], window_top_2_distance[i + 1], window_top_3_distance[i + 1], window_top_4_distance[i + 1], window_top_5_distance[i + 1])
+      next_distances = next_distances[!is.na(next_distances)]
+      next_distances = next_distances[next_distances != 0]
+      if(length(next_distances) == 0) next
+      connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_count * ((abs(window_count[i] - window_count[i + 1]) / (max(window_count[i], window_count[i + 1]) + 1)) < max_window_count_percentage_to_score)
+      connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_top_distance * (window_top_1_distance[i] %in% next_distances)
+      connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_top_distance * (window_top_2_distance[i] %in% next_distances)
+      connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_top_distance * (window_top_3_distance[i] %in% next_distances)
+      connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_top_distance * (window_top_4_distance[i] %in% next_distances)
+      connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_top_distance * (window_top_5_distance[i] %in% next_distances)
+    }
+    connected_next_windows[length(connected_next_windows)] = score_weight_similar_count + 5 * score_weight_similar_top_distance
+    
+    array_breaks_estimate_starts = window_starts[connected_next_windows <= array_break_max_threshold]
+    array_breaks_estimate_ends = window_ends[connected_next_windows <= array_break_max_threshold]
+    
+    array_breaks_estimate_starts_temp = array_breaks_estimate_starts
+    array_breaks_estimate_starts = array_breaks_estimate_starts[!((array_breaks_estimate_starts-1) %in% array_breaks_estimate_ends)]
+    array_breaks_estimate_ends = array_breaks_estimate_ends[!((array_breaks_estimate_ends+1) %in% array_breaks_estimate_starts_temp)]
+    
+    # > Find breaks, method 1
+  }
+  
+  # Find breaks, method 2 <
+  window_size = 2000
+  window_step = 50
+  window_starts = NULL
+  window_ends = NULL
+  window_ends_compare = NULL
+  min_windows_comparison_score_to_detach_array = 0.2
+  max_windows_comparison_score_to_split_array = 0.1
+  
+  window_starts <- genomic_bins_starts(start = start, end = (end - window_size), bin_size = window_step)
+  if (length(window_starts) < 2) {
+    window_ends <- (end - window_size)
+  } else {
+    window_ends <- c((window_starts[2:length(window_starts)] - 1), (end - window_size))
+  }
+  if (length(window_ends) != length(window_starts)) window_ends <- (end - window_size)
+  window_ends = window_ends + window_size - window_step
+  window_ends[window_ends > (end - window_size)] = (end - window_size)
+  
+  window_starts_compare = window_ends + 1
+  
+  if (length(window_starts_compare) < 2) {
+    window_ends_compare <- end
+  } else {
+    window_ends_compare <- c((window_starts_compare[2:length(window_starts_compare)] - 1), end)
+  }
+  if (length(window_ends_compare) != length(window_starts_compare)) window_ends_compare <- end
+  window_ends_compare = window_ends_compare + window_size - window_step
+  window_ends_compare[window_ends_compare > end] = end
+  
+  windows_comparison_score <- rep(0, length(window_starts))
+  
+  for(i in seq_along(window_starts_compare)) {
+    kmers_window_A = kmers_list[window_starts[i] : window_ends[i]]
+    kmers_window_B = kmers_list[window_starts_compare[i] : window_ends_compare[i]]
+    windows_comparison_score[i] = sum(kmers_window_A %in% kmers_window_B) / window_size
+  }
+  
+  split_arrays_start = start
+  # TODO: iterate over the window and whenever the scores drop under max_windows_comparison_score_to_split_array mark the potential array split, wait until 
+  # the score reaches min_windows_comparison_score_to_detach_array to detach that new array (this way the peak needs to climb)
+  for()
 
-    window_top_1_distance[i] <- if(length(as.numeric(names(window_distances)[1])) == 0) 0 else as.numeric(names(window_distances)[1]) 
-    window_top_2_distance[i] <- if(length(as.numeric(names(window_distances)[2])) == 0) 0 else as.numeric(names(window_distances)[2]) 
-    window_top_3_distance[i] <- if(length(as.numeric(names(window_distances)[3])) == 0) 0 else as.numeric(names(window_distances)[3]) 
-    window_top_4_distance[i] <- if(length(as.numeric(names(window_distances)[4])) == 0) 0 else as.numeric(names(window_distances)[4]) 
-    window_top_5_distance[i] <- if(length(as.numeric(names(window_distances)[5])) == 0) 0 else as.numeric(names(window_distances)[5]) 
-  }
-  
-  connected_next_windows <- rep(0, length(window_starts))
-  
-  for(i in 1 : (length(window_starts) - 1)) {
-    next_distances = c(window_top_1_distance[i + 1], window_top_2_distance[i + 1], window_top_3_distance[i + 1], window_top_4_distance[i + 1], window_top_5_distance[i + 1])
-    next_distances = next_distances[!is.na(next_distances)]
-    next_distances = next_distances[next_distances != 0]
-    if(length(next_distances) == 0) next
-    connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_count * ((abs(window_count[i] - window_count[i + 1]) / (max(window_count[i], window_count[i + 1]) + 1)) < max_window_count_percentage_to_score)
-    connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_top_distance * (window_top_1_distance[i] %in% next_distances)
-    connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_top_distance * (window_top_2_distance[i] %in% next_distances)
-    connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_top_distance * (window_top_3_distance[i] %in% next_distances)
-    connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_top_distance * (window_top_4_distance[i] %in% next_distances)
-    connected_next_windows[i] <- connected_next_windows[i] + score_weight_similar_top_distance * (window_top_5_distance[i] %in% next_distances)
-  }
-  connected_next_windows[length(connected_next_windows)] = score_weight_similar_count + 5 * score_weight_similar_top_distance
-  
-  array_breaks_estimate_starts = window_starts[connected_next_windows <= array_break_max_threshold]
-  array_breaks_estimate_ends = window_ends[connected_next_windows <= array_break_max_threshold]
-  
-  array_breaks_estimate_starts_temp = array_breaks_estimate_starts
-  array_breaks_estimate_starts = array_breaks_estimate_starts[!((array_breaks_estimate_starts-1) %in% array_breaks_estimate_ends)]
-  array_breaks_estimate_ends = array_breaks_estimate_ends[!((array_breaks_estimate_ends+1) %in% array_breaks_estimate_starts_temp)]
+  plot(windows_comparison_score)
+  windows_comparison_score
 
+  # > Find breaks, method 2
+  
+  
   
   window_starts <- genomic_bins_starts(start = start, end = end, bin_size = small_window_step_for_N_count)
   if (length(window_starts) < 2) {
@@ -129,16 +178,17 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID) {
     }
   }
   
-  plot(x = window_starts[moving_top_distance != 0], y = moving_top_distance[moving_top_distance != 0], pch = 16, ylim = c(0, max(moving_top_distance)))
-  abline(v = c(34450,39110,44870))
-  table(moving_top_distance[moving_top_distance != 0])
+  plot(x = window_starts[moving_top_distance != 0], y = moving_top_distance[moving_top_distance != 0], pch = 16, 
+       ylim = c(0, max(moving_top_distance)),
+       xlim = c(start, end))
+  sort(table(moving_top_distance[moving_top_distance != 0]))
 
   collapsed_kmers_counts = NULL
   collapsed_kmers_most_common_distance = NULL
   for(i in seq_along(collapsed_kmers)) {
     collapsed_kmers_counts = c(collapsed_kmers_counts, collapsed_kmers[[i]]$count)
     collapsed_kmers[[i]]$most_common_distance = as.numeric(names(which.max(table(collapsed_kmers[[i]]$distances))))
-    collapsed_kmers_most_common_distance = c(collapsed_kmers_most_common_distance, collapsed_kmers[[i]]$most_common_distance )
+    collapsed_kmers_most_common_distance = c(collapsed_kmers_most_common_distance, collapsed_kmers[[i]]$most_common_distance)
   }
   
   
@@ -147,10 +197,13 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID) {
 }
 #Test
 #test_fasta = read_fasta_and_list("../../testing_fastas/SUPER_15_extraction.fasta")
+#test_fasta = read_fasta_and_list("../../testing_fastas/ath_Chr1_extraction.fasta")
+#test_fasta = read_fasta_and_list("../../testing_fastas/Rbrevi_chr1_extr1_edited.fasta")
 #start = 1
-#end = 100000
-#sequence = test_fasta[[1]]
+#sequence = test_fasta[[1]][45000:92000]
+#end = length(sequence)
 #window_size = 1000
+#max_repeat = 800
 #split_and_check_arrays(1,10000,test_fasta[[1]], "CP068268", 1)
 
 # Split arrays:kmer distances, use colapsed kmers;

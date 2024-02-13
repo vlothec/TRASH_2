@@ -26,7 +26,8 @@ main <- function(cmd_arguments) {
                                   end = repetitive_regions$ends[i],
                                   sequence = fasta_content[repetitive_regions$numID[i]][repetitive_regions$starts[i] : repetitive_regions$ends[i]]),
                                   seqID = repetitive_regions$seqID[i],
-                                  numID = repetitive_regions$numID[i])
+                                  numID = repetitive_regions$numID[i],
+                                  max_repeat = cmd_arguments$max_rep_size)
   }
 
 
