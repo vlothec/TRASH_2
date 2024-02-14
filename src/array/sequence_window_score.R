@@ -5,7 +5,6 @@ sequence_window_score <- function(fasta_sequence, window_size) {
   kmer <- 12
   fraction_p <- 0.5
 
-
   sequence_full_length <- length(fasta_sequence)
 
   starts <- genomic_bins_starts(start = 1, end = sequence_full_length, bin_size = window_size)
@@ -19,7 +18,8 @@ sequence_window_score <- function(fasta_sequence, window_size) {
   scores <- vector(mode = "numeric", length = length(starts))
 
   for (i in seq_along(starts)) {
-    counts_kmers <- table(unlist(lapply(X = starts[i] : (ends[i] - kmer), FUN = extract_kmers, kmer, fasta_sequence[starts[i] : ends[i]]))) #using own script, better for short windows and long kmers
+    kmers = unlist(lapply(X = starts[i] : (ends[i] - kmer), FUN = extract_kmers, kmer, fasta_sequence))
+    counts_kmers <- table(kmers)
     counts_kmers <- counts_kmers[!grepl("n", names(counts_kmers))]
     counts_kmers <- counts_kmers[!grepl("N", names(counts_kmers))]
 
@@ -30,9 +30,8 @@ sequence_window_score <- function(fasta_sequence, window_size) {
     total_kmers <- sum(counts_kmers)
     counts_kmers <- sort(counts_kmers, decreasing = TRUE)
 
-    scores[i] <- 100 * (min(which(unlist(lapply(seq_along(counts_kmers),
-                                                FUN = function(x, vector) return(sum(vector[1 : x])),
-                                                counts_kmers)) / total_kmers > fraction_p)) - 1) / (total_kmers) / fraction_p
+    counts_kmers = unlist(lapply(seq_along(counts_kmers), FUN = function(x, vector) return(sum(vector[1 : x])), counts_kmers))
+    scores[i] <- 100 * (min(which(counts_kmers / total_kmers > fraction_p)) - 1) / (total_kmers) / fraction_p
   }
   return(scores)
 }

@@ -31,7 +31,7 @@ kmers.no.to.cover.P.fraction.of.sequence = function(sequence.vec = NULL, kmer = 
   for(i in 1 : length(starts))
   {
     print(paste0("Window:", i, "/", length(starts)))
-    
+    #counts.kmers = kcount(sequence.vec[starts[i]:ends[i]], k = kmer) #using kmer package, better for long windows and short kmers
     counts.kmers = table(unlist(lapply(X = starts[i]:ends[i], FUN = extract.kmers, kmer, sequence.vec))) #using own script, better for short windows and long kmers 
     
     counts.kmers = counts.kmers[!grepl("n", names(counts.kmers))]
