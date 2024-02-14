@@ -36,8 +36,3 @@ collapse_kmers <- function(kmer_counts, kmer_names) {
 # kmer_counts = c(5,12,23,54,72,45,1,43)
 # kmer_names = c("ATCG", "ATCC", "GAGA", "ATCC", "GAGA","ATCC", "GAGA", "GGGG")
 # collapse_kmers(kmer_counts, kmer_names)
-
-collapsed = collapse_kmers(kmer_counts, kmer_names)
-
-
-

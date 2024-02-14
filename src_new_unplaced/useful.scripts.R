@@ -173,7 +173,10 @@ reorder.names.by.chr.etc = function(names.to.reorder = "")
   return(names.to.reorder[new.order])
 }
 
-calc.GC.in.a.window = function(start, sequence, window.size) return(GC(sequence[start:(start+window.size)]))
+
+calc.GC.in.a.window = function(start, sequence, window.size) {
+  return(sum(sequence[start:(start+window.size-1)] %in% c("g", "c", "G", "C")) / window.size / 100)
+}
 
 calculate.GC.in.windows = function(windows.starts, sequence, bin.size = 0)
 {
