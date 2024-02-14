@@ -1,5 +1,4 @@
-collapse_kmers <- function(kmer_counts, kmer_names) {
-  max_edit <- 3
+collapse_kmers <- function(kmer_counts, kmer_names, max_edit = 3, verbose = FALSE) {
 
   kmer_names <- kmer_names[order(kmer_counts, decreasing = FALSE)]
   kmer_counts <- kmer_counts[order(kmer_counts, decreasing = FALSE)]
@@ -8,7 +7,7 @@ collapse_kmers <- function(kmer_counts, kmer_names) {
   collapsed_kmer_names <- list()
   i <- 1
   while (i <= length(kmer_counts)) {
-    print(paste0(i, "/", length(kmer_counts)))
+    if(verbose) print(paste0(i, "/", length(kmer_counts)))
     collapsed_kmers_counts <- c(collapsed_kmers_counts, kmer_counts[i])
     collapsed_kmer_names <- append(collapsed_kmer_names, list(kmer_names[i]))
 

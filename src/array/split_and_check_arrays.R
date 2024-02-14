@@ -1,9 +1,11 @@
-split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repeat) {
+split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repeat, mafft, temp_dir) {
   
   ### Extract kmers and calculate distances ===============================================================
   kmer <- 12
   min_kmers_count = 2
+  max_edit <- 3
   
+  print(paste0("Main kmer list of a sequence length ", length(sequence)))
   kmers_list <- unlist(lapply(X = (start : (end - kmer)), FUN = extract_kmers, kmer, sequence))
   counts_kmers <- table(kmers_list)
   kmer_names <- names(counts_kmers)
@@ -24,9 +26,11 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
   if (length(counts_kmers) == 0) {
     return(NULL)
   }
-
-  collapsed_kmers <- collapse_kmers(counts_kmers, kmer_names)
-
+  
+  print("Collapse kmers")
+  collapsed_kmers <- collapse_kmers(counts_kmers, kmer_names, max_edit, verbose = TRUE)
+  
+  print("Find locations")
   for (i in seq_along(collapsed_kmers)) {
     collapsed_kmers[[i]]$locations <- which(kmers_list %in% collapsed_kmers[[i]]$kmers)
   }
@@ -38,8 +42,13 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
                                         collapsed_kmers[[i]]$locations[1:(length(collapsed_kmers[[i]]$locations)-1)])
     kmer_starts <- c(kmer_starts, collapsed_kmers[[i]]$locations[1:(length(collapsed_kmers[[i]]$locations)-1)])
     distances <- c(distances, collapsed_kmers[[i]]$distances)
+    collapsed_kmers[[i]]$locations = collapsed_kmers[[i]]$locations[collapsed_kmers[[i]]$distances <= max_repeat]
     collapsed_kmers[[i]]$distances = collapsed_kmers[[i]]$distances[collapsed_kmers[[i]]$distances <= max_repeat]
+    collapsed_kmers[[i]]$locations = collapsed_kmers[[i]]$locations[-length(collapsed_kmers[[i]]$locations)]
   }
+  kmer_starts = kmer_starts[distances <= max_repeat]
+  distances = distances[distances <= max_repeat]
+  
   ### =====================================================================================================
 
 
@@ -47,13 +56,16 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
   window_size = max_repeat * 2
   if(window_size < 1000) window_size = 1000
   window_step = 50
+  min_windows_comparison_score_to_detach_array = 0.2
+  min_windows_comparison_score_to_split_array = 0.1
+  array_overlaps = ceiling(max_repeat/2)
+  array_overlaps = 0
+  
+  
   window_starts = NULL
   window_ends = NULL
   window_ends_compare = NULL
-  min_windows_comparison_score_to_detach_array = 0.2
-  min_windows_comparison_score_to_split_array = 0.1
   windows_comparison_score = NULL
-  array_overlaps = ceiling(max_repeat/2)
   array_breaks_coordinates = NULL
   
   if((end - window_size) > start) { # if it's not, windows_comparison_score is not set and arrays are not split
@@ -95,7 +107,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
     # repeats longer than the settings allow for
     arrays = data.frame(start = start, end = end, seqID = seqID, numID = numID, score = mean(windows_comparison_score))
   } else {
-    #attempt splitting and save each array, ALLOW overlaps equal to 1 max repeat size 
+    #attempt splitting and save each array, ALLOW overlaps 
     window_event = "new_top"
     window_event_position = 1
     i = which(windows_comparison_score > min_windows_comparison_score_to_detach_array)[1] + 1
@@ -115,7 +127,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
         i = i + 1
       }
     }
-    if(length(window_event) == 1) {
+    if(length(window_event) <= 2) {
       # no second array found, report as is
       arrays = data.frame(start = start, end = end, seqID = seqID, numID = numID, score = mean(windows_comparison_score))
     } else {
@@ -163,6 +175,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
   arrays$top_5_N = "."
   arrays$representative = ""
   for(i in seq_len(nrow(arrays))) {
+    print(paste0("Array ", i, " / ", nrow(arrays)))
     ## recalculate distances if more than 1 array =============================================
     if(nrow(arrays) != 1) {
       
@@ -187,9 +200,9 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
         next
       }
       
-      collapsed_kmers <- collapse_kmers(counts_kmers, kmer_names)
+      collapsed_kmers <- collapse_kmers(counts_kmers, kmer_names, max_edit)
       for (j in seq_along(collapsed_kmers)) {
-        collapsed_kmers[[j]]$locations <- which(kmers_list %in% collapsed_kmers[[j]]$kmers)
+        collapsed_kmers[[j]]$locations <- which(kmers_list %in% collapsed_kmers[[j]]$kmers) - 1 + arrays$start[i]
       }
       
       distances <- NULL
@@ -199,9 +212,12 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
                                             collapsed_kmers[[j]]$locations[1:(length(collapsed_kmers[[j]]$locations)-1)])
         kmer_starts <- c(kmer_starts, collapsed_kmers[[j]]$locations[1:(length(collapsed_kmers[[j]]$locations)-1)])
         distances <- c(distances, collapsed_kmers[[j]]$distances)
+        collapsed_kmers[[j]]$locations = collapsed_kmers[[j]]$locations[collapsed_kmers[[j]]$distances <= max_repeat]
         collapsed_kmers[[j]]$distances = collapsed_kmers[[j]]$distances[collapsed_kmers[[j]]$distances <= max_repeat]
+        collapsed_kmers[[j]]$locations = collapsed_kmers[[j]]$locations[-length(collapsed_kmers[[j]]$locations)]
       }
-      kmer_starts = kmer_starts - 1 + arrays$start[i]
+      kmer_starts = kmer_starts[distances <= max_repeat]
+      distances = distances[distances <= max_repeat]
     }
     ## ========================================================================================
     
@@ -266,49 +282,47 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
     ## ========================================================================================
     
     ## Identify kmers likely forming the repeat ===============================================
-    # use kmer_starts and distances, find the best max_repeat size window
-    # then, within that window, find the best arrays$top_N[i] size window
-    kmer_hist = hist(kmer_starts[distances %in% top_N_distances], 
-                     breaks = genomic_bins_starts(arrays$start[i], (arrays$end[i] + 2 * max_repeat), bin_size = max_repeat),
-                     plot = FALSE)
-    window_with_representative_start = kmer_hist$breaks[which.max(kmer_hist$counts)]
-    window_with_representative_end = window_with_representative_start + max_repeat - 1
-    
-    window_with_rep_kmer_starts = kmer_starts[kmer_starts >= window_with_representative_start & kmer_starts <= window_with_representative_end]
-    window_with_rep_distances = distances[kmer_starts >= window_with_representative_start & kmer_starts <= window_with_representative_end]
-    
-    window_with_rep_kmer_starts = window_with_rep_kmer_starts[window_with_rep_distances %in% top_N_distances]
-    window_with_rep_distances = window_with_rep_distances[window_with_rep_distances %in% top_N_distances]
-    
-    window_with_rep_kmer_starts = sort(window_with_rep_kmer_starts, decreasing = FALSE)
-    
-    window_hist = hist(window_with_rep_kmer_starts, 
-                       breaks = genomic_bins_starts(window_with_representative_start, (window_with_representative_end + arrays$top_N[i]), bin_size = arrays$top_N[i]),
-                       plot = FALSE)
-    
-    representative_start = window_hist$breaks[which.max(window_hist$counts)]
-    representative_end = representative_start + arrays$top_N[i] - 1
-    
-    arrays$representative[i] = paste(sequence[representative_start : representative_end], collapse = "")
-    
-    ## Identify kmers likely forming the repeat ===============================================
-    # Use the best kmer and extract up to 100 repeats, align and get consensus
-    collapsed_kmers_counts = NULL
-    collapsed_kmers_most_common_distance = NULL
-    for(i in seq_along(collapsed_kmers)) {
-      collapsed_kmers_counts = c(collapsed_kmers_counts, collapsed_kmers[[i]]$count)
-      collapsed_kmers[[i]]$most_common_distance = as.numeric(names(which.max(table(collapsed_kmers[[i]]$distances))))
-      collapsed_kmers_most_common_distance = c(collapsed_kmers_most_common_distance, collapsed_kmers[[i]]$most_common_distance)
+    # Use the best kmer and extract up to 20 repeats, align and get consensus
+    collapsed_kmers_topN_counts = NULL
+    collapsed_kmers_topN_ratio = NULL
+    disttttt = NULL
+    for(j in seq_along(collapsed_kmers)) {
+      disttttt = c(disttttt, collapsed_kmers[[j]]$distances)
+      distances_of_collapsed_kmer = table(collapsed_kmers[[j]]$distances) 
+      collapsed_kmers[[j]]$count_kmers_top_N_distance = sum(distances_of_collapsed_kmer[as.numeric(names(distances_of_collapsed_kmer)) %in% top_N_distances])
+      collapsed_kmers_topN_counts = c(collapsed_kmers_topN_counts, collapsed_kmers[[j]]$count_kmers_top_N_distance)
+      collapsed_kmers_topN_ratio = c(collapsed_kmers_topN_ratio, (collapsed_kmers[[j]]$count_kmers_top_N_distance / collapsed_kmers[[j]]$count))
     }
     
-    kmer_starts[distances %in% top_N_distances]
-    distances[distances %in% top_N_distances]
+    top_kmer = NULL
+    top_kmer = collapsed_kmers[[which.max(collapsed_kmers_topN_counts)]]
+    top_kmer$locations = top_kmer$locations[top_kmer$distances %in% top_N_distances]
+    top_kmer$distances = top_kmer$distances[top_kmer$distances %in% top_N_distances]
     
+    top_kmer_list = NULL
+    for(j in seq_along(top_kmer$locations)) {
+      top_kmer_list = c(top_kmer_list, paste(sequence[top_kmer$locations[j] : (top_kmer$locations[j] + (top_kmer$distances[j] - 1))], collapse = ""))
+    }
+    if(length(top_kmer_list) == 0) {
+      print("No top kmers, check if as intended")
+      next
+    }
+    if(length(top_kmer_list) > 20) top_kmer_list = top_kmer_list[runif(20, 1, length(top_kmer_list))]
+    write.fasta(sequences = as.list(top_kmer_list), file.out = "./test.fasta", names = seq_along(top_kmer_list))
     
+    alignment = NULL
+    consensus = NULL
+    alignment = write_align_read(mafft_exe = mafft, 
+                                 temp_dir = temp_dir, 
+                                 sequences = top_kmer_list, 
+                                 name = paste(seqID, numID, i, sep = "_"))
+    consensus = consensus_N(alignment, arrays$top_N[i])
+    
+    arrays$representative[i] = consensus
     ## ========================================================================================
     
     ## Plot arrays ============================================================================
-    if(T) {
+    if(F) {
       gc_calc_window = 1000
       
       par(mfrow = c(3,1), mar = c(4,4,1,1))
@@ -335,40 +349,16 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
   ### =====================================================================================================
   return(arrays)
 }
+#export.gff(annotations.data.frame = arrays,output = temp_dir, file.name = "arrays.gff", seqid = "Rbrevi_chr1_extr1_edited", start = 1, end = 2, attributes = 6, attribute.names = "Length:")
 #Test
 #test_fasta = read_fasta_and_list("../../testing_fastas/SUPER_15_extraction.fasta")
 #test_fasta = read_fasta_and_list("../../testing_fastas/ath_Chr1_extraction.fasta")
 #test_fasta = read_fasta_and_list("../../testing_fastas/Rbrevi_chr1_extr1_edited.fasta")
 #start = 1
-#sequence = test_fasta[[1]][45000:92000]
+#sequence = test_fasta[[1]]
 #end = length(sequence)
-#window_size = 1000
-#max_repeat = 800
+#window_size = 500
+#max_repeat = 400
+#mafft = "C:/Users/vlothec/Documents/GitHub/TRASH_dev/temp/mafft-7.520-win64-signed/mafft-win/mafft.bat"
+#temp_dir = "../../temp"
 #split_and_check_arrays(1,10000,test_fasta[[1]], "CP068268", 1)
-
-# Split arrays:kmer distances, use colapsed kmers;
-# start with most common kmer, estimate its range
-# (consider locations that are reatively nearby);
-# do the same with each kmer; overlap the kmer ranges;
-# find a bg_range that has the most overlapping ranges;
-# subtract ranges that overlap with the big_range;
-# identify next big_range and so on until no more ranges left;
-# using kmers(BIG_range_1) %in% kmers(BIG_range_1) and
-# by comparing most frequent N, check if they contain
-# the same repeat; if all BIG_ranges contain the same
-# repeat, keep as **simple region**; if there are different
-# repeats, use the initial ranges to split the region into
-# two (or more), but give each of them an overlap (at least
-# N*10 but not more than 10% of each region) so that the
-# edge repeats can be properly identified, assign them as
-# **simple region**; if there are BIG_ranges with more than
-# one repeat, but each of them appearing multiple times (like
-# BIG_range_1, BIG_range_2, BIG_range_1, BIG_range_2), then
-# assign as a **complex region**
-
-# colapsed kmers:
-# start at the most common kmer ->
-# identify all other kmers that are
-# in edit distance 1 to that kmer,
-# merge their locations; move to the
-# next un-merged kmer until the list is over
