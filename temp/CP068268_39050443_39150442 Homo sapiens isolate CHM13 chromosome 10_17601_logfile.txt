@@ -1,0 +1,59 @@
+[1] "started"
+[1] 17601
+[1] 22000
+[1] 1000
+[1] "Main kmer list of a sequence length 4400"
+[1] "Collapse kmers"
+[1] "Find locations"
+[1] "Distances"
+[1] "Breaks"
+[1] "windows_comparison_score"
+ [1] 0.119 0.144 0.144 0.168 0.188 0.194 0.201 0.207 0.206 0.197 0.194 0.189
+[13] 0.199 0.202 0.188 0.189 0.186 0.177 0.169 0.176 0.169 0.130 0.147 0.127
+[25] 0.101 0.107 0.113 0.108 0.115 0.121 0.120 0.106 0.076 0.080 0.068 0.092
+[37] 0.078 0.062 0.070 0.075 0.093 0.073 0.088 0.090 0.091 0.094 0.080 0.080
+[49] 0.083 0.081 0.060 0.046 0.026 0.017 0.015 0.011 0.005 0.004 0.003 0.002
+[61] 0.016 0.018 0.016 0.016 0.000 0.000 0.000 0.000
+[1] "window_events"
+[1] "new_top"    "new_bottom"
+[1]  1 53
+[1] "Arrays done"
+[1] "Array 1 / 1"
+[1] "moving_top_distance: "
+ [1] 999 340 314 314 314 314 688 688 688 688 688 688 688 354 354 354 354 354 354
+[20] 354 354 354 354 172 172 172 172   0   0   0   0   0   0   0   0   0   0   0
+[39]   0   0   0   0   0   0
+[1] "top_N_array"
+
+354 688 172 314 340 999 
+ 10   7   4   4   1   1 
+[1] "arrays"
+  start  end
+1     1 4400
+                                                                seqID numID
+1 CP068268_39050443_39150442 Homo sapiens isolate CHM13 chromosome 10     1
+      score top_N
+1 0.1001471   354
+                                                                   top_5_N
+1 .N_354_Count_10.N_688_Count_7.N_172_Count_4.N_314_Count_4.N_340_Count_1.
+  representative
+1               
+[1] "top_kmer"
+$count
+aaagcactttcacag 
+              9 
+
+$kmers
+[1] "aaagcactttcacag" "aaagcagtttcacag"
+
+$locations
+[1] 2263
+
+$distances
+[1] 354
+
+$count_kmers_top_N_distance
+[1] 1
+
+[1] "top_kmer_list"
+[1] "aaagcagtttcacagatagattctttctattgtttcactggtgtaatttggtttttctccataggcctcaatgggtttcaatatatccctttgcagattctcctaaatgagtgtttctaaccctgcttaatcaaaataaagttttaattctgagagatgaacccacacctcacacaactcacaagggagtttcatgaagacctatgttctagttttgatctcagaatattcagcctttccatataggcctcaaacaactcccaaaagtccctttgcagattctaccaaaagaatgtttctaactttctgaatcaaaagaaagttttaactctgtaagatgaatccacatatcac"

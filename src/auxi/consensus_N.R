@@ -2,11 +2,11 @@
 
 consensus_N = function(alignment, N)
 {
-  alignment.matrix = as.matrix.alignment(alignment)
+  alignment.matrix = seqinr::as.matrix.alignment(alignment)
   
   frequencies = vector(mode = "numeric", length = ncol(alignment.matrix))
   
-  for(i in 1 : length(frequencies))
+  for(i in seq_along(frequencies))
   {
     frequencies[i] = frequencies[i] + sum(1 * (alignment.matrix[,i] != "-"))
   }
@@ -20,7 +20,7 @@ consensus_N = function(alignment, N)
   
   consensus = vector(mode = "logical", length = N)
   consensus.ID = 1
-  for(i in 1 : ncol(alignment.matrix))
+  for(i in seq_len(ncol(alignment.matrix)))
   {
     if(is.in.consensus[i])
     {

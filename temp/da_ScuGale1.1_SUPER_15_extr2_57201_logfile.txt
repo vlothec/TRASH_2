@@ -1,0 +1,5 @@
+[1] "started"
+[1] 57201
+[1] 58300
+[1] 1000
+[1] "Main kmer list of a sequence length 1100"

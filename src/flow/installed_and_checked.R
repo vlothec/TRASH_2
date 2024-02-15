@@ -1,38 +1,52 @@
 installed_and_checked <- function() {
+  suppress_messages <- TRUE
   if (!dir.exists("../R_libs")) {
     dir.create("../R_libs")
   }
   .libPaths(c(.libPaths(), gsub("src", "R_libs", getwd())))
 
-  if (!require("stringr", quietly = TRUE)) {
-    install.packages("stringr", lib = "../R_libs")
+  if (!requireNamespace("stringr", quietly = TRUE)) {
+    install.packages("stringr", lib = "../R_libs", repos = "http://cran.us.r-project.org")
   }
   if (!requireNamespace("stringdist", quietly = TRUE)) {
-    install.packages("stringdist", lib = "../R_libs")
+    install.packages("stringdist", lib = "../R_libs", repos = "http://cran.us.r-project.org")
   }
   if (!requireNamespace("seqinr", quietly = TRUE)) {
-    install.packages("seqinr", lib = "../R_libs")
+    install.packages("seqinr", lib = "../R_libs", repos = "http://cran.us.r-project.org")
   }
   if (!requireNamespace("doParallel", quietly = TRUE)) {
-    install.packages("doParallel", lib = "../R_libs")
+    # install.packages("doParallel", lib = "../R_libs", repos = "http://cran.us.r-project.org")
+    install.packages("doParallel", repos = "http://cran.us.r-project.org") #This needs to be in the main directory for the parallel workers to have access to it I believe
   }
+  # if (!requireNamespace("doSNOW", quietly = TRUE)) {
+  #   install.packages("doSNOW", lib = "../R_libs", repos = "http://cran.us.r-project.org")
+  # }
   if (!requireNamespace("getopt", quietly = TRUE)) {
-    install.packages("getopt", lib = "../R_libs")
+    install.packages("getopt", lib = "../R_libs", repos = "http://cran.us.r-project.org")
   }
   if (!requireNamespace("ape", quietly = TRUE)) {
-    install.packages("ape", lib = "../R_libs")
+    install.packages("ape", lib = "../R_libs", repos = "http://cran.us.r-project.org")
   }
-  if (!require("Biostrings", quietly = TRUE)) {
-    install.packages("BiocManager", lib = "../R_libs")
+  if (!requireNamespace("Biostrings", quietly = TRUE)) {
+    install.packages("BiocManager", lib = "../R_libs", repos = "http://cran.us.r-project.org")
     BiocManager::install("Biostrings")
   }
-  library(stringr, quietly = TRUE, verbose = FALSE)
-  library(stringdist, quietly = TRUE, verbose = FALSE)
-  library(seqinr, quietly = TRUE, verbose = FALSE)
-  library(doParallel, quietly = TRUE, verbose = FALSE)
-  library(getopt, quietly = TRUE, verbose = FALSE)
-  library(ape, quietly = TRUE, verbose = FALSE)
-  library(Biostrings, quietly = TRUE, verbose = FALSE)
-
+  if (suppress_messages) {
+    suppressMessages(library(stringr))
+    suppressMessages(library(stringdist))
+    suppressMessages(library(seqinr))
+    suppressMessages(library(doParallel))
+    suppressMessages(library(getopt))
+    suppressMessages(library(ape))
+    suppressMessages(library(Biostrings))
+  } else {
+    library(stringr)
+    library(stringdist)
+    library(seqinr)
+    library(doParallel)
+    library(getopt)
+    library(ape)
+    library(Biostrings)
+  }
   return(TRUE)
 }

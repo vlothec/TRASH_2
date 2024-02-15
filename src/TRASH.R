@@ -21,9 +21,9 @@ for (i in seq_along(source_files)) {
 
 if (installed_and_checked()) {
   arguments <- parse_arguments(arguments, run_dir)
-  print(arguments)
   main(arguments)
-  print("Exiting 0")
+  print("TRASH exiting 0")
 } else {
-  print("Exiting 1")
+  print("TRASH exiting 1")
 }
+# Rscript TRASH.R -o "C:\Users\vlothec\Documents\GitHub\TRASH_dev\temp" -f "C:\Users\vlothec\Documents\GitHub\TRASH_dev\testing_fastas\ath_Chr1_extraction_trc.fasta"

@@ -2,9 +2,9 @@ export_gff = function(annotations.data.frame = "", output = ".", file.name = "gf
                       seqid = ".", source = ".", type = ".", start = "0", end = "0", score = ".", strand = ".", phase = ".", attributes = ".", 
                       attribute.names = ".") 
 {
-  print("Export gff function")
-  print("GFF function, either add numeric value (or values) for which column(s) contains data, or text string which will be universal for that gff field")
-  print("attribute.names are names added to each attribute as in attributes columns selection")
+  # print("Export gff function")
+  # print("GFF function, either add numeric value (or values) for which column(s) contains data, or text string which will be universal for that gff field")
+  # print("attribute.names are names added to each attribute as in attributes columns selection")
   
   if(!is.data.frame(annotations.data.frame)) stop("Provide a data frame with annotations")
   

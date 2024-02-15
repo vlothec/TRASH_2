@@ -84,8 +84,11 @@ create_table = function(data, headers = NULL, x_offset = 1, y_offset = 0.5, col_
   }
 }
 
-
-
+a = c(1,2,3,4,5,6)
+for(i in which(a > 4)) {
+  print(i)
+  print(a[i])
+}
 
 
 

@@ -1,0 +1,4 @@
+"start","end","seqID","numID","score","top_N","top_5_N","representative"
+1,34450,"SUPER_15_extraction",1,0.913237692307692,123,".N_123,124_Count_197.N_94_Count_123.N_30_Count_23.","tcatcttctaaagagttaatggtactcgattaatcttctaactcaacataaaactaatcgtaactctaagtgtaacgattattgaaaacttgttgaccaagtaaagagttaattgtactcgaa"
+34451,39600,"SUPER_15_extraction",1,0.527529126213592,94,".N_94_Count_1.","aattaactctttgcttggtcaacaagttttcaataatcgttacacttagagttaagaattagttttatattgagttagaagattaatcgagtac"
+44401,101214,"SUPER_15_extraction",1,0.944179744525547,94,".N_94_Count_266.N_123,124_Count_153.N_30_Count_147.","taattgtactcgattaatcttctaactcaatataaaactaattcttaactctaagtgtaacgattattgaaaacttgttgaccaagcaaagagt"

@@ -1,0 +1,64 @@
+[1] "started"
+[1] 23101
+[1] 29700
+[1] 1000
+[1] "Main kmer list of a sequence length 6600"
+[1] "Collapse kmers"
+[1] "Find locations"
+[1] "Distances"
+[1] "Breaks"
+[1] "windows_comparison_score"
+  [1] 0.009 0.018 0.019 0.021 0.028 0.032 0.032 0.033 0.033 0.033 0.033 0.032
+ [13] 0.038 0.040 0.040 0.049 0.050 0.050 0.058 0.050 0.053 0.053 0.056 0.060
+ [25] 0.054 0.036 0.036 0.041 0.040 0.047 0.053 0.052 0.057 0.058 0.058 0.053
+ [37] 0.055 0.058 0.056 0.049 0.054 0.054 0.044 0.052 0.052 0.064 0.070 0.072
+ [49] 0.073 0.087 0.086 0.083 0.079 0.083 0.085 0.104 0.108 0.131 0.127 0.119
+ [61] 0.127 0.127 0.127 0.128 0.136 0.119 0.115 0.107 0.107 0.090 0.087 0.084
+ [73] 0.082 0.086 0.097 0.086 0.071 0.081 0.081 0.085 0.076 0.087 0.090 0.089
+ [85] 0.097 0.089 0.074 0.071 0.071 0.069 0.070 0.070 0.067 0.055 0.031 0.015
+ [97] 0.009 0.009 0.008 0.011 0.007 0.007 0.005 0.000 0.000 0.000 0.000 0.000
+[109] 0.000 0.000 0.000 0.000
+[1] "window_events"
+[1] "new_top"    "new_bottom"
+[1]  1 95
+[1] "Arrays done"
+[1] "Array 1 / 1"
+[1] "moving_top_distance: "
+ [1]   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0   0
+[20]   0   0   0   0   0 516 516 516 171 171 171 171   0 514 514   0   0   0   0
+[39]   0 172 172 172 172 172 172 172 172 518   0   0   0   0   0   0   0   0   0
+[58]   0   0   0   0   0   0   0   0   0
+[1] "top_N_array"
+171,172     516     514     518 
+     12       3       2       1 
+[1] "arrays"
+  start  end
+1     1 6600
+                                                                seqID numID
+1 CP068268_39050443_39150442 Homo sapiens isolate CHM13 chromosome 10     1
+       score top_N
+1 0.05848214   171
+                                                         top_5_N representative
+1 .N_171,172_Count_12.N_516_Count_3.N_514_Count_2.N_518_Count_1.               
+[1] "top_kmer"
+$count
+ctctgtgagataaat 
+             10 
+
+$kmers
+[1] "ctctgtgagataaat" "ctctgtgagatgaat"
+
+$locations
+[1] 1029 1716 1888 4616
+
+$distances
+[1] 171 172 172 172
+
+$count_kmers_top_N_distance
+[1] 4
+
+[1] "top_kmer_list"
+[1] "ctctgtgagataaatccacccatcacaaagcagttccatggaatgcttctttctagtttttatctggggatatttgatttttccccatgggcttcaatgggctgcaaatatcccttcacagattatccaaaaaatgtgtttccaacctactgagttaaaagaaaagtttaa" 
+[2] "ctctgtgagatgaatctgcatgtcaaaaagcagtttcacagttagtttctttgtagttttctttgatgggtatcctgtttttccccctaggtctcagtgggctcctaaatatccactagcagattcttcagataaagtttttccaacctgcagattcgatagaaaggtttaa"
+[3] "ctctgtgagatgaatccacccatcacaaagcagtttcacagaaagcttctttccagcttttatctggggatattcattttttcctattaggcctcaataggctccaaaatgtcccttcacagattctacaaaaggagtgtttcctacctactgaattaaggaaaagttttaa"
+[4] "ctctgtgagatgaatttacacatcacaaaggagtttcacagatagcttctttctagtttttatctagtgatattaggcactacaccgttggcctcaatgggtgctcaaacattaattcgcagatcctccaaaaagagtgtttccaacttgctgaatcaaaaaagtagtttaa"

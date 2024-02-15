@@ -1,0 +1,111 @@
+[1] "started"
+[1] 2401
+[1] 6000
+[1] 1000
+[1] "Main kmer list of a sequence length 3600"
+[1] "Collapse kmers"
+[1] "Find locations"
+[1] "Distances"
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 11
+[1] 11
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 3
+[1] 3
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] 3
+[1] 3
+[1] 1
+[1] 1
+[1] 1
+[1] 1
+[1] "Breaks"
+[1] "Arrays creation"
+[1] "Arrays done"
+[1] "Array 1 / 1"
+[1] "moving_top_distance: "
+ [1] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[1] "top_N_array"
+integer(0)
+[1] "arrays"
+  start  end                        seqID numID       score top_N top_5_N
+1     1 3600 da_ScuGale1.1_SUPER_15_extr2     1 0.000796875     0       .
+  representative
+1               
+[1] "top_kmer"
+$count
+aaataaaacaat 
+           2 
+
+$kmers
+[1] "aaataaaacaat"
+
+$locations
+integer(0)
+
+$distances
+integer(0)
+
+$count_kmers_top_N_distance
+[1] 0
+
+[1] "top_kmer_list"
+NULL
+[1] "No top kmers, check if as intended"
+[1] "Out?"
+[1] "Returning arrays"
+  start  end                        seqID numID       score top_N top_5_N
+1  2401 6000 da_ScuGale1.1_SUPER_15_extr2     1 0.000796875     0       .
+  representative
+1               

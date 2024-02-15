@@ -1,0 +1,48 @@
+[1] "started"
+[1] 2201
+[1] 4400
+[1] 1000
+[1] "Main kmer list of a sequence length 2200"
+[1] "Collapse kmers"
+[1] "Find locations"
+[1] "Distances"
+[1] "Breaks"
+[1] "windows_comparison_score"
+ [1] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[1] "Arrays done"
+[1] "Array 1 / 1"
+[1] "moving_top_distance: "
+ [1] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[1] "top_N_array"
+integer(0)
+[1] "arrays"
+  start  end                        seqID numID score top_N top_5_N
+1     1 2200 da_ScuGale1.1_SUPER_15_extr2     1     0     0       .
+  representative
+1               
+[1] "top_kmer"
+$count
+agattagtccttgac 
+              2 
+
+$kmers
+[1] "agattagtccttgac"
+
+$locations
+integer(0)
+
+$distances
+integer(0)
+
+$count_kmers_top_N_distance
+[1] 0
+
+[1] "top_kmer_list"
+NULL
+[1] "No top kmers, check if as intended"
+[1] "Out?"
+[1] "Returning arrays"
+  start  end                        seqID numID score top_N top_5_N
+1  2201 4400 da_ScuGale1.1_SUPER_15_extr2     1     0     0       .
+  representative
+1               

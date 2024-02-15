@@ -1,0 +1,6 @@
+"start","end","seqID","numID","score","top_N","top_5_N","representative"
+2201,4400,"da_ScuGale1.1_SUPER_15_extr2",1,0,0,".",""
+5501,6600,"da_ScuGale1.1_SUPER_15_extr2",1,0,0,".",""
+11001,49200,"da_ScuGale1.1_SUPER_15_extr2",1,0.433059060402685,124,".N_124_Count_351.N_771_Count_2.N_248_Count_1.","caacataaaactaatctgtaactctaagtgtaacgattattgaaaacttgttgaccaagtaaagagttaattgtactcgaatcatcttctaaagagttaatggtactcgattaatcttctaact"
+49201,54800,"da_ScuGale1.1_SUPER_15_extr2",1,0.144787610619469,339,".N_339_Count_8.N_372_Count_8.N_346_Count_7.N_702_Count_6.","agccataagttcttttagatttgatttatgacataagtcaaaagtcaaatagttcggtcaaagcttactaaagctttagtagaagcatcgatttacacttcttaagagttaattgtactcgaataatcttctaaagagttaactgtactcgattaatcttctagctcaggattaaactaatctgtaactctaagtgtaacgattattgaaaacttgttgaccaagtaaagcttgttagaactcttaatgatgtgttccttaacactaattgtccaagttataactagattgaataacttttgttatgaatacgattactatagtcttgtctttgtgttt"
+54801,56100,"da_ScuGale1.1_SUPER_15_extr2",1,0.0514615384615385,3,".N_3_Count_7.","att"

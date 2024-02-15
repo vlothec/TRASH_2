@@ -4,7 +4,7 @@ parse_arguments <- function(arguments, run_dir) {
   spec <- matrix(c(
     "fasta_file", "f", 1, "character", # nolint
     "output_folder", "o", 1, "character",
-    "cores_no", "p", 1, "integer",
+    "cores_no", "p", 2, "integer",
     "max_rep_size", "m", 2, "integer",
     "HOR_templates", "t", 2, "character",
     "max_alignment_length", "l", 2, "integer",
@@ -16,8 +16,6 @@ parse_arguments <- function(arguments, run_dir) {
   ncol = 4, byrow = TRUE)
 
   arg_options <- getopt::getopt(spec)
-
-  print(arg_options)
 
   if (is.null(arg_options$fasta_file)) {
     stop("No fasta file provided, use -f")

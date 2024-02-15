@@ -1,0 +1,124 @@
+[1] "started"
+[1] 30801
+[1] 41800
+[1] 1000
+[1] "Main kmer list of a sequence length 11000"
+[1] "Collapse kmers"
+[1] "Find locations"
+[1] "Distances"
+[1] "Breaks"
+[1] "windows_comparison_score"
+  [1] 0.073 0.091 0.090 0.101 0.101 0.101 0.108 0.102 0.102 0.088 0.085 0.063
+ [13] 0.058 0.047 0.059 0.059 0.052 0.052 0.052 0.050 0.050 0.032 0.032 0.041
+ [25] 0.042 0.045 0.061 0.056 0.056 0.055 0.068 0.062 0.057 0.060 0.060 0.060
+ [37] 0.090 0.108 0.107 0.115 0.119 0.116 0.105 0.116 0.117 0.117 0.106 0.098
+ [49] 0.102 0.106 0.102 0.100 0.090 0.080 0.067 0.067 0.076 0.090 0.081 0.072
+ [61] 0.079 0.079 0.079 0.077 0.088 0.089 0.089 0.093 0.096 0.107 0.074 0.075
+ [73] 0.070 0.063 0.096 0.092 0.071 0.071 0.075 0.069 0.068 0.068 0.067 0.062
+ [85] 0.071 0.067 0.065 0.066 0.065 0.054 0.052 0.043 0.049 0.053 0.064 0.069
+ [97] 0.074 0.075 0.076 0.074 0.068 0.065 0.075 0.075 0.058 0.070 0.073 0.077
+[109] 0.068 0.071 0.061 0.061 0.064 0.059 0.057 0.050 0.050 0.049 0.049 0.054
+[121] 0.051 0.059 0.055 0.057 0.060 0.066 0.063 0.061 0.072 0.081 0.087 0.091
+[133] 0.097 0.091 0.092 0.092 0.099 0.099 0.097 0.098 0.098 0.116 0.102 0.105
+[145] 0.089 0.064 0.062 0.074 0.075 0.063 0.064 0.052 0.068 0.075 0.075 0.072
+[157] 0.093 0.095 0.096 0.087 0.089 0.076 0.090 0.082 0.079 0.070 0.066 0.065
+[169] 0.065 0.060 0.070 0.062 0.061 0.065 0.065 0.069 0.068 0.071 0.074 0.073
+[181] 0.074 0.052 0.051 0.047 0.044 0.042 0.031 0.027 0.015 0.023 0.021 0.016
+[193] 0.006 0.002 0.000 0.000 0.000 0.000 0.000 0.000
+[1] "window_events"
+[1] "new_top"    "new_bottom" "new_top"    "new_bottom"
+[1]   1  22  37 187
+[1] "Arrays done"
+[1] "Array 1 / 2"
+[1] "moving_top_distance: "
+ [1] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+[1] "top_N_array"
+integer(0)
+[1] "arrays"
+  start   end
+1     1  2050
+2  2051 11000
+                                                                seqID numID
+1 CP068268_39050443_39150442 Homo sapiens isolate CHM13 chromosome 10     1
+2 CP068268_39050443_39150442 Homo sapiens isolate CHM13 chromosome 10     1
+       score top_N top_5_N representative
+1 0.07345455     0       .               
+2 0.06908380     0       .               
+[1] "top_kmer"
+$count
+aaaaaaaaaaaaaaa 
+              2 
+
+$kmers
+[1] "aaaaaaaaaaaaaaa"
+
+$locations
+numeric(0)
+
+$distances
+numeric(0)
+
+$count_kmers_top_N_distance
+[1] 0
+
+[1] "top_kmer_list"
+NULL
+[1] "No top kmers, check if as intended"
+[1] "Out?"
+[1] "Array 2 / 2"
+[1] "moving_top_distance: "
+ [1] 171 171 171 171 171 171 171 171 171 173 173 173 173 173 513 513 513 173 513
+[20] 513 171 171 171 171 171 171 171 344 344 344 344 344 344 344 341 341 341 341
+[39] 341 341 170 170 170 170 169 169 169 170 170 169 169 169 169 169 172 172 172
+[58] 172 172 172 172 172 172 172 172 172 172 172 172 172 172 172 172 172 172 172
+[77] 172 510   0   0   0   0   0   0   0   0   0   0   0
+[1] "top_N_array"
+169,170,171,172,173                 344                 341                 513 
+                 59                   7                   6                   5 
+                510 
+                  1 
+[1] "arrays"
+  start   end
+1     1  2050
+2  2051 11000
+                                                                seqID numID
+1 CP068268_39050443_39150442 Homo sapiens isolate CHM13 chromosome 10     1
+2 CP068268_39050443_39150442 Homo sapiens isolate CHM13 chromosome 10     1
+       score top_N
+1 0.07345455     0
+2 0.06908380   171
+                                                                                   top_5_N
+1                                                                                        .
+2 .N_169,170,171,172,173_Count_59.N_344_Count_7.N_341_Count_6.N_513_Count_5.N_510_Count_1.
+  representative
+1               
+2               
+[1] "top_kmer"
+$count
+acaaagaagtttcat 
+             22 
+
+$kmers
+[1] "acaaagaagtttcat" "acaaagcagtttcat" "acaaagctgtttcac" "acaaagtattttcac"
+[5] "acaaatcagtttcac" "acaaagtagtttcac" "acaaagcagtttcac"
+
+$locations
+ [1] 2087 2605 2776 3805 3978 4321 4493 5006 5693 9102
+
+$distances
+ [1] 172 171 172 173 169 172 172 171 172 172
+
+$count_kmers_top_N_distance
+[1] 10
+
+[1] "top_kmer_list"
+ [1] "acaaagcagtttcatggataacttctttctagtttttatcttgggacattacgtttttaccaataggcctccatgggctcttaaatgtaccttccaagattctacaaaaagtgtgcttccaatcttctggatcaaaagaatgatttaatgttatgagatttatccacacatc" 
+ [2] "acaaagtattttcacagatagtgtctttctagtttttaggtggggatatatggtttcaacccatgggcctcaaagggctgccaaatattcctccacagattctccaaaaaaaagttttttcaacctgctgaatcaaaagaggtttcactttgagagatgcatccacacatc"  
+ [3] "acaaagtagtttcacagttagcttctttctagtttttatctgggtatattctgtttttcttcataggcctcaaagagctcccaaatatgtcttcacagattctacaaaaagagtgtttttaacctgcttaatcaaaagaaaggtgaaacactgtgagatgaatccacacatc" 
+ [4] "acaaagtagtttcacagatagcttatttttagtttttatctgtggatatttgttttttttccaatagggttcaataggctcccaaatatcccttcacagattctatagaaagagtgtttaaaacctgttgaataaaaacaaaggtttaactctgtgagatgaatctacacatc"
+ [5] "acaaagcagtttcacaaataacttctttctcgtttttacctggggttatttggtttttcctaataggcctcaaaaggctccgaaatgtgccttcacagattctctaaagagagtgcttcccacctgctgggacaagagaaagtttcatggtgatatgaatccacacatc"    
+ [6] "acaaagaagtttcatagacaacttttttctcgtttttatctggggatgttcaattgttccccataggacacaaagggctccaaaatatccctttgcagattctacaaaaagagtgtttccaacctgatgtatcaacagaatggcttaactctttgagatgaatccacacatc" 
+ [7] "acaaagtagtttcacagatgcttatttctagtttttaatctggggatattcagtttttccccagagacctcaatgggcactgaaatgtccctccacagattctccaaaagaaatgtttcccaccttctgaatcaaaagaaaattttaactctgtgagatgaatccatctatc" 
+ [8] "acaaagtattttcacagatagcttctttcttgttttctctgtagatattttgttttaccccataggcctcaatagactcccaaatgtcccttttcagattcttcaaaaatagtttttccaacttgctgaataaaaagaaaggcttaactctgtgagatgcacccacacatc"  
+ [9] "acaaatcagtttcacagattgcttctttctagtttttatacaaagatattcaatttttccccataggcttcaatgggctcaaaaatgtcccttctcagagtctccaaaaggactgtttccaatatgttaaatcaaacgaaagatttaactctctgagatgaatccacatatc" 
+[10] "acaaagtagtttcacagctagcttctttctagtttatatctagggatattcagttttctttcttaggcctcaatgggttctgaaacgtgcctttgctgagactccaaaatgtgtggttccaatctgctgaatcaacagcaaggtttaactctgtgagatgaattcacacacc" 

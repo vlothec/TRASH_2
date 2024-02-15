@@ -1,0 +1,89 @@
+[1] "started"
+[1] 47301
+[1] 60500
+[1] 1000
+[1] "Main kmer list of a sequence length 13200"
+[1] "Collapse kmers"
+[1] "Find locations"
+[1] "Distances"
+[1] "Breaks"
+[1] "windows_comparison_score"
+  [1] 0.107 0.114 0.111 0.102 0.109 0.099 0.094 0.081 0.082 0.100 0.107 0.112
+ [13] 0.117 0.105 0.098 0.085 0.078 0.082 0.086 0.094 0.102 0.094 0.107 0.097
+ [25] 0.098 0.109 0.121 0.118 0.117 0.109 0.123 0.121 0.114 0.100 0.089 0.095
+ [37] 0.104 0.106 0.092 0.075 0.075 0.085 0.084 0.081 0.076 0.067 0.090 0.094
+ [49] 0.094 0.094 0.088 0.094 0.077 0.079 0.081 0.085 0.074 0.076 0.092 0.092
+ [61] 0.097 0.106 0.125 0.127 0.126 0.126 0.117 0.125 0.125 0.147 0.136 0.131
+ [73] 0.118 0.132 0.124 0.128 0.111 0.106 0.117 0.112 0.115 0.127 0.119 0.120
+ [85] 0.107 0.107 0.103 0.088 0.091 0.110 0.139 0.129 0.112 0.118 0.113 0.112
+ [97] 0.127 0.107 0.103 0.096 0.088 0.093 0.082 0.096 0.097 0.089 0.106 0.107
+[109] 0.112 0.107 0.103 0.108 0.101 0.086 0.103 0.095 0.092 0.087 0.093 0.092
+[121] 0.086 0.081 0.074 0.083 0.098 0.104 0.127 0.146 0.165 0.162 0.149 0.149
+[133] 0.154 0.151 0.139 0.145 0.136 0.164 0.157 0.158 0.152 0.142 0.146 0.131
+[145] 0.153 0.155 0.160 0.176 0.176 0.174 0.179 0.176 0.172 0.204 0.214 0.213
+[157] 0.222 0.210 0.210 0.204 0.203 0.193 0.169 0.144 0.138 0.125 0.113 0.098
+[169] 0.083 0.065 0.051 0.046 0.041 0.025 0.010 0.008 0.005 0.004 0.002 0.000
+[181] 0.001 0.002 0.006 0.016 0.026 0.050 0.051 0.051 0.052 0.055 0.078 0.080
+[193] 0.095 0.093 0.099 0.126 0.136 0.137 0.149 0.141 0.152 0.173 0.191 0.178
+[205] 0.174 0.150 0.151 0.149 0.122 0.118 0.124 0.114 0.115 0.121 0.136 0.138
+[217] 0.115 0.129 0.148 0.177 0.192 0.181 0.186 0.198 0.194 0.186 0.181 0.137
+[229] 0.124 0.129 0.093 0.079 0.062 0.058 0.051 0.035 0.021 0.019 0.005 0.007
+[241] 0.008 0.007 0.000 0.000
+[1] "window_events"
+[1] "new_top"    "new_bottom" "new_top"    "new_bottom"
+[1]   1 174 192 236
+[1] "Arrays done"
+[1] "Array 1 / 2"
+[1] "moving_top_distance: "
+ [1] 172 172 172 172 172 172 512 169 169 169 169 344 172 344 344 172 172 172 172
+[20] 172 172 171 171 171 171 171 171 171 171 171 171 344 344 344 171 171 171 344
+[39] 344 172 172 172 172 172 172 172 172 172 172 172 172 172 172 172 172 171 172
+[58] 172 172 343 172 172 172 172 172 172 172 172 172 172 172 172 172 172 172 172
+[77] 172 172 172 171 171 171 515 515 515 172 172 172 172   0   0   0   0   0   0
+[96]   0   0   0   0
+[1] "top_N_array"
+171,172 343,344     169     515     512 
+     72       9       4       3       1 
+[1] "arrays"
+  start   end
+1     1  9950
+2  9951 13200
+                                                                seqID numID
+1 CP068268_39050443_39150442 Homo sapiens isolate CHM13 chromosome 10     1
+2 CP068268_39050443_39150442 Homo sapiens isolate CHM13 chromosome 10     1
+       score top_N
+1 0.11148889   171
+2 0.09956923     0
+                                                                           top_5_N
+1 .N_171,172_Count_72.N_343,344_Count_9.N_169_Count_4.N_515_Count_3.N_512_Count_1.
+2                                                                                .
+  representative
+1               
+2               
+[1] "top_kmer"
+$count
+ccaaaccactgaatc 
+             25 
+
+$kmers
+[1] "ccaaaccactgaatc" "ccaaactgttgaatc" "ccaaactgctgaatc"
+
+$locations
+[1]  736 1919 2435 2607 5847 7210 8071 8243 9446
+
+$distances
+[1] 172 172 172 171 172 172 172 171 172
+
+$count_kmers_top_N_distance
+[1] 9
+
+[1] "top_kmer_list"
+[1] "ccaaactgctgaatcaaaggaaagatttacctctgagagatgaatacacacatcacaaagcagttgctcagatagctcctttctagtttttatcttaggatgtttgctttttcaccctaggcctcaaagcgcctcaaaatgtcccttctcagatcctacaaaacctgcattt"
+[2] "ccaaactgctgaatcaaaagaaagttttaattttgtgagatgaatgcacacgtcacaaagcagtttctcaaaaaacaactttctagtttttatcagaagatgttttcgttttcaccttaggcctcaataagctcccaaatgtccattcacagaatgtacaaatatactgttt"
+[3] "ccaaactgttgaatcaaaataaaagtttaacacttggagatgaatgcatacatcacaaagcattttctcagatagttcccttctagttttcagcctggaatattcccttttttgccattggcctcaatgggctctgaaatgtccattcacagaatgtacaaaaacagtgttt"
+[4] "ccaaactgttgaatcaaaagaagggtttaacattgtgtatcaatgctcagatcataaagacatatctcagaaaatttctttctagtttttatctgaagatgttttcattttcacaataggcctcaatgtgctctcaaatgtccgttcacagaatgtacacaaacagtgttt" 
+[5] "ccaaaccactgaatccaaagaaacgtttaactctgtgggatgaatgcacaaatcacaaagcggtttcacagattgctttcttctaatttttgtcttgggatactttctttttcaccattggcctcaatgagctcccaaatatccattcacagaatgtacaaaaagagtgttg"
+[6] "ccaaactgctgaatcaacataaagctttaactctgtgagatgaatggacacataacaaagcagtttctcagaaagcttctttcttgttttcatctaaagatattttcttttttaacataggcctccaagtactcccaaatgtccttttgcagattctacaaatacagagttt"
+[7] "ccaaactgctgaatcataagaaatgtttaaatctctgaagtgaatgtacacatcacaaagcagtttctcagaaagcttctttgtagtttttatctgaagatattttctttttcactttaggcctcaatgagctccccaatgtcctttcgccgattctagaaaaacattgttt"
+[8] "ccaaactgctgaatcaaaagaaagtttaactctgtgagatgaaatcatacatcacaaagtggtttctcagaaagcttctttctagtttttatctgaagatgttttctttttcaccataggcctcaatgagctcccaaatgtctattcgcataatttacaaaaacagtgttt" 
+[9] "ccaaactgctgaatcaaaataaaatgttaactctttgagttaaatgtacccattacaaagcaatttctcagaaagcttcactctagtttttatctgaagatacttccttttcaccataggcctcaatattctcccaaatgtttttttcacagattctacaaaaacagtgttt"
