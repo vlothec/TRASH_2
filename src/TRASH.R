@@ -29,4 +29,4 @@ if (installed_and_checked()) {
   print("TRASH exiting 1")
   print(paste0("Time elapsed: ", Sys.time() - timeA))
 }
-# Rscript TRASH.R -o "C:\Users\vlothec\Documents\GitHub\TRASH_dev\temp" -f "C:\Users\vlothec\Documents\GitHub\TRASH_dev\testing_fastas\ath_Chr1_extraction_trc.fasta"
+# Rscript TRASH.R -o "C:\Users\wlodz\Documents\GitHub\TRASH_dev\temp" -f "C:\Users\wlodz\Documents\GitHub\TRASH_dev\testing_fastas\ath_Chr1_extraction_trc.fasta"
