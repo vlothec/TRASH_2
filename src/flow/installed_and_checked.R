@@ -50,3 +50,8 @@ installed_and_checked <- function() {
   }
   return(TRUE)
 }
+# on Windows, to compile and use HMMER, you need to install Cygwin (with what packages), compile HMMER and then use via (source? cygwin terminal?)
+# 1. create a makefile file according to the manual 
+# 2. Edit the file changing the prefix to somewhere it can exist (is it needed?)
+# 3. Run make install
+# nhmmscan   /cygdrive/c/cygwin64/home/vlothec/hmmer

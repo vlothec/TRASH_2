@@ -29,13 +29,12 @@ main <- function(cmd_arguments) {
   if(nrow(repetitive_regions) == 0) stop("No regions with repeats identified")
 
   write.csv(x = repetitive_regions, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_regions.csv")), row.names = FALSE)
+  
   # Split regions into arrays
-  paths <- .libPaths()
   clusterEvalQ(cl, library(doParallel))
-  #arrays <- list()
   print("Identifying individual arrays with repeats")
   # function receives only a snippet of the sequence, and start and end coordinates that are relative to the whole fasta, and those should be used in return values
-  arrays <- foreach (i = 1 : nrow(repetitive_regions), .combine = rbind, .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read")) %dopar% { # nolint
+  arrays <- foreach (i = seq_len(nrow(repetitive_regions)), .combine = rbind, .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read")) %dopar% {
     split_and_check_arrays(start = repetitive_regions$starts[i],
                                   end = repetitive_regions$ends[i],
                                   sequence = fasta_content[[repetitive_regions$numID[i]]][repetitive_regions$starts[i] : repetitive_regions$ends[i]],

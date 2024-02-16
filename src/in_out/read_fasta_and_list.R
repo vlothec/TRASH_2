@@ -10,6 +10,10 @@ read_fasta_and_list <- function(file = "") {
     fasta_full <- list(fasta_full)
     names(fasta_full) <- names.save
     remove(names.save)
+  } else {
+    names.save <- names(fasta_full)
+    for (i in seq_along(names.save)) names.save[i] <- strsplit(names.save[i], split = " ")[[1]][1]
+    names(fasta_full) <- names.save
   }
   return(fasta_full)
 }

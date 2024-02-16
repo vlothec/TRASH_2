@@ -357,45 +357,23 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
       alignment <- write_align_read(mafft_exe = mafft,
                                     temp_dir = temp_dir,
                                     sequences = top_kmer_list,
-                                    name = paste(seqID, numID, i, sep = "_"))
+                                    name = paste(seqID, numID, i, runif(1, 0, 1), sep = "_"))
+
+      # TODO: maybe check internal duplication of the representative, to split if needed. Symmetrically (so AA into A) or assumetrically (ABB into A B and B)
       consensus <- consensus_N(alignment, arrays$top_N[i])
-
       arrays$representative[i] <- consensus
+      remove(top_kmer_list, alignment, consensus)
     }
-  print("Out?")
-    
-    ## ========================================================================================
-
-    ## Plot arrays ============================================================================
-    # if(F) {
-    #   gc_calc_window = 1000
-
-    #   par(mfrow = c(3,1), mar = c(4,4,1,1))
-    #   # plot 1: moving top distance (N)
-    #   plot(x = window_starts[moving_top_distance != 0], y = moving_top_distance[moving_top_distance != 0], pch = 16, 
-    #        ylim = c(0, max_repeat),
-    #        xlim = c(start, end))
-    #   if(length(array_breaks_coordinates) != 0) abline(v = array_breaks_coordinates)
-    #   # plot 2: windows comparison score
-    #   plot(x = window_starts_compare[window_starts_compare > arrays$start[i] & window_starts_compare < arrays$end[i]], 
-    #        y = windows_comparison_score[window_starts_compare > arrays$start[i] & window_starts_compare < arrays$end[i]], pch = 16, 
-    #        ylim = c(0, 1),
-    #        xlim = c(start, end))
-    #   if(length(array_breaks_coordinates) != 0) abline(v = array_breaks_coordinates)
-    #   # plot 3: GC
-    #   window_starts <- genomic_bins_starts(start = arrays$start[i], end = arrays$end[i], bin_size = gc_calc_window)
-    #   gc_track = calculate_GC_in_windows(windows.starts = (window_starts - window_starts[1] + 1), sequence = sequence[arrays$start[i] : arrays$end[i]], bin.size = gc_calc_window)
-    #   plot(x = window_starts, y = gc_track, ylim = c(0,1), pch = 16, xlim = c(start, end))
-    #   if(length(array_breaks_coordinates) != 0) abline(v = array_breaks_coordinates)
-    #   par(mfrow = c(1,1))
-    # }
-    ## ========================================================================================
+  print("Out")
   }
   ### =====================================================================================================
   arrays$start = arrays$start + start_fasta_relative - 1
   arrays$end = arrays$end + start_fasta_relative - 1
   print("Returning arrays")
   print(arrays)
+  remove(start, end, sequence, seqID, numID, max_repeat, mafft, temp_dir, src_dir, kmers_list, counts_kmers, counts_kmers, distances, kmer_starts)
+
+  gc()
   return(arrays)
 }
 #export.gff(annotations.data.frame = arrays,output = temp_dir, file.name = "arrays.gff", seqid = "Rbrevi_chr1_extr1_edited", start = 1, end = 2, attributes = 6, attribute.names = "Length:")

@@ -15,23 +15,8 @@ sequence_window_score <- function(fasta_sequence, window_size) {
   }
   if (length(ends) != length(starts)) ends <- sequence_full_length
 
-  scores <- vector(mode = "numeric", length = length(starts))
-
-  for (i in seq_along(starts)) {
-    kmers = unlist(lapply(X = starts[i] : (ends[i] - kmer), FUN = extract_kmers, kmer, fasta_sequence))
-    counts_kmers <- table(kmers)
-    counts_kmers <- counts_kmers[!grepl("n", names(counts_kmers))]
-    counts_kmers <- counts_kmers[!grepl("N", names(counts_kmers))]
-
-    if (length(counts_kmers) < kmer) {
-      scores[i] <- 100
-      next
-    }
-    total_kmers <- sum(counts_kmers)
-    counts_kmers <- sort(counts_kmers, decreasing = TRUE)
-
-    counts_kmers = unlist(lapply(seq_along(counts_kmers), FUN = function(x, vector) return(sum(vector[1 : x])), counts_kmers))
-    scores[i] <- 100 * (min(which(counts_kmers / total_kmers > fraction_p)) - 1) / (total_kmers) / fraction_p
+  scores <- foreach (i = seq_along(starts), .combine = c, .export = c("extract_kmers", "seq_win_score_int")) %dopar% {
+    seq_win_score_int(1, window_size, kmer, fasta_sequence[starts[i] : ends[i]], fraction_p)
   }
   return(scores)
 }
