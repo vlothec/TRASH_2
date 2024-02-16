@@ -1,12 +1,12 @@
 split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repeat, mafft, temp_dir, src_dir) {
   .libPaths(c(.libPaths(), gsub("src", "R_libs", getwd())))
-  sink(file.path(temp_dir, paste0(seqID, "_", start, "_logfile.txt")))
+  #sink(file.path(temp_dir, paste0(seqID, "_", start, "_logfile.txt")))
   print("started")
   print(start)
   print(end)
   print(max_repeat)
   ### Extract kmers and calculate distances ===============================================================
-  kmer <- 15
+  kmer <- 12
   min_kmers_count <- 2
   max_edit <- 3
 

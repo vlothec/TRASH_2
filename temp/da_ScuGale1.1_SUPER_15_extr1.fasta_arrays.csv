@@ -1,0 +1,6 @@
+"start","end","seqID","numID","score","top_N","top_5_N","representative"
+1,1200,"da_ScuGale1.1_SUPER_15_extr1",1,0.0798,124,".N_124_Count_5.N_30_Count_1.N_94_Count_1.N_343_Count_1.","gttaatggtactcgattaatcttctaacaaaacataaaactaatccgtaactctaagtgtaacgattattgaaaacttgttgaccaagtaaagagttgattgtactcgaatcatcttcgaaaga"
+1201,3300,"da_ScuGale1.1_SUPER_15_extr1",1,0.010547619047619,3,".N_3_Count_6.N_23_Count_3.","cgc"
+8801,10150,"da_ScuGale1.1_SUPER_15_extr1",1,0.0465,3,".N_3_Count_8.N_23_Count_3.","ccg"
+10151,80400,"da_ScuGale1.1_SUPER_15_extr1",1,0.790060455192034,123,".N_123,124_Count_690.N_94_Count_6.N_838_Count_1.","actcgaatcatcttctaaagagttaatggtactcgattaatcttctaactcaacataaaactaatcgtaactctaagtgtaacgattattgaaaacttgttgaccaagtaaagagttaattgt"
+80401,83760,"da_ScuGale1.1_SUPER_15_extr1",1,0.00577611940298507,36,".N_36_Count_8.","ccaccagtccatcttaacatatggtgcttttatggg"

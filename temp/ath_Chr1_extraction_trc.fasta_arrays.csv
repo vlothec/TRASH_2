@@ -1,3 +1,3 @@
 "start","end","seqID","numID","score","top_N","top_5_N","representative"
 2201,3300,"Chr1_extraction_trc",1,0,0,".",""
-11001,22391,"Chr1_extraction_trc",1,0.580490384615385,158,".N_158,159_Count_112.","tagacaacacttatacccattttctcctaaaagaggctaaaaccaacaaaaaattgcttagaagcagtaaatagctttgttagtgtttctatggtcaaaatgtgtcacaatccaatgcatttgactaattataagagttaaagatggattagagtgtt"
+11001,22391,"Chr1_extraction_trc",1,0.580490384615385,158,".N_158,159_Count_112.","tagacaacacttatacccattttctcccaaaagaggctaaaaccaacaaaaaattgcttagaagcagtaaatagctttgttagtgtttctatggtcaaaatgtgtcacaatccaatgcatttgactaattataagagttagagatggattagagtgtt"
