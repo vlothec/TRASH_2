@@ -7,12 +7,14 @@ main <- function(cmd_arguments) {
   # Load fasta
   print(paste0("Loading the fasta file: ", basename(cmd_arguments$fasta_file)))
   fasta_content <- read_fasta_and_list(cmd_arguments$fasta_file)
+  gc()
   # Calculate repeat scores for windows in each sequence
   print("Calculating repeat scores")
   repeat_scores <- list()
   for (i in seq_along(fasta_content)) {
     repeat_scores <- append(repeat_scores, list(sequence_window_score(fasta_content[[i]], window_size))) # nolint par_f
   }
+  gc()
   # Make a regions data frame
 
   print("Identifying regions with high repeat content")
@@ -25,6 +27,7 @@ main <- function(cmd_arguments) {
       repetitive_regions <- rbind(repetitive_regions, regions_of_sequence)
     }
   }
+  gc()
   if(!inherits(repetitive_regions, "data.frame")) stop("No regions with repeats identified")
   if(nrow(repetitive_regions) == 0) stop("No regions with repeats identified")
 
@@ -62,6 +65,7 @@ main <- function(cmd_arguments) {
 
   print("Shifting array representative repeats and comparing to provided templates")
   stopCluster(cl)
+  gc()
 }
 # Functions TODO:
 
