@@ -6,6 +6,7 @@ parse_arguments <- function(arguments, run_dir) {
     "output_folder", "o", 1, "character",
     "cores_no", "p", 2, "integer",
     "max_rep_size", "m", 2, "integer",
+    "min_rep_size", "i", 2, "integer",
     "HOR_templates", "t", 2, "character",
     "max_alignment_length", "l", 2, "integer",
     "HOR_setting_C", "c", 2, "integer",
@@ -31,8 +32,17 @@ parse_arguments <- function(arguments, run_dir) {
     print("No output folder file provided, defaulting to this directory")
     arg_options$output_folder <- run_dir
   }
+  if (!is.null(arg_options$min_rep_size)) {
+    if(arg_options$min_rep_size < 7) {
+      print("TRASH is currently not handling repeats shorter than 7 bp very well,")
+      print("(Especially monomic repeats will not be identified)")
+      print("To facilitate better identification of short repeats,")
+      print("Adjust the -m option to a smaller value")
+    }
+  }
 
   if (is.null(arg_options$max_rep_size)) arg_options$max_rep_size <- 1000
+  if (is.null(arg_options$min_rep_size)) arg_options$min_rep_size <- 7
   if (is.null(arg_options$HOR_templates)) arg_options$HOR_templates <- NULL
   if (is.null(arg_options$cores_no)) arg_options$cores_no <- 1
   if (is.null(arg_options$max_alignment_length)) arg_options$max_alignment_length <- 200000 #This can be increased, but there's no reason to align more than 200k bp of repeats # nolint

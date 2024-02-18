@@ -1,4 +1,2 @@
 "start","end","seqID","numID","score","top_N","top_5_N","representative"
-1,34450,"SUPER_15_extraction",1,0.554319402985075,123,".N_123,124_Count_197.N_94_Count_123.N_30_Count_23.","tcatcttctaaagagttagttgtactcgattaatcttctaactcaacatagatctaatccttaactcaagtttaacgattattgaaaacttgttgaccaagcaaagagttaattgtactcgaa"
-34451,39600,"SUPER_15_extraction",1,0.375446601941748,30,".N_30_Count_20.N_94_Count_20.N_123,124_Count_5.","agttagaagattaatcgagtaccattaact"
-44001,101214,"SUPER_15_extraction",1,0.517410142348754,94,".N_94_Count_268.N_30_Count_161.N_123,124_Count_141.","tagttgtactcgattaatcttctaactcaatataaaactaattcttaactctaagtgtaacgattattgaaaacttgttgaccaagcaaagagt"
+1,101214,"SUPER_15_extraction",1,0.811336649850523,123,"N_123,124_Count_547.N_93,94_Count_348.N_30_Count_68.","ctcaacataaaactaatcgtaactctaagtgtaacgattattgaaaacttgttgaccaagtaaagagttaattgtactcgaatcatcttctaaagagttaatggtactcgattaatcttctaa"

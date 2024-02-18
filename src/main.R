@@ -31,7 +31,7 @@ main <- function(cmd_arguments) {
   if(!inherits(repetitive_regions, "data.frame")) stop("No regions with repeats identified")
   if(nrow(repetitive_regions) == 0) stop("No regions with repeats identified")
 
-  write.csv(x = repetitive_regions, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_regions.csv")), row.names = FALSE)
+  # write.csv(x = repetitive_regions, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_regions.csv")), row.names = FALSE)
   
   # Split regions into arrays
   clusterEvalQ(cl, library(doParallel))
@@ -44,9 +44,11 @@ main <- function(cmd_arguments) {
                                   seqID = repetitive_regions$seqID[i],
                                   numID = repetitive_regions$numID[i],
                                   max_repeat = cmd_arguments$max_rep_size,
+                                  min_repeat = cmd_arguments$min_rep_size,
                                   mafft = "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat",
                                   temp_dir = cmd_arguments$output_folder,
-                                  src_dir = getwd())
+                                  src_dir = getwd(),
+                                  sink_output = FALSE)
   }
   print("Arrays identified, saving the array table")
 

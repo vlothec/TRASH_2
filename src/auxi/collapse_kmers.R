@@ -2,6 +2,13 @@ collapse_kmers <- function(kmer_counts, kmer_names, max_edit = 3, verbose = FALS
 
   kmer_names <- kmer_names[order(kmer_counts, decreasing = FALSE)]
   kmer_counts <- kmer_counts[order(kmer_counts, decreasing = FALSE)]
+  return_list = list()
+  if(max_edit == 0) {
+    for(i in seq_along(kmer_counts)) {
+      return_list[[i]] <- list(count = kmer_counts[i], kmers = kmer_names[[i]])
+    }
+    return(return_list)
+  }
 
   collapsed_kmers_counts <- NULL
   collapsed_kmer_names <- list()
@@ -24,14 +31,9 @@ collapse_kmers <- function(kmer_counts, kmer_names, max_edit = 3, verbose = FALS
     }
     i = i + 1
   }
-  return_list = list()
+  
   for (i in seq_along(collapsed_kmers_counts)) {
     return_list[[i]] <- list(count = collapsed_kmers_counts[i], kmers = collapsed_kmer_names[[i]])
   }
   return(return_list)
 }
-# Test
-# input:seq_along
-# kmer_counts = c(5,12,23,54,72,45,1,43)
-# kmer_names = c("ATCG", "ATCC", "GAGA", "ATCC", "GAGA","ATCC", "GAGA", "GGGG")
-# collapse_kmers(kmer_counts, kmer_names)
