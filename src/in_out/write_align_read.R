@@ -1,4 +1,17 @@
 write_align_read <- function(mafft_exe, temp_dir, sequences, name = "", options = "", seq_names = "") {
+  if (!is.character(mafft_exe)) {
+    stop("mafft_exe is not a character string")
+  }
+  if (!is.character(name)) {
+    stop("name is not a character string")
+  }
+  if (!is.character(options)) {
+    stop("options are not a character string")
+  }
+  if (!is.character(seq_names)) {
+    stop("seq_names are not a character string")
+  }
+
   if (seq_names == "") seq_names <- seq_along(sequences)
 
   if (options == "") options <- "--quiet --retree 2 --inputorder"
