@@ -1,5 +1,4 @@
 sequence_window_score <- function(fasta_sequence, window_size) {
-  # TODO make it in parallel, now it uses lapply
   # TODO check if changing these settings below can make the script work better,
   # although these were optimised
   kmer <- 12
@@ -18,5 +17,6 @@ sequence_window_score <- function(fasta_sequence, window_size) {
   scores <- foreach (i = seq_along(starts), .combine = c, .export = c("extract_kmers", "seq_win_score_int")) %dopar% {
     seq_win_score_int(1, window_size, kmer, fasta_sequence[starts[i] : ends[i]], fraction_p)
   }
+
   return(scores)
 }

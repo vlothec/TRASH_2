@@ -33,7 +33,7 @@ parse_arguments <- function(arguments, run_dir) {
     arg_options$output_folder <- run_dir
   }
   if (!is.null(arg_options$min_rep_size)) {
-    if(arg_options$min_rep_size < 7) {
+    if(arg_options$min_rep_size < 6) {
       print("TRASH is currently not handling repeats shorter than 7 bp very well,")
       print("(Especially monomic repeats will not be identified)")
       print("To facilitate better identification of short repeats,")
@@ -45,7 +45,7 @@ parse_arguments <- function(arguments, run_dir) {
   }
 
   if (is.null(arg_options$max_rep_size)) arg_options$max_rep_size <- 1000
-  if (is.null(arg_options$min_rep_size)) arg_options$min_rep_size <- 7
+  if (is.null(arg_options$min_rep_size)) arg_options$min_rep_size <- 6
   if (is.null(arg_options$templates)) arg_options$templates <- ""
   if (is.null(arg_options$cores_no)) arg_options$cores_no <- 1
   if (is.null(arg_options$max_alignment_length)) arg_options$max_alignment_length <- 200000 #This can be increased, but there's no reason to align more than 200k bp of repeats # nolint

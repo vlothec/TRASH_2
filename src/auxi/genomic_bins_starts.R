@@ -1,7 +1,7 @@
 genomic_bins_starts <- function(start = 1, end = 0, bin_number = 0, bin_size = 0) {
-  if (bin_number > 0 && bin_size > 0) stop("genomic.bins.starts: Use either bin number or bin size")
-  if (bin_number == 0 && bin_size == 0) stop("genomic.bins.starts: Use either bin number or bin size")
-  if (end < start) stop("genomic.bins.starts: End smaller than start will not work too well...")
+  if (bin_number > 0 && bin_size > 0) stop("genomic bins starts: Use either bin number or bin size")
+  if (bin_number == 0 && bin_size == 0) stop("genomic bins starts: Use either bin number or bin size")
+  if (end < start) stop("genomic bins starts: End smaller than start will not work too well...")
   if (bin_size >= end) return(start)
 
   if (bin_number > 0) {

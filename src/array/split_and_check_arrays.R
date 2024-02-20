@@ -1,10 +1,9 @@
-split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repeat, min_repeat, mafft, temp_dir, src_dir, sink_output) {
-  .libPaths(c(.libPaths(), gsub("src", "R_libs", getwd())))
-  if(sink_output) sink(file.path(temp_dir, paste0(seqID, "_", start, "_logfile.txt")))
+split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, max_repeat, min_repeat, mafft, temp_dir, src_dir, sink_output) {
+  #.libPaths(c(.libPaths(), gsub("src", "R_libs", getwd())))
+  sink(file.path(temp_dir, paste0(seqID, "_", arrID, "_logfile.txt")))
   print("==========================================================================")
   print(start)
   print(end)
-  print(max_repeat)
   print(max_repeat)
 
   ### Settings ===========================================================================================
@@ -37,6 +36,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
   print("Breaks")
   window_size <- max_repeat
   if (window_size < 500) window_size <- 500
+  if (window_size > end) window_size = end
   
   window_starts <- NULL
   window_ends <- NULL
@@ -44,7 +44,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
   windows_comparison_score <- NULL
   array_breaks_coordinates <- NULL
 
-  if ((end - max_repeat) > start) { # if it's not, windows_comparison_score is not set and arrays are not split, so else is not needed
+  if ((end - window_size) > start) { # if it's not, windows_comparison_score is not set and arrays are not split, so else is not needed
     window_starts <- genomic_bins_starts(start = start, end = (end - window_size), bin_size = window_step)
     if (length(window_starts) < 2) {
       window_ends <- (end - window_size)
@@ -357,8 +357,9 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, max_repea
   arrays$end = arrays$end + start_fasta_relative - 1
   print("Returning arrays")
   print(arrays[,-ncol(arrays)])
-  remove(start, end, sequence, seqID, numID, max_repeat, min_repeat, mafft, temp_dir, src_dir, kmers_list, counts_kmers, counts_kmers, distances, kmer_starts)
-  if(sink_output) sink()
+  sink()
+  if(!sink_output) file.remove(file.path(temp_dir, paste0(seqID, "_", arrID, "_logfile.txt")))
+  remove(start, end, sequence, seqID, numID, max_repeat, min_repeat, mafft, temp_dir, src_dir, kmers_list, counts_kmers, distances, kmer_starts)
   gc()
   return(arrays)
 }
