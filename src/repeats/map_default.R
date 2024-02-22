@@ -1,0 +1,49 @@
+map_default = function(i, representative, seqID, start, fasta_sequence) {
+
+  repeats_df = NULL
+  max_mismatch = ceiling(nchar(representative) / 5)
+  ## find forward
+  match_fw <- Biostrings::matchPattern(pattern = representative, subject = fasta_sequence, max.mismatch = max_mismatch)
+  if (length(match_fw) > 0) {
+    match_fw = as.data.frame(match_fw)
+    match_fw$strand = "+"
+    match_fw$seqID = seqID
+    match_fw$arrayID = i
+    match_fw$start = match_fw$start + start - 1
+    match_fw$end = match_fw$end + start - 1
+    match_fw$score = adist(representative, match_fw$seq, costs = list(insertions = 1, deletions = 1, substitutions = 1))[1,] / nchar(representative)
+    match_fw$eval = -1
+    repeats_df = rbind(repeats_df, match_fw)
+  }
+
+  ## find reverse
+  match_rev <- Biostrings::matchPattern(pattern = rev_comp_string(representative), subject = fasta_sequence, max.mismatch = max_mismatch)
+  if (length(match_rev) > 0) {
+    match_rev = as.data.frame(match_rev)
+    match_rev$strand = "-"
+    match_rev$seqID = seqID
+    match_rev$arrayID = i
+    match_rev$start = match_rev$start + start - 1
+    match_rev$end = match_rev$end + start - 1
+    match_rev$score = adist(representative, match_rev$seq, costs = list(insertions = 1, deletions = 1, substitutions = 1))[1,] / nchar(representative)
+    match_rev$eval = -1
+    repeats_df = rbind(repeats_df, match_rev)
+  }
+
+  repeats_df = repeats_df[repeats_df$score <= max_mismatch,]
+  repeats_df$score = (1 - repeats_df$score) * 100
+
+  if(inherits(repeats_df, "data.frame")) {
+    repeats_df <- repeats_df[c("seqID", "arrayID", "start", "end", "strand", "score", "eval")]
+    return(repeats_df)
+  } 
+  return(data.frame(seqID = vector(mode = "numeric"),
+                    arrayID = vector(mode = "numeric"),
+                    start = vector(mode = "numeric"),
+                    end = vector(mode = "numeric"),
+                    strand = vector(mode = "character"),
+                    score = vector(mode = "numeric",),
+                    eval = vector(mode = "numeric")))
+  
+  
+}

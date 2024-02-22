@@ -8,7 +8,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
 
   ### Settings ===========================================================================================
   ## Extract kmers 
-  kmer <- 12
+  kmer <- 40
   ## Find breaks 
   window_step <- 50
   min_windows_comparison_score_to_detach_array <- 0.08
@@ -240,6 +240,10 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     kmer_starts <- kmer_starts[distances >= min_repeat]
     distances <- distances[distances >= min_repeat]
 
+    { # add reverse distances
+      kmer_starts_2 = kmer_starts + distances
+    }
+
     ## Find N using kmer distances ============================================================
     window_starts <- genomic_bins_starts(start = arrays$start[i], end = arrays$end[i], bin_size = small_window_step_for_N_count)
 
@@ -255,14 +259,14 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     moving_top_distance <- vector(length = length(window_starts), mode = "numeric")
 
     for (j in seq_along(window_starts)) {
-      which_distances <- (kmer_starts >= window_starts[j] & kmer_starts <= window_ends[j])
+      which_distances <- (kmer_starts >= window_starts[j] & kmer_starts <= window_ends[j]) | (kmer_starts_2 >= window_starts[j] & kmer_starts_2 <= window_ends[j])
       if (sum(which_distances) > small_window_min_percentage_of_distances) {
         moving_top_distance[j] <- as.numeric(names(which.max(table(distances[which_distances]))))
       }
     }
-    if (length(moving_top_distance) > 1000) {
-    print("moving top distances top 1000")
-    print(moving_top_distance[1:1000])
+    if (length(moving_top_distance) > 4000) {
+    print("moving top distances top 4000")
+    print(moving_top_distance[1:4000])
     } else {
       print("moving top distances")
       print(moving_top_distance)
@@ -324,6 +328,8 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
 
     print("top_kmer")
     print(top_kmer)
+
+    arrays$top_N[i] = floor(median(top_kmer$distances))
 
     top_kmer_list <- NULL
     for (j in seq_along(top_kmer$locations)) {

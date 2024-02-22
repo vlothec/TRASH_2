@@ -1,21 +1,25 @@
 main <- function(cmd_arguments) {
   cat("TRASH: workspace initialised\n")
-  ### Start workers =============================================================================================
+
+  ### 01 / 14 Start workers =============================================================================================
   cl <- makeCluster(cmd_arguments$cores_no)
   registerDoParallel(cl)
   foreach (i = 1 : getDoParWorkers()) %dopar% sink() # brings output back to the console
 
-  ### Settings ==================================================================================================
+  ### 02 / 14 Settings ==================================================================================================
   window_size <- ceiling(cmd_arguments$max_rep_size * 1.1)
   max_eval = 0.001
+  use_adist_scores = TRUE # using nhmmer, recalculate scores for consistency with other methods
+  fix_overlaps = TRUE
+  fix_gaps = TRUE
 
-  ### Load fasta ================================================================================================
+  ### 03 / 14 Load fasta ================================================================================================
   cat(paste0(" Loading the fasta file: ", basename(cmd_arguments$fasta_file), "\n"))
   fasta_content <- read_fasta_and_list(cmd_arguments$fasta_file)
   gc()
 
-  ### Calculate repeat scores for each sequence =================================================================
-  cat(" Calculating repeat scores for each sequence\n") # TODO: somewhere on region/array identification step there's a problem with edge telomeric repeats  
+  ### 04 / 14 Calculate repeat scores for each sequence =================================================================
+  cat(" Calculating repeat scores for each sequence\n")
   cat("################################################################################\n")
   pb <- txtProgressBar(min = 0, max = length(fasta_content), style = 1)
   repeat_scores <- list()
@@ -26,7 +30,7 @@ main <- function(cmd_arguments) {
   close(pb)
   gc()
 
-  ### Identify regions with high repeat content and merge into a df =============================================
+  ### 05 / 14 Identify regions with high repeat content and merge into a df =============================================
   cat(" Identifying regions with high repeat content\n")
   repetitive_regions <- data.frame(starts = NULL, ends = NULL, scores = NULL, seqID = NULL, numID = NULL)
   for (i in seq_along(repeat_scores)) {
@@ -40,7 +44,7 @@ main <- function(cmd_arguments) {
   if(!inherits(repetitive_regions, "data.frame")) stop("No regions with repeats identified")
   if(nrow(repetitive_regions) == 0) stop("No regions with repeats identified")
 
-  ### Split regions into arrays =================================================================================
+  ### 06 / 14 Split regions into arrays =================================================================================
   cat(" Identifying individual arrays with repeats\n")
   cat("################################################################################\n")
   region_sizes = repetitive_regions$ends - repetitive_regions$starts
@@ -48,9 +52,7 @@ main <- function(cmd_arguments) {
   pb <- txtProgressBar(min = 0, max = 1, style = 1)
   arrays <- foreach (i = seq_len(nrow(repetitive_regions)),
                      .combine = rbind,
-                     #.packages = c("foreach", "iterators", "parallel"),
                      .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read")) %dopar% {
-    #sink()
     out = split_and_check_arrays(start = repetitive_regions$starts[i],
                                   end = repetitive_regions$ends[i],
                                   sequence = fasta_content[[repetitive_regions$numID[i]]][repetitive_regions$starts[i] : repetitive_regions$ends[i]],
@@ -62,19 +64,82 @@ main <- function(cmd_arguments) {
                                   mafft = "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat",
                                   temp_dir = cmd_arguments$output_folder,
                                   src_dir = getwd(),
-                                  sink_output = FALSE)
+                                  sink_output = TRUE)
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
     return(out)
   }
   close(pb)
   gc()
 
-  ### Save array output =========================================================================================
-  cat(" Arrays identified, saving the array table\n") #TODO: move the save to the end of the script and add additional info about the arrays
+  ### 07 / 14 Shift representative repeats and apply templates ==========================================================
+  cat(" Shifting array representative repeats and comparing to provided templates\n")
+  arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = "shift_and_compare") %dopar% {
+    shift_and_compare(arrays$representative[i], cmd_arguments$templates) #TODO: make it
+  }
+
+  ### 08 / 14 Map repeats ===============================================================================================
+  cat(" Mapping the array representative to the array\n")
+  cat("################################################################################\n")
+  array_sizes = arrays$end - arrays$start
+  progress_values = array_sizes / sum(array_sizes)
+  pb <- txtProgressBar(style = 1)
+  repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
+    if(arrays$representative[i] == "") {
+      setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+      gc()
+      return(data.frame(seqID = vector(mode = "numeric"),
+                        arrayID = vector(mode = "numeric"),
+                        start = vector(mode = "numeric"),
+                        end = vector(mode = "numeric"),
+                        strand = vector(mode = "character"),
+                        score = vector(mode = "numeric",),
+                        eval = vector(mode = "numeric")))
+    }
+    if(arrays$top_N[i] >= 14) {
+    ## nhmmer for repeats of 14+ bp =========================================
+      repeats_df = map_nhmmer(cmd_arguments$output_folder, i, arrays$representative[i], arrays$seqID[i], arrays$start[i], 
+                              arrays$end[i], fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], use_adist_scores)
+    } else {
+    ## matchpattern for shorter =============================================
+      repeats_df = map_default(i, arrays$representative[i], arrays$seqID[i], arrays$start[i], paste(fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], collapse = ""))
+    }
+    ## add width ============================================================
+    repeats_df$width = repeats_df$end - repeats_df$start + 1
+    ## handle overlaps and gaps =============================================
+    if(fix_overlaps && (nrow(repeats_df) > 1)) repeats_df = handle_overlaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
+    if(fix_gaps && (nrow(repeats_df) > 1)) repeats_df = handle_gaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
+  
+    gc()
+    setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+    return(repeats_df)
+  }
+  close(pb)
+
+  ### 09 / 14 Filter out low eval score repeats =========================================================================
+  # repeats = repeats[repeats$eval <= max_eval,] # not good for short repeats
+
+  ### 10 / 14 ===========================================================================================================
+
+  ### 11 / 14 Summarise array information ===============================================================================
+  arrays$repeats_number = 0
+  arrays$median_repeat_width = 0
+  arrays$median_score = -1
+
+  for (i in seq_len(nrow(arrays))) {
+    repeats_temp = repeats[repeats$arrayID == i,]
+    if(nrow(repeats_temp) > 0) {
+      arrays$repeats_number[i] <- nrow(repeats_temp)
+      arrays$median_repeat_width[i] <- ceiling(median(repeats_temp$width))
+      if(use_adist_scores) arrays$median_score[i] <- ceiling(median(repeats_temp$score))
+    }
+  }
+
+  ### 12 / 14 Save array output =========================================================================================
+  cat(" Saving the array table\n") #TODO: move the save to the end of the script and add additional info about the arrays
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE)
   export_gff(annotations.data.frame = arrays,
              output = cmd_arguments$output_folder, 
-             file.name = basename(cmd_arguments$fasta_file), 
+             file.name = paste0(basename(cmd_arguments$fasta_file), "_arrays"), 
              source = "TRASH",
              type = "Satellite_array", 
              seqid = 3, 
@@ -83,64 +148,10 @@ main <- function(cmd_arguments) {
              score = 5,
              attributes = 6, 
              attribute.names = "Name=")
-  ### Shift representative repeats and apply templates ==========================================================
-  cat(" Shifting array representative repeats and comparing to provided templates\n")
-  arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = "shift_and_compare") %dopar% {
-    shift_and_compare(arrays$representative[i], cmd_arguments$templates) #TODO: write it
-  }
 
-  ### Map repeats ===============================================================================================
-  cat(" Mapping the array representative to the array using nhmmer\n") # TODO: extract this into a single function
-  cat("################################################################################\n")
-  array_sizes = arrays$end - arrays$start
-  progress_values = array_sizes / sum(array_sizes)
-  pb <- txtProgressBar(style = 1)
-  repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("read_and_format_nhmmer", "handle_overlaps", "export_gff")) %dopar% {
-    if(arrays$representative[i] == "") {
-      setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
-      gc()
-      return(data.frame(seqID = vector(mode = "numeric"),
-                        arrayID = vector(mode = "numeric"),
-                        start = vector(mode = "numeric"),
-                        end = vector(mode = "numeric"),
-                        strand = vector(mode = "character")))
-    }
-    ## export the reference and array sequence ===============================
-    repeat_file = file.path(cmd_arguments$output_folder, paste0("Array_", i, "_repeat.fasta"))
-    array_file = file.path(cmd_arguments$output_folder, paste0("Array_", i, "_sequence.fasta"))
-    seqinr::write.fasta(sequences = arrays$representative[i], names = "reference_repeat", file.out = repeat_file, open = "w")
-    seqinr::write.fasta(sequences = fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], names = arrays$seqID[i], file.out = array_file, open = "w")
-    ## use nhmmer =============================== ============================
-    nhmmer_table_output = file.path(cmd_arguments$output_folder, paste0("nhmmer_", i, "_output.txt"))
-    system(paste("../dep/hmmer/nhmmer.exe", " ", 
-                 "--dna --tblout ", nhmmer_table_output, " ",
-                 repeat_file, " ",
-                 array_file, sep = ""), 
-                 intern = FALSE, wait = TRUE, show.output.on.console = FALSE, ignore.stderr = FALSE, ignore.stdout = TRUE)
-    ## read and parse the output into repeat table ===========================
-    repeats_df <- read_and_format_nhmmer(nhmmer_table_output, arrays$seqID[i], i)
-    if(nrow(repeats_df) != 0) {
-    ## handle overlaps and gaps ==============================================
-      repeats_df = handle_overlaps(repeats_df) # TODO, adjust score by -1 for each modification
-    ## adjust start and end coordinates ======================================
-      repeats_df$start = repeats_df$start + arrays$start[i] - 1
-      repeats_df$end = repeats_df$end + arrays$start[i] - 1
-    }
-    ## remove generated files ================================================
-    file.remove(repeat_file)
-    file.remove(array_file)
-    file.remove(nhmmer_table_output)
-    gc()
-    setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
-    return(repeats_df)
-  }
-  close(pb)
-
-  ### Write output ==============================================================================================
-  cat(" Saving repeats\n")
-  repeats$array_N = arrays$top_N[repeats$arrayID]
-  repeats$score_by_len = repeats$score / repeats$array_N
-  repeats = repeats[repeats$eval <= max_eval,]
+  ### 13 / 14 Save repeat output ========================================================================================
+  cat(" Saving the repeats table\n")
+  write.csv(x = repeats, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_repeats.csv")), row.names = FALSE)
   export_gff(annotations.data.frame = repeats,
              output = cmd_arguments$output_folder, 
              file.name = paste0(basename(cmd_arguments$fasta_file), "_repeats"), 
@@ -150,12 +161,10 @@ main <- function(cmd_arguments) {
              start = 3, 
              end = 4, 
              strand = 5,
-             attributes = c(2,9,7), 
+             attributes = c(2,6,7), 
              attribute.names = c("Array=", "Score=", "Eval="))
-
-  write.csv(x = repeats, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_repeats.csv")), row.names = FALSE)
-  #str(repeats)
-  #str(arrays)
+  
+  ### 14 / 14 Done ======================================================================================================
   stopCluster(cl)
   gc()
 }

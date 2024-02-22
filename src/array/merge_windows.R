@@ -17,7 +17,7 @@ merge_windows <- function(list_of_scores, window_size, sequence_full_length) {
   repetitive_regions <- data.frame(starts = starts[list_of_scores < threshold],
                                    ends = ends[list_of_scores < threshold],
                                    scores = list_of_scores[list_of_scores < threshold])
-
+  
   if (nrow(repetitive_regions) == 0) return(NULL)
 
   i <- 1
