@@ -43,6 +43,11 @@ parse_arguments <- function(arguments, run_dir) {
   if (!dir.exists(arg_options$output_folder)) {
     stop("Specified output folder does not exist")
   }
+  if (!is.null(arg_options$templates)) {
+    if(!file.exists(arg_options$templates)) {
+      stop("Specified template file does not exist")
+    }
+  }
 
   if (is.null(arg_options$max_rep_size)) arg_options$max_rep_size <- 1000
   if (is.null(arg_options$min_rep_size)) arg_options$min_rep_size <- 6

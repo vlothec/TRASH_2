@@ -73,8 +73,18 @@ main <- function(cmd_arguments) {
 
   ### 07 / 14 Shift representative repeats and apply templates ==========================================================
   cat(" Shifting array representative repeats and comparing to provided templates\n")
-  arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = "shift_and_compare") %dopar% {
-    shift_and_compare(arrays$representative[i], cmd_arguments$templates) #TODO: make it
+  if(cmd_arguments$templates != "") {
+    templates = read_fasta_and_list(templates)
+    if(length(templates == 0)) stop("No templates found within the template file")
+  } else templates = ""
+  arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = c("shift_and_compare", "shift_sequence", "compare_circular", "rev_comp_string", "kmer_hash_score")) %dopar% {
+    shift_and_compare(arrays$representative[i], templates) #TODO: make it
+  } # TODO: Consider adding an independent classification after the templates and shifting
+  arrays$class = ""
+  for(i in seq_len(nrow(arrays))) {
+    if(arrays$representative[i] == "_") {arrays$representative[i] = ""; next()}
+    arrays$class[i] = strsplit(arrays$representative[i], split = "_")[[1]][1]
+    arrays$representative[i] = strsplit(arrays$representative[i], split = "_")[[1]][2]
   }
 
   ### 08 / 14 Map repeats ===============================================================================================
