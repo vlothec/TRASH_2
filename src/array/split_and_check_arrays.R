@@ -108,10 +108,10 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
         i <- i + 1
       }
     }
-      print("window_events")
-      print(window_event)
-      print(window_event_position)
-    
+    print("window_events")
+    print(window_event)
+    print(window_event_position)
+
     if (length(window_event) <= 2) {
       # no second array found, report as is
       arrays <- data.frame(start = start, end = end, seqID = seqID, numID = numID, score = mean(windows_comparison_score), top_N = 0, top_5_N = "", representative = "")
@@ -222,6 +222,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     }
 
     ## calculate distances ====================================================================
+    print("Calculate distances")
     distances <- NULL
     kmer_starts <- NULL
     for (j in seq_along(collapsed_kmers)) {
@@ -245,6 +246,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     }
 
     ## Find N using kmer distances ============================================================
+    print("Find N")
     window_starts <- genomic_bins_starts(start = arrays$start[i], end = arrays$end[i], bin_size = small_window_step_for_N_count)
 
     if (length(window_starts) < 2) {
@@ -258,7 +260,8 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
 
     moving_top_distance <- vector(length = length(window_starts), mode = "numeric")
 
-    for (j in seq_along(window_starts)) {
+    for (j in seq_along(window_starts)) { # TODO: this seems to be taking a long time, optimise
+      print(paste0(j, " / ", length(window_starts)))
       which_distances <- (kmer_starts >= window_starts[j] & kmer_starts <= window_ends[j]) | (kmer_starts_2 >= window_starts[j] & kmer_starts_2 <= window_ends[j])
       if (sum(which_distances) > small_window_min_percentage_of_distances) {
         moving_top_distance[j] <- as.numeric(names(which.max(table(distances[which_distances]))))

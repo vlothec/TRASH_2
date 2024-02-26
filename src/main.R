@@ -3,7 +3,8 @@ main <- function(cmd_arguments) {
   # TODO: remove this development settings
   if(Sys.info()['sysname'] == "Windows") {
     mafft_dir = "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat"
-    nhmmer_dir = "../dep/hmmer/nhmmer.exe"
+    # nhmmer_dir = "../dep/hmmer/nhmmer.exe"
+    nhmmer_dir = "C:/cygwin64/home/Piotr Włodzimierz/hmmer/hmmer-3.4/src/nhmmer.exe"
   } else {
     mafft_dir = "mafft"
     nhmmer_dir = "nhmmer"
@@ -74,7 +75,7 @@ sys.status()
                                   mafft = mafft_dir,
                                   temp_dir = cmd_arguments$output_folder,
                                   src_dir = getwd(),
-                                  sink_output = FALSE)
+                                  sink_output = TRUE) # TODO: Extract N calc from array splitting
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
     return(out)
   }
