@@ -329,33 +329,40 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
 
     print("top_kmer")
     print(top_kmer)
-
-    arrays$top_N[i] = floor(median(top_kmer$distances))
-
-    top_kmer_list <- NULL
-    for (j in seq_along(top_kmer$locations)) {
-      top_kmer_list <- c(top_kmer_list, paste(sequence[top_kmer$locations[j] : (top_kmer$locations[j] + (top_kmer$distances[j] - 1))], collapse = ""))
-    }
-    print("top_kmer_list")
     
-    if (length(top_kmer_list) == 0) {
-      print("No top kmers, check if as intended")
-      arrays$representative[i] = ""
+    if(length(top_kmer$distances) > 0) {
+      arrays$top_N[i] = floor(median(top_kmer$distances))
+      
+      top_kmer_list <- NULL
+      for (j in seq_along(top_kmer$locations)) {
+        top_kmer_list <- c(top_kmer_list, paste(sequence[top_kmer$locations[j] : (top_kmer$locations[j] + (top_kmer$distances[j] - 1))], collapse = ""))
+      }
+      print("top_kmer_list")
+      
+      if (length(top_kmer_list) == 0) {
+        print("No top kmers, check if as intended")
+        arrays$representative[i] = ""
+      } else {
+        if (length(top_kmer_list) > max_repeats_to_align) top_kmer_list <- top_kmer_list[runif(max_repeats_to_align, 1, length(top_kmer_list))]
+        
+        alignment <- NULL
+        consensus <- NULL
+        alignment <- write_align_read(mafft_exe = mafft,
+                                      temp_dir = temp_dir,
+                                      sequences = top_kmer_list,
+                                      name = paste(seqID, numID, i, runif(1, 0, 1), sep = "_"))
+        
+        # TODO: maybe check internal duplication of the representative, to split if needed. Symmetrically (so AA into A) or assumetrically (ABB into A B and B)
+        consensus <- consensus_N(alignment, arrays$top_N[i])
+        arrays$representative[i] <- consensus
+        remove(top_kmer_list, alignment, consensus)
+      } 
     } else {
-      if (length(top_kmer_list) > max_repeats_to_align) top_kmer_list <- top_kmer_list[runif(max_repeats_to_align, 1, length(top_kmer_list))]
-
-      alignment <- NULL
-      consensus <- NULL
-      alignment <- write_align_read(mafft_exe = mafft,
-                                    temp_dir = temp_dir,
-                                    sequences = top_kmer_list,
-                                    name = paste(seqID, numID, i, runif(1, 0, 1), sep = "_"))
-
-      # TODO: maybe check internal duplication of the representative, to split if needed. Symmetrically (so AA into A) or assumetrically (ABB into A B and B)
-      consensus <- consensus_N(alignment, arrays$top_N[i])
-      arrays$representative[i] <- consensus
-      remove(top_kmer_list, alignment, consensus)
+      arrays$top_N[i] = 0
+      arrays$representative[i] = ""
     }
+
+    
   print("Out")
   }
 

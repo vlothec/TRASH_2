@@ -74,7 +74,7 @@ sys.status()
                                   mafft = mafft_dir,
                                   temp_dir = cmd_arguments$output_folder,
                                   src_dir = getwd(),
-                                  sink_output = TRUE)
+                                  sink_output = FALSE)
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
     return(out)
   }
@@ -117,7 +117,9 @@ sys.status()
   progress_values = array_sizes / sum(array_sizes)
   pb <- txtProgressBar(style = 1)
   repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
+    sink(file.path(cmd_arguments$output_folder, paste0(i, "_arrray_logfile.txt")))
     if(arrays$representative[i] == "") {
+      sink()
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
       return(data.frame(seqID = vector(mode = "numeric"),
@@ -177,6 +179,7 @@ sys.status()
 
     gc()
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+    sink()
     return(repeats_df)
   }
   close(pb)
