@@ -11,7 +11,7 @@ map_default = function(i, representative, seqID, start, fasta_sequence) {
     match_fw$arrayID = i
     match_fw$start = match_fw$start + start - 1
     match_fw$end = match_fw$end + start - 1
-    match_fw$score = adist(representative, match_fw$seq, costs = list(insertions = 1, deletions = 1, substitutions = 1))[1,] / nchar(representative)
+    match_fw$score = 0
     match_fw$eval = -1
     repeats_df = rbind(repeats_df, match_fw)
   }
@@ -25,13 +25,10 @@ map_default = function(i, representative, seqID, start, fasta_sequence) {
     match_rev$arrayID = i
     match_rev$start = match_rev$start + start - 1
     match_rev$end = match_rev$end + start - 1
-    match_rev$score = adist(representative, match_rev$seq, costs = list(insertions = 1, deletions = 1, substitutions = 1))[1,] / nchar(representative)
+    match_rev$score = 0
     match_rev$eval = -1
     repeats_df = rbind(repeats_df, match_rev)
   }
-
-  repeats_df = repeats_df[repeats_df$score <= max_mismatch,]
-  repeats_df$score = (1 - repeats_df$score) * 100
 
   if(inherits(repeats_df, "data.frame")) {
     repeats_df <- repeats_df[c("seqID", "arrayID", "start", "end", "strand", "score", "eval")]

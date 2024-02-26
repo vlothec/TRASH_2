@@ -1,6 +1,9 @@
 kmer_hash_score = function(kmer) {
   kmer = strsplit(kmer, split = "")[[1]]
-  actg_val = 0 * (hash_single[j] == "A") + 1 * (hash_single[j] == "C") + 2 * (hash_single[j] == "T") + 3 * (hash_single[j] == "G") 
-  hash_val[i] = hash_val[i] + (4 ^ j) * actg_val
-  return(0)
+  hash_val = 0
+  for(i in seq_along(kmer)) {
+    actg_val = 0 * (kmer[i] == "a") + 1 * (kmer[i] == "c") + 2 * (kmer[i] == "t") + 3 * (kmer[i] == "g") 
+    hash_val = hash_val + (4 ^ i) * actg_val
+  }
+  return(hash_val)
 }

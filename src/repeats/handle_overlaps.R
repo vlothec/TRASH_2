@@ -23,7 +23,7 @@ handle_overlaps <- function(repeat_table, overlap_threshold = 0.1, representativ
           repeat_table$overlap_fraction[i + 1] = 0
           repeat_table$score[repeats_to_remove[length(repeats_to_remove)]] = 0
         } else {
-          # truncate both and adjust the score # TODO: consider truncating the one with lower score 
+          # truncate both and adjust the score # TODO: consider truncating the one with lower score or one upstream
           repeat_table$start[i + 1] = repeat_table$start[i + 1] + floor(repeat_table$overlap_with_next[i] / 2)
           repeat_table$score[i + 1] = -1
           repeat_table$eval[i + 1] = -1

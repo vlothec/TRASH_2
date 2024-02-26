@@ -8,7 +8,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
 
   ### Settings ===========================================================================================
   ## Extract kmers 
-  kmer <- 40
+  kmer <- 20
   ## Find breaks 
   window_step <- 50
   min_windows_comparison_score_to_detach_array <- 0.08
@@ -311,7 +311,8 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     }
     
     ## Identify kmers likely forming the repeat ===============================================
-    # Use the best kmer and extract up to 20 repeats, align and get consensus
+    # Use the best kmer and extract up to max_repeats_to_align, align and get consensus
+    max_repeats_to_align <- 35
     collapsed_kmers_topN_counts <- NULL
     collapsed_kmers_topN_ratio <- NULL
     for (j in seq_along(collapsed_kmers)) {
@@ -341,7 +342,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
       print("No top kmers, check if as intended")
       arrays$representative[i] = ""
     } else {
-      if (length(top_kmer_list) > 20) top_kmer_list <- top_kmer_list[runif(20, 1, length(top_kmer_list))]
+      if (length(top_kmer_list) > max_repeats_to_align) top_kmer_list <- top_kmer_list[runif(max_repeats_to_align, 1, length(top_kmer_list))]
 
       alignment <- NULL
       consensus <- NULL

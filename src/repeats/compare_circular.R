@@ -1,5 +1,6 @@
 compare_circular = function(sequence, template) {
   # brute force it with adist to all shifts
+  # TODO: Do it recursive, compare to 4 shifts, choose best, keep going
   string_length <- nchar(sequence)
   start_substrings <- lapply(seq_len(string_length), function(X) substr(sequence, 1, X))
   end_substrings <- lapply(seq_len(string_length), function(X) substr(sequence, (X + 1), string_length))

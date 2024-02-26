@@ -1,4 +1,4 @@
-map_nhmmer = function(output_folder, i, representative, seqID, start, end, fasta_sequence, use_adist_scores = FALSE) {
+map_nhmmer = function(output_folder, i, representative, seqID, start, end, fasta_sequence) {
    ## export the reference and array sequence ===============================
   repeat_file = file.path(output_folder, paste0("Array_", i, "_repeat.fasta"))
   array_file = file.path(output_folder, paste0("Array_", i, "_sequence.fasta"))
@@ -14,13 +14,6 @@ map_nhmmer = function(output_folder, i, representative, seqID, start, end, fasta
   ## read and parse the output into repeat table ===========================
   repeats_df <- read_and_format_nhmmer(nhmmer_table_output, seqID, i)
   if(nrow(repeats_df) != 0) {
-  ## If set, change to edit distance based score ===========================
-    if(use_adist_scores) {
-      repeats_seq = lapply(seq_len(nrow(repeats_df)), function(X) paste0(fasta_sequence[repeats_df$start[X] : repeats_df$end[X]], collapse = "")[[1]])
-      costs = list(insertions = 1, deletions = 1, substitutions = 1)
-      repeats_df$score[repeats_df$strand == "+"] = adist(representative, repeats_seq[repeats_df$strand == "+"], costs)[1,]  / nchar(representative) * 100
-      repeats_df$score[repeats_df$strand == "-"] = adist(rev_comp_string(representative), repeats_seq[repeats_df$strand == "-"])[1,]  / nchar(representative) * 100
-    }
   ## adjust start and end coordinates ======================================
     repeats_df$start = repeats_df$start + start - 1
     repeats_df$end = repeats_df$end + start - 1
