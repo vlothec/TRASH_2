@@ -1,5 +1,13 @@
 main <- function(cmd_arguments) {
   cat("TRASH: workspace initialised\n")
+  # TODO: remove this development settings
+  if(Sys.info()['sysname'] == "Windows") {
+    mafft_dir = "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat"
+    nhmmer_dir = "../dep/hmmer/nhmmer.exe"
+  } else {
+    mafft_dir = "mafft"
+    nhmmer_dir = "nhmmer"
+  }
 
   ### 01 / 14 Start workers =============================================================================================
   cl <- makeCluster(cmd_arguments$cores_no)
@@ -11,7 +19,7 @@ main <- function(cmd_arguments) {
   use_adist_scores = TRUE # using nhmmer, recalculate scores for consistency with other methods
   fix_overlaps = TRUE
   fix_gaps = TRUE
-
+sys.status()
   ### 03 / 14 Load fasta ================================================================================================
   cat(paste0(" 03 / 13 Loading the fasta file: ", basename(cmd_arguments$fasta_file), "\n"))
   cat("################################################################################\n")
@@ -54,6 +62,7 @@ main <- function(cmd_arguments) {
   arrays <- foreach (i = seq_len(nrow(repetitive_regions)),
                      .combine = rbind,
                      .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read")) %dopar% {
+    .libPaths(c(.libPaths(), gsub("src", "R_libs", getwd())))
     out = split_and_check_arrays(start = repetitive_regions$starts[i],
                                   end = repetitive_regions$ends[i],
                                   sequence = fasta_content[[repetitive_regions$numID[i]]][repetitive_regions$starts[i] : repetitive_regions$ends[i]],
@@ -62,10 +71,10 @@ main <- function(cmd_arguments) {
                                   arrID = i,
                                   max_repeat = cmd_arguments$max_rep_size,
                                   min_repeat = cmd_arguments$min_rep_size,
-                                  mafft = "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat",
+                                  mafft = mafft_dir,
                                   temp_dir = cmd_arguments$output_folder,
                                   src_dir = getwd(),
-                                  sink_output = FALSE)
+                                  sink_output = TRUE)
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
     return(out)
   }
@@ -93,12 +102,14 @@ main <- function(cmd_arguments) {
   close(pb)
 
   ### 08 / 14 Classify unclassified =====================================================================================
-  cat(" 08 / 13 Classifying the remaining representative repeats\n")
+  cat(" 08 / 13 Classifying remaining representative repeats\n")
   cat("################################################################################\n")
   arrays = classify_repeats(repeat_df = arrays, 
                             seq_colID = which(names(arrays) == "representative"), 
                             class_colID = which(names(arrays) == "class")) #TODO finish
 
+  
+  write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE) # TODO remove
   ### 09 / 14 Map repeats ===============================================================================================
   cat(" 09 / 13 Mapping the array representative to the array\n")
   cat("################################################################################\n")
@@ -121,7 +132,7 @@ main <- function(cmd_arguments) {
     if(arrays$top_N[i] >= 14) {
     ## nhmmer for repeats of 14+ bp =========================================
       repeats_df = map_nhmmer(cmd_arguments$output_folder, i, arrays$representative[i], arrays$seqID[i], arrays$start[i], 
-                              arrays$end[i], fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]])
+                              arrays$end[i], fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], nhmmer_dir)
     } else {
     ## matchpattern for shorter =============================================
       repeats_df = map_default(i, arrays$representative[i], arrays$seqID[i], arrays$start[i], paste(fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], collapse = ""))
@@ -141,16 +152,20 @@ main <- function(cmd_arguments) {
     }
     ## Recalculate representative ===========================================
     max_repeats_to_align <- 50
-    sample_IDs = seq_len(nrow(repeats_df))
-    if(nrow(repeats_df) > max_repeats_to_align) sample_IDs <- sample(seq_len(nrow(repeats_df)), max_repeats_to_align)
-    repeats_seq = unlist(lapply(sample_IDs, function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")[[1]]))
-    strands = repeats_df$strand[sample_IDs]
-    repeats_seq[which(strands == "-")] = unlist(lapply(repeats_seq[which(strands == "-")], rev_comp_string))
-    alignment <- write_align_read(mafft_exe = "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat",
-                                  temp_dir = cmd_arguments$output_folder,
-                                  sequences = repeats_seq,
-                                  name = paste(arrays$seqID[i], arrays$numID[i], i, runif(1, 0, 1), sep = "_"))
-    arrays$representative[i] <- consensus_N(alignment, arrays$top_N[i])
+    min_repeats_to_recalculate <- 5
+    if(nrow(repeats_df) >= min_repeats_to_recalculate) {
+      sample_IDs = seq_len(nrow(repeats_df))
+      if(nrow(repeats_df) > max_repeats_to_align) sample_IDs <- sample(seq_len(nrow(repeats_df)), max_repeats_to_align)
+      repeats_seq = unlist(lapply(sample_IDs, function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")[[1]]))
+      strands = repeats_df$strand[sample_IDs]
+      repeats_seq[which(strands == "-")] = unlist(lapply(repeats_seq[which(strands == "-")], rev_comp_string))
+      alignment <- write_align_read(mafft_exe = mafft_dir,
+                                    temp_dir = cmd_arguments$output_folder,
+                                    sequences = repeats_seq,
+                                    name = paste(arrays$seqID[i], arrays$numID[i], i, runif(1, 0, 1), sep = "_"))
+      arrays$representative[i] <- consensus_N(alignment, arrays$top_N[i])
+    }
+    
 
     ## If set, change to edit distance based score =========================
     if(use_adist_scores) {

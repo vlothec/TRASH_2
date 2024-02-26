@@ -18,7 +18,7 @@ consensus_N = function(alignment, N)
     is.in.consensus[order(frequencies, decreasing = TRUE)[i]] = TRUE
   }
   
-  consensus = vector(mode = "logical", length = N)
+  consensus = vector(mode = "character", length = N)
   consensus.ID = 1
   for(i in seq_len(ncol(alignment.matrix)))
   {

@@ -14,15 +14,21 @@ write_align_read <- function(mafft_exe, temp_dir, sequences, name = "", options 
 
   if (seq_names == "") seq_names <- seq_along(sequences)
 
-  if (options == "") options <- "--quiet --retree 2 --inputorder"
+  if (options == "") options <- "--retree 2 --inputorder"
 
   seqinr::write.fasta(sequences = as.list(sequences),
                       file.out = file.path(temp_dir, paste0(name, "temp.fasta")),
                       names = seq_names)
-  system(paste(mafft_exe, " ", options, " ",
-               file.path(temp_dir, paste0(name, "temp.fasta")),
-               " > ", file.path(temp_dir, paste0(name, "temp.aligned.fasta")), sep = ""), 
-               intern = FALSE, wait = TRUE, show.output.on.console = FALSE,  ignore.stderr = TRUE, ignore.stdout = TRUE)
+  # system(paste(mafft_exe, " ", options, " ",
+  #              file.path(temp_dir, paste0(name, "temp.fasta")),
+  #              " > ", file.path(temp_dir, paste0(name, "temp.aligned.fasta")), sep = ""),
+  #        intern = FALSE, wait = TRUE, show.output.on.console = FALSE, ignore.stdout = TRUE)
+  system2(command = mafft_exe, 
+          args = paste(options, " ",
+                       file.path(temp_dir, paste0(name, "temp.fasta")),
+                       " > ", file.path(temp_dir, paste0(name, "temp.aligned.fasta")), sep = ""), 
+          wait = TRUE, stdout = TRUE, stderr = TRUE)
+  Sys.sleep(1)
   alignment <- seqinr::read.alignment(file.path(temp_dir, paste0(name, "temp.aligned.fasta")), format = "FASTA", forceToLower = TRUE)
   file.remove(file.path(temp_dir, paste0(name, "temp.fasta")))
   file.remove(file.path(temp_dir, paste0(name, "temp.aligned.fasta")))

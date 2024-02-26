@@ -16,7 +16,7 @@ installed_and_checked <- function() {
   }
   if (!requireNamespace("doParallel", quietly = TRUE)) {
     # install.packages("doParallel", lib = "../R_libs", repos = "http://cran.us.r-project.org")
-    install.packages("doParallel", repos = "http://cran.us.r-project.org") #This needs to be in the main directory for the parallel workers to have access to it I believe
+    install.packages("doParallel", repos = "http://cran.us.r-project.org") #This needs to be in the main directory for the parallel workers to have access to it I believe # TODO: check if true
   }
   # if (!requireNamespace("doSNOW", quietly = TRUE)) {
   #   install.packages("doSNOW", lib = "../R_libs", repos = "http://cran.us.r-project.org")

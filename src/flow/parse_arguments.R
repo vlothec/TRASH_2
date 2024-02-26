@@ -49,7 +49,7 @@ parse_arguments <- function(arguments, run_dir) {
     }
   }
 
-  if (is.null(arg_options$max_rep_size)) arg_options$max_rep_size <- 300
+  if (is.null(arg_options$max_rep_size)) arg_options$max_rep_size <- 1000
   if (is.null(arg_options$min_rep_size)) arg_options$min_rep_size <- 6
   if (is.null(arg_options$templates)) arg_options$templates <- ""
   if (is.null(arg_options$cores_no)) arg_options$cores_no <- 1
