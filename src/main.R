@@ -3,7 +3,7 @@ main <- function(cmd_arguments) {
   cat(Sys.time())
   cat("\n")
   # TODO: remove this development settings
-  if(Sys.info()['sysname'] == "Windows") {
+  if (Sys.info()["sysname"] == "Windows") {
     mafft_dir = "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat"
     # nhmmer_dir = "../dep/hmmer/nhmmer.exe"
     nhmmer_dir = "C:/cygwin64/home/Piotr Włodzimierz/hmmer/hmmer-3.4/src/nhmmer.exe"
@@ -22,7 +22,7 @@ main <- function(cmd_arguments) {
   use_adist_scores = TRUE # using nhmmer, recalculate scores for consistency with other methods
   fix_overlaps = TRUE
   fix_gaps = TRUE
-sys.status()
+
   ### 03 / 14 Load fasta ================================================================================================
   cat(paste0(" 03 / 13 Loading the fasta file: ", basename(cmd_arguments$fasta_file)))
   cat(Sys.time())
