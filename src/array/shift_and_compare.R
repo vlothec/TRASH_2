@@ -15,9 +15,9 @@ shift_and_compare = function(sequence, templates = "") {
       scores[i,] = list(compare_circular(sequence, templates[[i]])) 
     }
     if(max(scores$score) >= score_threshold) {
-        sequence = scores$sequence_shifted[which.max(scores$score)]
-        sequence = paste0(names(templates)[which.max(scores$score)], "_", sequence)
-      }
+      sequence = scores$sequence_shifted[which.max(scores$score)]
+      sequence = paste0(names(templates)[which.max(scores$score)], "_", sequence)
+    }
   } else {
     sequence = paste0("_", sequence)
   }

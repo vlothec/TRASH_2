@@ -8,7 +8,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
 
   ### Settings ===========================================================================================
   ## Extract kmers 
-  kmer <- 20
+  kmer <- 12
   ## Find breaks 
   window_step <- 50
   min_windows_comparison_score_to_detach_array <- 0.08

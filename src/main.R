@@ -2,6 +2,7 @@ main <- function(cmd_arguments) {
   cat("TRASH: workspace initialised                                     ")
   cat(Sys.time())
   cat("\n")
+  cat("################################################################################\n")
   # TODO: remove this development settings
   if(Sys.info()['sysname'] == "Windows") {
     mafft_dir = "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat"
@@ -22,7 +23,8 @@ main <- function(cmd_arguments) {
   use_adist_scores = TRUE # using nhmmer, recalculate scores for consistency with other methods
   fix_overlaps = TRUE
   fix_gaps = TRUE
-sys.status()
+  do_shift_classes <- TRUE
+
   ### 03 / 14 Load fasta ================================================================================================
   cat(paste0(" 03 / 13 Loading the fasta file: ", basename(cmd_arguments$fasta_file)))
   cat(Sys.time())
@@ -114,14 +116,26 @@ sys.status()
   }
   close(pb)
 
-  ### 08 / 14 Classify unclassified =====================================================================================
+  ### 08 / 14 Classify unclassified and shift ===========================================================================
   cat(" 08 / 13 Classifying remaining representative repeats            ")
   cat(Sys.time())
   cat("\n")
   cat("################################################################################\n")
-  arrays = classify_repeats(repeat_df = arrays) #TODO finish
+  arrays = classify_repeats(repeat_df = arrays)
+  ## Shift representatives to match the "most important" one ================
+  if(do_shift_classes) {
+    classes <- unique(arrays$class)
+    classes <- classes[!(classes %in% c(names(templates), "none_identified"))]
+    arrays_t <- foreach (i = seq_along(classes), .combine = rbind, .export = c("shift_classes", "compare_circular", "rev_comp_string")) %dopar% {
+      arrays_class <- arrays[arrays$class == classes[i], ]
+      arrays_class$representative <- shift_classes(arrays_class)
+      return(arrays_class)
+    }
+    arrays <- rbind(arrays_t, arrays[!(arrays$classes %in% classes)])
+    remove(arrays_t)
+  }
 
-  
+
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE) # TODO remove
   ### 09 / 14 Map repeats ===============================================================================================
   cat(" 09 / 13 Mapping the array representative to the array           ")
