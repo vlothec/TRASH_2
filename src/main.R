@@ -119,9 +119,7 @@ sys.status()
   cat(Sys.time())
   cat("\n")
   cat("################################################################################\n")
-  arrays = classify_repeats(repeat_df = arrays, 
-                            seq_colID = which(names(arrays) == "representative"), 
-                            class_colID = which(names(arrays) == "class")) #TODO finish
+  arrays = classify_repeats(repeat_df = arrays) #TODO finish
 
   
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE) # TODO remove
