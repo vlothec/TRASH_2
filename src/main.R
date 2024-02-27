@@ -131,7 +131,7 @@ main <- function(cmd_arguments) {
       arrays_class$representative <- shift_classes(arrays_class)
       return(arrays_class)
     }
-    arrays <- rbind(arrays_t, arrays[!(arrays$classes %in% classes)])
+    arrays <- rbind(arrays_t, arrays[which(arrays$class %in% c(names(templates), "none_identified")), ])
     remove(arrays_t)
   }
 
