@@ -3,7 +3,7 @@ main <- function(cmd_arguments) {
   cat(Sys.time())
   cat("\n")
   # TODO: remove this development settings
-  if (Sys.info()["sysname"] == "Windows") {
+  if(Sys.info()['sysname'] == "Windows") {
     mafft_dir = "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat"
     # nhmmer_dir = "../dep/hmmer/nhmmer.exe"
     nhmmer_dir = "C:/cygwin64/home/Piotr Włodzimierz/hmmer/hmmer-3.4/src/nhmmer.exe"
@@ -22,7 +22,7 @@ main <- function(cmd_arguments) {
   use_adist_scores = TRUE # using nhmmer, recalculate scores for consistency with other methods
   fix_overlaps = TRUE
   fix_gaps = TRUE
-
+sys.status()
   ### 03 / 14 Load fasta ================================================================================================
   cat(paste0(" 03 / 13 Loading the fasta file: ", basename(cmd_arguments$fasta_file)))
   cat(Sys.time())
@@ -134,11 +134,11 @@ main <- function(cmd_arguments) {
   progress_values = array_sizes / sum(array_sizes)
   pb <- txtProgressBar(style = 1)
   repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
-    cat(paste0("Started ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+    #cat(paste0("Started ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
     if(arrays$representative[i] == "") {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+      #cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
       return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
@@ -159,7 +159,7 @@ main <- function(cmd_arguments) {
     if(nrow(repeats_df) == 0) {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+      #cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
       return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
@@ -169,7 +169,7 @@ main <- function(cmd_arguments) {
                         eval = vector(mode = "numeric"),
                         class = vector(mode = "character")))
     }
-    cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+    #cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
     ## add width ============================================================
     repeats_df$width = repeats_df$end - repeats_df$start + 1
     ## handle overlaps ======================================================
@@ -183,12 +183,12 @@ main <- function(cmd_arguments) {
         for (j in seq_len(nrow(repeats_df))) repeats_df$class[j] <- paste0(repeats_df$class[j], "_scattered")
       }
     }
-    cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+    #cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
     ## Return nothing if handle_gaps removed all repeats ====================
     if (nrow(repeats_df) == 0) {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+      #cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
       return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
@@ -214,7 +214,7 @@ main <- function(cmd_arguments) {
       consensus <- consensus_N(alignment, arrays$top_N[i])
       if(length(consensus) != 0) arrays$representative[i] <- consensus
     }
-    cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+    #cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
 
     ## If set, change to edit distance based score =========================
     if(use_adist_scores) {
@@ -223,11 +223,11 @@ main <- function(cmd_arguments) {
       repeats_df$score[repeats_df$strand == "+"] = adist(arrays$representative[i], repeats_seq[repeats_df$strand == "+"], costs)[1,]  / nchar(arrays$representative[i]) * 100
       repeats_df$score[repeats_df$strand == "-"] = adist(rev_comp_string(arrays$representative[i]), repeats_seq[repeats_df$strand == "-"])[1,]  / nchar(arrays$representative[i]) * 100
     }
-    cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+    #cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
 
     gc()
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
-    cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+    #cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
     return(repeats_df)
   }
   close(pb)
