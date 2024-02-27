@@ -1,5 +1,7 @@
 main <- function(cmd_arguments) {
-  cat("TRASH: workspace initialised\n")
+  cat("TRASH: workspace initialised                                     ")
+  cat(Sys.time())
+  cat("\n")
   # TODO: remove this development settings
   if(Sys.info()['sysname'] == "Windows") {
     mafft_dir = "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat"
@@ -22,13 +24,17 @@ main <- function(cmd_arguments) {
   fix_gaps = TRUE
 sys.status()
   ### 03 / 14 Load fasta ================================================================================================
-  cat(paste0(" 03 / 13 Loading the fasta file: ", basename(cmd_arguments$fasta_file), "\n"))
+  cat(paste0(" 03 / 13 Loading the fasta file: ", basename(cmd_arguments$fasta_file)))
+  cat(Sys.time())
+  cat("\n")
   cat("################################################################################\n")
   fasta_content <- read_fasta_and_list(cmd_arguments$fasta_file)
   gc()
 
   ### 04 / 14 Calculate repeat scores for each sequence =================================================================
-  cat(" 04 / 13 Calculating repeat scores for each sequence\n")
+  cat(" 04 / 13 Calculating repeat scores for each sequence             ")
+  cat(Sys.time())
+  cat("\n")
   cat("################################################################################\n")
   pb <- txtProgressBar(min = 0, max = length(fasta_content), style = 1)
   repeat_scores <- list()
@@ -40,7 +46,9 @@ sys.status()
   gc()
 
   ### 05 / 14 Identify regions with high repeat content and merge into a df =============================================
-  cat(" 05 / 13 Identifying regions with high repeat content\n")
+  cat(" 05 / 13 Identifying regions with high repeat content            ")
+  cat(Sys.time())
+  cat("\n")
   cat("################################################################################\n")
   repetitive_regions <- data.frame(starts = NULL, ends = NULL, scores = NULL, seqID = NULL, numID = NULL)
   for (i in seq_along(repeat_scores)) {
@@ -55,7 +63,9 @@ sys.status()
   if(nrow(repetitive_regions) == 0) stop("No regions with repeats identified")
 
   ### 06 / 14 Split regions into arrays =================================================================================
-  cat(" 06 / 13 Identifying individual arrays with repeats\n")
+  cat(" 06 / 13 Identifying individual arrays with repeats              ")
+  cat(Sys.time())
+  cat("\n")
   cat("################################################################################\n")
   region_sizes = repetitive_regions$ends - repetitive_regions$starts
   progress_values = region_sizes / sum(region_sizes)
@@ -83,7 +93,9 @@ sys.status()
   gc()
 
   ### 07 / 14 Shift representative repeats and apply templates ==========================================================
-  cat(" 07 / 13 Shifting array representative repeats and comparing to provided templates\n")
+  cat(" 07 / 13 Shifting representative and comparing templates         ")
+  cat(Sys.time())
+  cat("\n")
   cat("################################################################################\n")
   pb <- txtProgressBar(min = 0, max = nrow(arrays), style = 1)
   if(cmd_arguments$templates != "") {
@@ -103,7 +115,9 @@ sys.status()
   close(pb)
 
   ### 08 / 14 Classify unclassified =====================================================================================
-  cat(" 08 / 13 Classifying remaining representative repeats\n")
+  cat(" 08 / 13 Classifying remaining representative repeats            ")
+  cat(Sys.time())
+  cat("\n")
   cat("################################################################################\n")
   arrays = classify_repeats(repeat_df = arrays, 
                             seq_colID = which(names(arrays) == "representative"), 
@@ -112,7 +126,9 @@ sys.status()
   
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE) # TODO remove
   ### 09 / 14 Map repeats ===============================================================================================
-  cat(" 09 / 13 Mapping the array representative to the array\n")
+  cat(" 09 / 13 Mapping the array representative to the array           ")
+  cat(Sys.time())
+  cat("\n")
   cat("################################################################################\n")
   array_sizes = arrays$end - arrays$start
   progress_values = array_sizes / sum(array_sizes)
@@ -139,6 +155,19 @@ sys.status()
     } else {
     ## matchpattern for shorter =============================================
       repeats_df = map_default(i, arrays$representative[i], arrays$seqID[i], arrays$start[i], paste(fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], collapse = ""))
+    }
+    if(nrow(repeats_df) == 0) {
+      setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+      gc()
+      cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+      return(data.frame(seqID = vector(mode = "numeric"),
+                        arrayID = vector(mode = "numeric"),
+                        start = vector(mode = "numeric"),
+                        end = vector(mode = "numeric"),
+                        strand = vector(mode = "character"),
+                        score = vector(mode = "numeric",),
+                        eval = vector(mode = "numeric"),
+                        class = vector(mode = "character")))
     }
     cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
     ## add width ============================================================
@@ -206,7 +235,9 @@ sys.status()
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE)
 
   ### 11 / 14 Summarise array information ===============================================================================
-  cat(" 11 / 13 Summarising array information\n")
+  cat(" 11 / 13 Summarising array information                           ")
+  cat(Sys.time())
+  cat("\n")
   cat("################################################################################\n")
   arrays$repeats_number = 0
   arrays$median_repeat_width = 0
@@ -222,7 +253,9 @@ sys.status()
   }
 
   ### 12 / 14 Save array output =========================================================================================
-  cat(" 12 / 13 Saving the array table\n")
+  cat(" 12 / 13 Saving the array table                                  ")
+  cat(Sys.time())
+  cat("\n")
   cat("################################################################################\n")
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE)
   export_gff(annotations.data.frame = arrays,
@@ -238,7 +271,9 @@ sys.status()
              attribute.names = "Name=")
 
   ### 13 / 14 Save repeat output ========================================================================================
-  cat(" 13 / 13 Saving the repeats table\n")
+  cat(" 13 / 13 Saving the repeats table                                ")
+  cat(Sys.time())
+  cat("\n")
   cat("################################################################################\n")
   write.csv(x = repeats, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_repeats.csv")), row.names = FALSE)
   export_gff(annotations.data.frame = repeats,
