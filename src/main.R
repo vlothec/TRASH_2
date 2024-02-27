@@ -173,19 +173,19 @@ sys.status()
     ## add width ============================================================
     repeats_df$width = repeats_df$end - repeats_df$start + 1
     ## handle overlaps ======================================================
-    if(fix_overlaps && (nrow(repeats_df) > 1)) repeats_df = handle_overlaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
+    if (fix_overlaps && (nrow(repeats_df) > 1)) repeats_df = handle_overlaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
     ## handle gaps if proper array ==========================================
     repeats_df$class = arrays$class[i]
-    if(fix_gaps && (nrow(repeats_df) > 1)) {
-      if(sum(repeats_df$width) > (((arrays$end[i] - arrays$start[i]) - cmd_arguments$max_rep_size * 2) / 2)) {
+    if (fix_gaps && (nrow(repeats_df) > 1)) {
+      if (sum(repeats_df$width) > (((arrays$end[i] - arrays$start[i]) - cmd_arguments$max_rep_size * 2) / 2)) {
         repeats_df <- handle_gaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
       } else {
-        for(i in seq_len(nrow(repeats_df))) repeats_df$class[i] <- paste0(repeats_df$class[i], "_scattered")
+        for (j in seq_len(nrow(repeats_df))) repeats_df$class[j] <- paste0(repeats_df$class[j], "_scattered")
       }
     }
     cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
     ## Return nothing if handle_gaps removed all repeats ====================
-    if(nrow(repeats_df) == 0) {
+    if (nrow(repeats_df) == 0) {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
       cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
