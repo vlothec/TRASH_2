@@ -312,7 +312,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
       top_N_distances <- as.numeric(top_N_distances)
       arrays$top_N[i] <- floor(mean(top_N_distances))
     }
-    
+
     ## Identify kmers likely forming the repeat ===============================================
     # Use the best kmer and extract up to max_repeats_to_align, align and get consensus
     max_repeats_to_align <- 35
@@ -324,7 +324,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
       collapsed_kmers_topN_counts <- c(collapsed_kmers_topN_counts, collapsed_kmers[[j]]$count_kmers_top_N_distance)
       collapsed_kmers_topN_ratio <- c(collapsed_kmers_topN_ratio, (collapsed_kmers[[j]]$count_kmers_top_N_distance / collapsed_kmers[[j]]$count))
     }
-    
+
     top_kmer <- NULL
     top_kmer <- collapsed_kmers[[which.max(collapsed_kmers_topN_counts)]]
     top_kmer$locations <- top_kmer$locations[top_kmer$distances %in% top_N_distances]
@@ -373,7 +373,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
   arrays$start = arrays$start + start_fasta_relative - 1
   arrays$end = arrays$end + start_fasta_relative - 1
   print("Returning arrays")
-  print(arrays[,-ncol(arrays)])
+  str(arrays)
   sink()
   if(!sink_output) file.remove(file.path(temp_dir, paste0(seqID, "_", arrID, "_logfile.txt")))
   remove(start, end, sequence, seqID, numID, max_repeat, min_repeat, mafft, temp_dir, src_dir, kmers_list, counts_kmers, distances, kmer_starts)

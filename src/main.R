@@ -118,11 +118,11 @@ sys.status()
   progress_values = array_sizes / sum(array_sizes)
   pb <- txtProgressBar(style = 1)
   repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
-    sink(file.path(cmd_arguments$output_folder, paste0(i, "_arrray_logfile.txt")))
+    cat(paste0("Started ", i), file = file.path(cmd_arguments$output_folder, "log_temp.txt"), append = TRUE)
     if(arrays$representative[i] == "") {
-      sink()
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
+      cat(paste0("Finished ", i), file = file.path(cmd_arguments$output_folder, "log_temp.txt"))
       return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
@@ -153,6 +153,20 @@ sys.status()
         for(i in seq_len(nrow(repeats_df))) repeats_df$class[i] <- paste0(repeats_df$class[i], "_scattered")
       }
     }
+    ## Return nothing if handle_gaps removed all repeats ====================
+    if(nrow(repeats_df) == 0) {
+      setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+      gc()
+      cat(paste0("Finished ", i), file = file.path(cmd_arguments$output_folder, "log_temp.txt"))
+      return(data.frame(seqID = vector(mode = "numeric"),
+                        arrayID = vector(mode = "numeric"),
+                        start = vector(mode = "numeric"),
+                        end = vector(mode = "numeric"),
+                        strand = vector(mode = "character"),
+                        score = vector(mode = "numeric",),
+                        eval = vector(mode = "numeric"),
+                        class = vector(mode = "character")))
+    }
     ## Recalculate representative ===========================================
     max_repeats_to_align <- 50
     min_repeats_to_recalculate <- 5
@@ -168,7 +182,6 @@ sys.status()
                                     name = paste(arrays$seqID[i], arrays$numID[i], i, runif(1, 0, 1), sep = "_"))
       arrays$representative[i] <- consensus_N(alignment, arrays$top_N[i])
     }
-    
 
     ## If set, change to edit distance based score =========================
     if(use_adist_scores) {
@@ -180,16 +193,16 @@ sys.status()
 
     gc()
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
-    sink()
+    cat(paste0("Finished ", i), file = file.path(cmd_arguments$output_folder, "log_temp.txt"), append = TRUE)
     return(repeats_df)
   }
   close(pb)
-
   ### 10 / 14 ===========================================================================================================
- 
-
+  write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE)
 
   ### 11 / 14 Summarise array information ===============================================================================
+  cat(" 11 / 13 Summarising array information\n")
+  cat("################################################################################\n")
   arrays$repeats_number = 0
   arrays$median_repeat_width = 0
   arrays$median_score = -1
@@ -204,7 +217,7 @@ sys.status()
   }
 
   ### 12 / 14 Save array output =========================================================================================
-  cat(" 12 / 13 Saving the array table\n") #TODO: move the save to the end of the script and add additional info about the arrays
+  cat(" 12 / 13 Saving the array table\n")
   cat("################################################################################\n")
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE)
   export_gff(annotations.data.frame = arrays,
