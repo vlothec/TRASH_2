@@ -5,6 +5,7 @@ shift_and_compare = function(sequence, templates = "") {
   score_threshold = 0.8
 
   ### Shift =================================================
+  #TODO: fix this for short sequences
   sequence = shift_sequence(sequence)
 
   if(templates != "") {

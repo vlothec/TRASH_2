@@ -1,4 +1,4 @@
-shift_sequence <- function(sequence, k = 8) {
+shift_sequence <- function(sequence, k = 6) {
 
   string_length <- nchar(sequence)
   # extend the sequence to easily extract kmers

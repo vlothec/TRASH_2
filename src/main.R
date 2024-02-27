@@ -93,7 +93,9 @@ main <- function(cmd_arguments) {
   }
   close(pb)
   gc()
-
+  
+  write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE) # TODO remove
+  
   ### 07 / 14 Shift representative repeats and apply templates ==========================================================
   cat(" 07 / 13 Shifting representative and comparing templates         ")
   cat(Sys.time())
@@ -115,7 +117,9 @@ main <- function(cmd_arguments) {
     arrays$representative[i] = strsplit(arrays$representative[i], split = "_")[[1]][2]
   }
   close(pb)
-
+  
+  write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE) # TODO remove
+  
   ### 08 / 14 Classify unclassified and shift ===========================================================================
   cat(" 08 / 13 Classifying remaining representative repeats            ")
   cat(Sys.time())
