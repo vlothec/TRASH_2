@@ -21,13 +21,9 @@ main <- function(cmd_arguments) {
   foreach (i = 1 : getDoParWorkers()) %dopar% sink() # brings output back to the console
 
   if (log_messages != "") {
-    cat("Log messages of file:\n", basename(cmd_arguments$fasta_file), "\n",
+    cat("Log messages of file:  ", basename(cmd_arguments$fasta_file), "\n",
         file = log_messages, append = FALSE)
-    foreach (i = 1 : getDoParWorkers(), .export = c("log_messages")) %dopar% {
-      cat("_Worker_", i, "_initialised_",
-          file = log_messages, append = FALSE)
-    } # Make sure log is working for each worker
-    cat("Time:        ", date(), "\n",
+    cat("\nTime:        ", date(), "\n",
         file = log_messages, append = TRUE)
     cat("Max repeat size: ", cmd_arguments$max_rep_size, "\nMin repeat size: ", cmd_arguments$min_rep_size, "\nTemplates file: ", cmd_arguments$templates, "\nCores number: ", cmd_arguments$cores_no, "\n",
         file = log_messages, append = TRUE)
@@ -185,7 +181,7 @@ main <- function(cmd_arguments) {
   if (log_messages != "") cat("09; map loop\n", file = log_messages, append = TRUE)
   repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
     if (log_messages != "") cat("09; array no ", i, "\n", file = log_messages, append = TRUE)
-    if(arrays$representative[i] == "") {
+    if (arrays$representative[i] == "") {
       if (log_messages != "") cat("09; array no ", i, " no representative\n", file = log_messages, append = TRUE)
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
@@ -219,16 +215,31 @@ main <- function(cmd_arguments) {
                         strand = vector(mode = "character"),
                         score = vector(mode = "numeric",),
                         eval = vector(mode = "numeric"),
+                        width = vector(mode = "numeric"),
                         class = vector(mode = "character")))
     }
-    ## add width ============================================================
+    ## add width and class ============================================================
     repeats_df$width = repeats_df$end - repeats_df$start + 1
+    repeats_df$class = arrays$class[i]
     ## handle overlaps ======================================================
     if (log_messages != "") cat("09; array no ", i, " overlaps\n", file = log_messages, append = TRUE)
     if (fix_overlaps && (nrow(repeats_df) > 1)) repeats_df = handle_overlaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
+    if(nrow(repeats_df) == 0) {
+      if (log_messages != "") cat("09; array no ", i, " no repeats after gaps\n", file = log_messages, append = TRUE)
+      setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+      gc()
+      return(data.frame(seqID = vector(mode = "numeric"),
+                        arrayID = vector(mode = "numeric"),
+                        start = vector(mode = "numeric"),
+                        end = vector(mode = "numeric"),
+                        strand = vector(mode = "character"),
+                        score = vector(mode = "numeric",),
+                        eval = vector(mode = "numeric"),
+                        width = vector(mode = "numeric"),
+                        class = vector(mode = "character")))
+    }
     ## handle gaps if proper array ==========================================
     if (log_messages != "") cat("09; array no ", i, " gaps\n", file = log_messages, append = TRUE)
-    repeats_df$class = arrays$class[i]
     if (fix_gaps && (nrow(repeats_df) > 1)) {
       if (sum(repeats_df$width) > (((arrays$end[i] - arrays$start[i]) - cmd_arguments$max_rep_size * 2) / 2)) {
         repeats_df <- handle_gaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
@@ -249,6 +260,7 @@ main <- function(cmd_arguments) {
                         strand = vector(mode = "character"),
                         score = vector(mode = "numeric",),
                         eval = vector(mode = "numeric"),
+                        width = vector(mode = "numeric"),
                         class = vector(mode = "character")))
     }
     ## Recalculate representative ===========================================
