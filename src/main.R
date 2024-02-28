@@ -14,9 +14,20 @@ main <- function(cmd_arguments) {
   }
 
   ### 01 / 14 Start workers =============================================================================================
+  log_messages <- file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_main_log_file.txt")) #TODO make into a flag
+
   cl <- makeCluster(cmd_arguments$cores_no)
   registerDoParallel(cl)
   foreach (i = 1 : getDoParWorkers()) %dopar% sink() # brings output back to the console
+
+  if (log_messages != "") {
+    cat("Log messages of file:\n", basename(cmd_arguments$fasta_file), "\n",
+        file = log_messages, append = FALSE)
+    cat("Time:        ", date(), "\n",
+        file = log_messages, append = TRUE)
+    cat("Max repeat size: ", cmd_arguments$max_rep_size, "\nMin repeat size: ", cmd_arguments$min_rep_size, "\nTemplates file: ", cmd_arguments$templates, "\nCores number: ", cmd_arguments$cores_no, "\n",
+        file = log_messages, append = TRUE)
+  }
 
   ### 02 / 14 Settings ==================================================================================================
   window_size <- ceiling(cmd_arguments$max_rep_size * 1.1)
@@ -32,6 +43,7 @@ main <- function(cmd_arguments) {
   cat("################################################################################\n")
   fasta_content <- read_fasta_and_list(cmd_arguments$fasta_file)
   gc()
+  if (log_messages != "") cat("03 / 14 \nFasta sizes: ", sapply(fasta_content, length), "\n", file = log_messages, append = TRUE)
 
   ### 04 / 14 Calculate repeat scores for each sequence =================================================================
   cat(" 04 / 13 Calculating repeat scores for each sequence             ")
@@ -41,11 +53,12 @@ main <- function(cmd_arguments) {
   pb <- txtProgressBar(min = 0, max = length(fasta_content), style = 1)
   repeat_scores <- list()
   for (i in seq_along(fasta_content)) {
-    repeat_scores <- append(repeat_scores, list(sequence_window_score(fasta_content[[i]], window_size)))
+    repeat_scores <- append(repeat_scores, list(sequence_window_score(fasta_content[[i]], window_size, log_messages))) # it's parallel
     setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
   }
   close(pb)
   gc()
+  if (log_messages != "") cat("04 / 14 \nFinished scores, length of the list: ", sapply(repeat_scores, length), "\n", file = log_messages, append = TRUE)
 
   ### 05 / 14 Identify regions with high repeat content and merge into a df =============================================
   cat(" 05 / 13 Identifying regions with high repeat content            ")
@@ -64,6 +77,10 @@ main <- function(cmd_arguments) {
   if(!inherits(repetitive_regions, "data.frame")) stop("No regions with repeats identified")
   if(nrow(repetitive_regions) == 0) stop("No regions with repeats identified")
 
+  if (log_messages != "") cat("05 / 14 \nFinished regions, nrow of the regions: ", nrow(repetitive_regions), "\n", file = log_messages, append = TRUE)
+
+  write.csv(x = repetitive_regions, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE) # TODO remove
+
   ### 06 / 14 Split regions into arrays =================================================================================
   cat(" 06 / 13 Identifying individual arrays with repeats              ")
   cat(Sys.time())
@@ -74,7 +91,7 @@ main <- function(cmd_arguments) {
   pb <- txtProgressBar(min = 0, max = 1, style = 1)
   arrays <- foreach (i = seq_len(nrow(repetitive_regions)),
                      .combine = rbind,
-                     .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read")) %dopar% {
+                     .export = c("log_messages", "split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read")) %dopar% {
     .libPaths(c(.libPaths(), gsub("src", "R_libs", getwd())))
     out = split_and_check_arrays(start = repetitive_regions$starts[i],
                                   end = repetitive_regions$ends[i],
@@ -93,33 +110,43 @@ main <- function(cmd_arguments) {
   }
   close(pb)
   gc()
-  
+
+  if (log_messages != "") cat("06 / 14 \nFinished arrays, nrow of the arrays: ", nrow(arrays), "\n", file = log_messages, append = TRUE)
+
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE) # TODO remove
-  
+
   ### 07 / 14 Shift representative repeats and apply templates ==========================================================
   cat(" 07 / 13 Shifting representative and comparing templates         ")
   cat(Sys.time())
   cat("\n")
   cat("################################################################################\n")
   pb <- txtProgressBar(min = 0, max = nrow(arrays), style = 1)
+  if (log_messages != "") cat("07; set templates\n", file = log_messages, append = TRUE)
   if(cmd_arguments$templates != "") {
     templates = read_fasta_and_list(templates)
     if(length(templates == 0)) stop("No templates found within the template file")
-  } else templates = ""
-  arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = c("shift_and_compare", "shift_sequence", "compare_circular", "rev_comp_string", "kmer_hash_score")) %dopar% {
+  } else {
+    templates = ""
+  }
+  if (log_messages != "") cat("07; start representative shift\n", file = log_messages, append = TRUE)
+  arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = c("log_messages", "shift_and_compare", "shift_sequence", "compare_circular", "rev_comp_string", "kmer_hash_score")) %dopar% {
     setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
     return(shift_and_compare(arrays$representative[i], templates))
   }
+  if (log_messages != "") cat("07; finished representative shift\n", file = log_messages, append = TRUE)
   arrays$class = ""
+  if (log_messages != "") cat("07; assigning classes\n", file = log_messages, append = TRUE)
   for(i in seq_len(nrow(arrays))) {
     if(arrays$representative[i] == "_") {arrays$representative[i] = ""; next()}
     arrays$class[i] = strsplit(arrays$representative[i], split = "_")[[1]][1]
     arrays$representative[i] = strsplit(arrays$representative[i], split = "_")[[1]][2]
   }
   close(pb)
-  
+
+  if (log_messages != "") cat("07 / 14 \nFinished representative, nrow of the arrays: ", nrow(arrays), "\n", file = log_messages, append = TRUE)
+
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE) # TODO remove
-  
+
   ### 08 / 14 Classify unclassified and shift ===========================================================================
   cat(" 08 / 13 Classifying remaining representative repeats            ")
   cat(Sys.time())
@@ -130,7 +157,7 @@ main <- function(cmd_arguments) {
   if(do_shift_classes) {
     classes <- unique(arrays$class)
     classes <- classes[!(classes %in% c(names(templates), "none_identified"))]
-    arrays_t <- foreach (i = seq_along(classes), .combine = rbind, .export = c("shift_classes", "compare_circular", "rev_comp_string")) %dopar% {
+    arrays_t <- foreach (i = seq_along(classes), .combine = rbind, .export = c("log_messages", "shift_classes", "compare_circular", "rev_comp_string")) %dopar% {
       arrays_class <- arrays[arrays$class == classes[i], ]
       arrays_class$representative <- shift_classes(arrays_class)
       return(arrays_class)
@@ -139,6 +166,7 @@ main <- function(cmd_arguments) {
     remove(arrays_t)
   }
 
+  if (log_messages != "") cat("08 / 14 \nFinished classifications, nrow of the arrays: ", nrow(arrays), "\n", file = log_messages, append = TRUE)
 
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE) # TODO remove
   ### 09 / 14 Map repeats ===============================================================================================
@@ -149,12 +177,13 @@ main <- function(cmd_arguments) {
   array_sizes = arrays$end - arrays$start
   progress_values = array_sizes / sum(array_sizes)
   pb <- txtProgressBar(style = 1)
-  repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
-    #cat(paste0("Started ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+  if (log_messages != "") cat("09; map loop\n", file = log_messages, append = TRUE)
+  repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("log_messages", "write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
+    if (log_messages != "") cat("09; array no ", i, "\n", file = log_messages, append = TRUE)
     if(arrays$representative[i] == "") {
+      if (log_messages != "") cat("09; array no ", i, " no representative\n", file = log_messages, append = TRUE)
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      #cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
       return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
@@ -166,16 +195,18 @@ main <- function(cmd_arguments) {
     }
     if(arrays $top_N[i] >= 14) {
     ## nhmmer for repeats of 14+ bp =========================================
+      if (log_messages != "") cat("09; array no", i, "nhmmer map run\n", file = log_messages, append = TRUE)
       repeats_df = map_nhmmer(cmd_arguments$output_folder, i, arrays$representative[i], arrays$seqID[i], arrays$start[i], 
                               arrays$end[i], fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], nhmmer_dir)
     } else {
     ## matchpattern for shorter =============================================
+      if (log_messages != "") cat("09; array no ", i, " default map run\n", file = log_messages, append = TRUE)
       repeats_df = map_default(i, arrays$representative[i], arrays$seqID[i], arrays$start[i], paste(fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], collapse = ""))
     }
     if(nrow(repeats_df) == 0) {
+      if (log_messages != "") cat("09; array no ", i, " no repeats found\n", file = log_messages, append = TRUE)
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      #cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
       return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
@@ -185,12 +216,13 @@ main <- function(cmd_arguments) {
                         eval = vector(mode = "numeric"),
                         class = vector(mode = "character")))
     }
-    #cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
     ## add width ============================================================
     repeats_df$width = repeats_df$end - repeats_df$start + 1
     ## handle overlaps ======================================================
+    if (log_messages != "") cat("09; array no ", i, " overlaps\n", file = log_messages, append = TRUE)
     if (fix_overlaps && (nrow(repeats_df) > 1)) repeats_df = handle_overlaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
     ## handle gaps if proper array ==========================================
+    if (log_messages != "") cat("09; array no ", i, " gaps\n", file = log_messages, append = TRUE)
     repeats_df$class = arrays$class[i]
     if (fix_gaps && (nrow(repeats_df) > 1)) {
       if (sum(repeats_df$width) > (((arrays$end[i] - arrays$start[i]) - cmd_arguments$max_rep_size * 2) / 2)) {
@@ -199,12 +231,12 @@ main <- function(cmd_arguments) {
         for (j in seq_len(nrow(repeats_df))) repeats_df$class[j] <- paste0(repeats_df$class[j], "_scattered")
       }
     }
-    #cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
+    if (log_messages != "") cat("09; array no ", i, " gaps done\n", file = log_messages, append = TRUE)
     ## Return nothing if handle_gaps removed all repeats ====================
     if (nrow(repeats_df) == 0) {
+      if (log_messages != "") cat("09; array no ", i, " no repeats after gaps\n", file = log_messages, append = TRUE)
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      #cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
       return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
@@ -215,10 +247,12 @@ main <- function(cmd_arguments) {
                         class = vector(mode = "character")))
     }
     ## Recalculate representative ===========================================
+    if (log_messages != "") cat("09; array no ", i, " representative start\n", file = log_messages, append = TRUE)
     max_repeats_to_align <- 50
     min_repeats_to_recalculate <- 5
     sample_IDs = which(repeats_df$strand != ".")
     if(length(sample_IDs) >= min_repeats_to_recalculate) {
+      if (log_messages != "") cat("09; array no ", i, " representative calculate\n", file = log_messages, append = TRUE)
       if(length(sample_IDs) > max_repeats_to_align) sample_IDs <- sample(sample_IDs, max_repeats_to_align)
       repeats_seq = unlist(lapply(sample_IDs, function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")[[1]]))
       strands = repeats_df$strand[sample_IDs]
@@ -230,23 +264,24 @@ main <- function(cmd_arguments) {
       consensus <- consensus_N(alignment, arrays$top_N[i])
       if(length(consensus) != 0) arrays$representative[i] <- consensus
     }
-    #cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
-
+    if (log_messages != "") cat("09; array no ", i, " representative finished\n", file = log_messages, append = TRUE)
     ## If set, change to edit distance based score =========================
     if(use_adist_scores) {
+      if (log_messages != "") cat("09; array no ", i, " edit\n", file = log_messages, append = TRUE)
       repeats_seq = unlist(lapply(seq_len(nrow(repeats_df)), function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")[[1]]))
       costs = list(insertions = 1, deletions = 1, substitutions = 1)
       repeats_df$score[repeats_df$strand == "+"] = adist(arrays$representative[i], repeats_seq[repeats_df$strand == "+"], costs)[1,]  / nchar(arrays$representative[i]) * 100
       repeats_df$score[repeats_df$strand == "-"] = adist(rev_comp_string(arrays$representative[i]), repeats_seq[repeats_df$strand == "-"])[1,]  / nchar(arrays$representative[i]) * 100
     }
-    #cat(paste0(nrow(repeats_df), "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
-
+    if (log_messages != "") cat("09; array no", i, "finished properly\n", file = log_messages, append = TRUE)
     gc()
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
-    #cat(paste0("Finished ", i, "\n"), file = file.path(cmd_arguments$output_folder, paste0(i,"log_temp.txt")), append = TRUE)
     return(repeats_df)
   }
   close(pb)
+
+  if (log_messages != "") cat("09 / 14 \nFinished mapping, nrow of the repeats: ", nrow(repeats), "\n", file = log_messages, append = TRUE)
+
   ### 10 / 14 ===========================================================================================================
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE)
 
@@ -267,6 +302,8 @@ main <- function(cmd_arguments) {
       if(use_adist_scores) arrays$median_score[i] <- ceiling(median(repeats_temp$score))
     }
   }
+
+  if (log_messages != "") cat("10 / 14 \nFinished summarising, nrow of the arrays: ", nrow(arrays), "\n", file = log_messages, append = TRUE)
 
   ### 12 / 14 Save array output =========================================================================================
   cat(" 12 / 13 Saving the array table                                  ")
@@ -303,8 +340,11 @@ main <- function(cmd_arguments) {
              strand = 5,
              attributes = c(2,6,7), 
              attribute.names = c("Array=", "Score=", "Eval="))
-  
+
   ### 14 / 14 Done ======================================================================================================
+
+  if (log_messages != "") cat("14 / 14 \n## Done ##\nTime:         ", date(), "\n", file = log_messages, append = TRUE)
+
   stopCluster(cl)
   gc()
 }

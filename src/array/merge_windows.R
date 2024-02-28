@@ -6,6 +6,7 @@ merge_windows <- function(list_of_scores, window_size, sequence_full_length) {
     return(NULL)
   }
 
+  # This window definition needs to be propagated from sequence_window_score() funtion
   starts <- genomic_bins_starts(start = 1, end = sequence_full_length, bin_size = window_size)
   if (length(starts) < 2) {
     ends <- sequence_full_length
@@ -13,6 +14,11 @@ merge_windows <- function(list_of_scores, window_size, sequence_full_length) {
     ends <- c((starts[2:length(starts)] - 1), sequence_full_length)
   }
   if (length(ends) != length(starts)) ends <- sequence_full_length
+  if ((ends[length(ends)] - starts[length(starts)]) < (window_size / 2)) {
+    ends[length(ends) - 1] <- ends[length(ends)]
+    ends <- ends[-length(ends)]
+    starts <- starts[-length(starts)]
+  }
 
   repetitive_regions <- data.frame(starts = starts[list_of_scores < threshold],
                                    ends = ends[list_of_scores < threshold],
