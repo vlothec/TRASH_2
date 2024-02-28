@@ -52,6 +52,11 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
       window_ends <- c((window_starts[2:length(window_starts)] - 1), (end - window_size))
     }
     if (length(window_ends) != length(window_starts)) window_ends <- (end - window_size)
+    if ((window_ends[length(window_ends)] - window_starts[length(window_starts)]) < (window_step / 2)) {
+      window_ends[length(window_ends) - 1] <- window_ends[length(window_ends)]
+      window_ends <- window_ends[-length(window_ends)]
+      window_starts <- window_starts[-length(window_starts)]
+    }
     window_ends <- window_ends + window_size - window_step
     window_ends[window_ends > end] <- end
 
@@ -255,6 +260,12 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
       window_ends <- c((window_starts[2:length(window_starts)] - 1), arrays$end[i])
     }
     if (length(window_ends) != length(window_starts)) window_ends <- arrays$end[i]
+    if ((window_ends[length(window_ends)] - window_starts[length(window_starts)]) < (small_window_step_for_N_count / 2)) {
+      window_ends[length(window_ends) - 1] <- window_ends[length(window_ends)]
+      window_ends <- window_ends[-length(window_ends)]
+      window_starts <- window_starts[-length(window_starts)]
+    }
+
     window_ends <- window_ends - small_window_step_for_N_count + small_window_for_N_count
     window_ends[window_ends > arrays$end[i]] <- arrays$end[i]
 

@@ -2,7 +2,7 @@ genomic_bins_starts <- function(start = 1, end = 0, bin_number = 0, bin_size = 0
   if (bin_number > 0 && bin_size > 0) stop("genomic bins starts: Use either bin number or bin size")
   if (bin_number == 0 && bin_size == 0) stop("genomic bins starts: Use either bin number or bin size")
   if (end < start) stop("genomic bins starts: End smaller than start will not work too well...")
-  if (bin_size >= end) return(start)
+  if (bin_size >= (end - start)) return(start)
 
   if (bin_number > 0) {
     seq_per_bin <- (end - start + 1) %/% bin_number
@@ -23,7 +23,7 @@ genomic_bins_starts <- function(start = 1, end = 0, bin_number = 0, bin_size = 0
   }
   if (bin_size > 0) {
     start_positions <- seq(start, (end - bin_size), bin_size)
-    if (end < bin_size) start_positions <- 0
+    if (end < bin_size) start_positions <- start
     if ((end - start_positions[length(start_positions)] - bin_size) > bin_size / 2) start_positions <- c(start_positions, start_positions[length(start_positions)] + bin_size)
     return(start_positions)
   }
