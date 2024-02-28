@@ -23,6 +23,10 @@ main <- function(cmd_arguments) {
   if (log_messages != "") {
     cat("Log messages of file:\n", basename(cmd_arguments$fasta_file), "\n",
         file = log_messages, append = FALSE)
+    foreach (i = 1 : getDoParWorkers(), .export = c("log_messages")) %dopar% {
+      cat("_Worker_", i, "_initialised_",
+          file = log_messages, append = FALSE)
+    } # Make sure log is working for each worker
     cat("Time:        ", date(), "\n",
         file = log_messages, append = TRUE)
     cat("Max repeat size: ", cmd_arguments$max_rep_size, "\nMin repeat size: ", cmd_arguments$min_rep_size, "\nTemplates file: ", cmd_arguments$templates, "\nCores number: ", cmd_arguments$cores_no, "\n",
@@ -91,7 +95,7 @@ main <- function(cmd_arguments) {
   pb <- txtProgressBar(min = 0, max = 1, style = 1)
   arrays <- foreach (i = seq_len(nrow(repetitive_regions)),
                      .combine = rbind,
-                     .export = c("log_messages", "split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read")) %dopar% {
+                     .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read")) %dopar% {
     .libPaths(c(.libPaths(), gsub("src", "R_libs", getwd())))
     out = split_and_check_arrays(start = repetitive_regions$starts[i],
                                   end = repetitive_regions$ends[i],
@@ -129,7 +133,7 @@ main <- function(cmd_arguments) {
     templates = ""
   }
   if (log_messages != "") cat("07; start representative shift\n", file = log_messages, append = TRUE)
-  arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = c("log_messages", "shift_and_compare", "shift_sequence", "compare_circular", "rev_comp_string", "kmer_hash_score")) %dopar% {
+  arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = c("shift_and_compare", "shift_sequence", "compare_circular", "rev_comp_string", "kmer_hash_score")) %dopar% {
     setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
     return(shift_and_compare(arrays$representative[i], templates))
   }
@@ -157,7 +161,8 @@ main <- function(cmd_arguments) {
   if(do_shift_classes) {
     classes <- unique(arrays$class)
     classes <- classes[!(classes %in% c(names(templates), "none_identified"))]
-    arrays_t <- foreach (i = seq_along(classes), .combine = rbind, .export = c("log_messages", "shift_classes", "compare_circular", "rev_comp_string")) %dopar% {
+    arrays_t <- foreach (i = seq_along(classes), .combine = rbind, .export = c("shift_classes", "compare_circular", "rev_comp_string")) %dopar% {
+      if (log_messages != "") cat("08 / 14 \nClassifying class ", i, "\n", file = log_messages, append = TRUE)
       arrays_class <- arrays[arrays$class == classes[i], ]
       arrays_class$representative <- shift_classes(arrays_class)
       return(arrays_class)
@@ -178,7 +183,7 @@ main <- function(cmd_arguments) {
   progress_values = array_sizes / sum(array_sizes)
   pb <- txtProgressBar(style = 1)
   if (log_messages != "") cat("09; map loop\n", file = log_messages, append = TRUE)
-  repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("log_messages", "write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
+  repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
     if (log_messages != "") cat("09; array no ", i, "\n", file = log_messages, append = TRUE)
     if(arrays$representative[i] == "") {
       if (log_messages != "") cat("09; array no ", i, " no representative\n", file = log_messages, append = TRUE)
