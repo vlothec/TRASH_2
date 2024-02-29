@@ -1,4 +1,4 @@
-handle_gaps <- function(repeat_table, overlap_threshold = 0.1, representative_len) {
+handle_gaps <- function(repeat_table, representative_len) {
   repeat_table <- repeat_table[order(repeat_table$start, decreasing = FALSE), ]
   repeat_table$gap_to_next <- 0
   repeat_table$gap_to_next[1 : (nrow(repeat_table) - 1)] <- repeat_table$start[2 : nrow(repeat_table)] - repeat_table$end[1 : (nrow(repeat_table) - 1)] - 1

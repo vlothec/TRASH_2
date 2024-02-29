@@ -53,7 +53,6 @@ main <- function(cmd_arguments) {
   pb <- txtProgressBar(min = 0, max = length(fasta_content), style = 1)
   repeat_scores <- list()
   for (i in seq_along(fasta_content)) {
-    if(length(fasta_content[[i]]) <= window_size) next()
     repeat_scores <- append(repeat_scores, list(sequence_window_score(fasta_content[[i]], window_size, log_messages))) # it's parallel
     setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
   }
@@ -70,8 +69,9 @@ main <- function(cmd_arguments) {
   for (i in seq_along(repeat_scores)) {
     if (log_messages != "") cat(" ", i, "\n", file = log_messages, append = TRUE)
     if (log_messages != "") cat(" ", length(fasta_content[[i]]), "\n", file = log_messages, append = TRUE)
+    if (log_messages != "") cat(" ", length(repeat_scores[[i]]), "\n", file = log_messages, append = TRUE)
     regions_of_sequence <- merge_windows(list_of_scores = repeat_scores[[i]], window_size = window_size, sequence_full_length = length(fasta_content[[i]]), log_messages)
-    if (!is.null(regions_of_sequence)) {
+    if (nrow(regions_of_sequence) != 0) {
       regions_of_sequence$seqID <- names(fasta_content)[[i]]
       regions_of_sequence$numID <- i
       repetitive_regions <- rbind(repetitive_regions, regions_of_sequence)
@@ -187,9 +187,9 @@ main <- function(cmd_arguments) {
   pb <- txtProgressBar(style = 1)
   if (log_messages != "") cat("09; map loop\n", file = log_messages, append = TRUE)
   repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
-    if (log_messages != "") cat("09; array no ", i, "\n", file = log_messages, append = TRUE)
+    #msg <- paste0("_start_", i, "_\n")
+    #if (log_messages != "") cat(msg, file = log_messages, append = TRUE)
     if (arrays$representative[i] == "") {
-      #if (log_messages != "") cat("09; array no ", i, " no representative\n", file = log_messages, append = TRUE)
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
       return(data.frame(seqID = vector(mode = "character"),
@@ -206,16 +206,14 @@ main <- function(cmd_arguments) {
     }
     if(arrays$top_N[i] >= 14) {
     ## nhmmer for repeats of 14+ bp =========================================
-      #if (log_messages != "") cat("09; array no", i, "nhmmer map run\n", file = log_messages, append = TRUE)
       repeats_df = map_nhmmer(cmd_arguments$output_folder, i, arrays$representative[i], arrays$seqID[i], arrays$start[i], 
                               arrays$end[i], fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], nhmmer_dir)
     } else {
     ## matchpattern for shorter =============================================
-      #if (log_messages != "") cat("09; array no ", i, " default map run\n", file = log_messages, append = TRUE)
       repeats_df = map_default(i, arrays$representative[i], arrays$seqID[i], arrays$start[i], paste(fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], collapse = ""))
     }
-    if(nrow(repeats_df) == 0) {
-      #if (log_messages != "") cat("09; array no ", i, " no repeats found\n", file = log_messages, append = TRUE)
+    
+    if(nrow(repeats_df) < 2) {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
       return(data.frame(seqID = vector(mode = "character"),
@@ -234,10 +232,9 @@ main <- function(cmd_arguments) {
     repeats_df$width = repeats_df$end - repeats_df$start + 1
     repeats_df$class = arrays$class[i]
     ## handle overlaps ======================================================
-    #if (log_messages != "") cat("09; array no ", i, " overlaps\n", file = log_messages, append = TRUE)
-    if (fix_overlaps && (nrow(repeats_df) > 1)) repeats_df = handle_overlaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
-    if(nrow(repeats_df) == 0) {
-      #if (log_messages != "") cat("09; array no ", i, " no repeats after gaps\n", file = log_messages, append = TRUE)
+    
+    if (fix_overlaps) repeats_df = handle_overlaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
+    if(nrow(repeats_df) < 2) {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
       return(data.frame(seqID = vector(mode = "character"),
@@ -253,18 +250,19 @@ main <- function(cmd_arguments) {
                         score_template = vector(mode = "numeric")))
     }
     ## handle gaps if proper array ==========================================
-    #if (log_messages != "") cat("09; array no ", i, " gaps\n", file = log_messages, append = TRUE)
-    if (fix_gaps && (nrow(repeats_df) > 1)) {
-      if (sum(repeats_df$width) > (((arrays$end[i] - arrays$start[i]) - cmd_arguments$max_rep_size * 2) / 2)) {
-        repeats_df <- handle_gaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
-      } else {
-        for (j in seq_len(nrow(repeats_df))) repeats_df$class[j] <- paste0(repeats_df$class[j], "_scattered")
-      }
+    
+    if (fix_gaps) {
+      repeats_df <- handle_gaps(repeats_df, representative_len = arrays$top_N[i])
+      # if (sum(repeats_df$width) > (((arrays$end[i] - arrays$start[i]) - cmd_arguments$max_rep_size * 2) / 2)) {
+      #   repeats_df <- handle_gaps(repeats_df, representative_len = arrays$top_N[i])
+      # } else {
+      #   for (j in seq_len(nrow(repeats_df))) repeats_df$class[j] <- paste0(repeats_df$class[j], "_scattered")
+      # }
     }
-    #if (log_messages != "") cat("09; array no ", i, " gaps done\n", file = log_messages, append = TRUE)
+    
     ## Return nothing if handle_gaps removed all repeats ====================
-    if (nrow(repeats_df) == 0) {
-      #if (log_messages != "") cat("09; array no ", i, " no repeats after gaps\n", file = log_messages, append = TRUE)
+    if (nrow(repeats_df) < 2) {
+      if (log_messages != "" && i == 1) cat("09; array no ", i, " no repeats after gaps\n", file = log_messages, append = TRUE)
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
       return(data.frame(seqID = vector(mode = "character"),
@@ -280,18 +278,17 @@ main <- function(cmd_arguments) {
                         score_template = vector(mode = "numeric")))
     }
     ## Recalculate representative ===========================================
-    #if (log_messages != "") cat("09; array no ", i, " representative start\n", file = log_messages, append = TRUE)
     max_repeats_to_align <- 50
     min_repeats_to_recalculate <- 5
     repeats_df$representative <- arrays$representative[i]
     repeats_df$score_template <- -1
     sample_IDs = which(repeats_df$strand != ".")
     if (length(sample_IDs) >= min_repeats_to_recalculate) {
-      #if (log_messages != "") cat("09; array no ", i, " representative calculate\n", file = log_messages, append = TRUE)
       if (length(sample_IDs) > max_repeats_to_align) sample_IDs <- sample(sample_IDs, max_repeats_to_align)
       repeats_seq = unlist(lapply(sample_IDs, function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")))
       strands = repeats_df$strand[sample_IDs]
       repeats_seq[which(strands == "-")] = unlist(lapply(repeats_seq[which(strands == "-")], rev_comp_string))
+      if(i==1) print(repeats_seq)
       alignment <- write_align_read(mafft_exe = mafft_dir,
                                     temp_dir = cmd_arguments$output_folder,
                                     sequences = repeats_seq,
@@ -300,11 +297,10 @@ main <- function(cmd_arguments) {
       if (length(consensus) != 0) repeats_df$representative <- consensus
     }
 
-    #if (log_messages != "") cat("09; array no ", i, " representative finished\n", file = log_messages, append = TRUE)
+    if (log_messages != "") cat("09; array no ", i, " representative finished\n", file = log_messages, append = TRUE)
     ## If set, change to edit distance based score =========================
     if(use_adist_scores) {
-      if (log_messages != "") cat("09; array no ", i, " edit\n", file = log_messages, append = TRUE)
-      repeats_seq = unlist(lapply(seq_len(nrow(repeats_df)), function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")[[1]]))
+      repeats_seq = unlist(lapply(seq_len(nrow(repeats_df)), function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")))
       costs = list(insertions = 1, deletions = 1, substitutions = 1)
       if (sum(repeats_df$strand == "+") > 0) repeats_df$score[repeats_df$strand == "+"] = adist(repeats_df$representative[1], repeats_seq[repeats_df$strand == "+"], costs)[1,]  / nchar(repeats_df$representative[1]) * 100
       if (sum(repeats_df$strand == "-") > 0) repeats_df$score[repeats_df$strand == "-"] = adist(rev_comp_string(repeats_df$representative[1]), repeats_seq[repeats_df$strand == "-"])[1,]  / nchar(repeats_df$representative[1]) * 100
@@ -317,7 +313,7 @@ main <- function(cmd_arguments) {
     }
     gc()
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
-    if (nrow(repeats_df) == 0) {
+    if (nrow(repeats_df) < 2) {
       return(data.frame(seqID = vector(mode = "character"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
@@ -342,7 +338,6 @@ main <- function(cmd_arguments) {
     repeats_df$class = as.character(repeats_df$class)
     repeats_df$representative = as.character(repeats_df$representative)
     repeats_df$score_template = as.numeric(repeats_df$score_template)
-    # write.csv(x = repeats_df, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), paste0("_", i, "_repeats.csv"))), row.names = FALSE)
     return(repeats_df)
   }
   close(pb)

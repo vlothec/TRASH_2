@@ -364,7 +364,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
         alignment <- write_align_read(mafft_exe = mafft,
                                       temp_dir = temp_dir,
                                       sequences = top_kmer_list,
-                                      name = paste(seqID, numID, i, runif(1, 0, 1), sep = "_"))
+                                      name = paste(seqID, numID, i, arrays$start[i], runif(1, 0, 1), sep = "_"))
         
         # TODO: maybe check internal duplication of the representative, to split if needed. Symmetrically (so AA into A) or assumetrically (ABB into A B and B)
         consensus <- consensus_N(alignment, arrays$top_N[i])

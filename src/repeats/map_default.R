@@ -6,6 +6,8 @@ map_default = function(i, representative, seqID, start, fasta_sequence) {
   match_fw <- Biostrings::matchPattern(pattern = representative, subject = fasta_sequence, max.mismatch = max_mismatch)
   if (length(match_fw) > 0) {
     match_fw = as.data.frame(match_fw)
+    match_fw$start[match_fw$start < 1] = 1
+    match_fw$end[match_fw$end > nchar(fasta_sequence)] = nchar(fasta_sequence)
     match_fw$strand = "+"
     match_fw$seqID = seqID
     match_fw$arrayID = i
@@ -20,6 +22,8 @@ map_default = function(i, representative, seqID, start, fasta_sequence) {
   match_rev <- Biostrings::matchPattern(pattern = rev_comp_string(representative), subject = fasta_sequence, max.mismatch = max_mismatch)
   if (length(match_rev) > 0) {
     match_rev = as.data.frame(match_rev)
+    match_rev$start[match_rev$start < 1] = 1
+    match_rev$end[match_rev$end > nchar(fasta_sequence)] = nchar(fasta_sequence)
     match_rev$strand = "-"
     match_rev$seqID = seqID
     match_rev$arrayID = i

@@ -48,6 +48,7 @@ if(!file.exists(nhmmer_file)) stop("Error: Could not find the nhmmer file")
   nhmmer <- nhmmer[c("seqID", "arrayID", "envfrom", "env to", "strand", "score", "E-value")]
   names(nhmmer) <- c("seqID", "arrayID", "start", "end", "strand", "score", "eval")
 
+  nhmmer$seqID <- as.character(nhmmer$seqID)
   nhmmer$start <- as.numeric(nhmmer$start)
   nhmmer$end <- as.numeric(nhmmer$end)
   nhmmer$score <- as.numeric(nhmmer$score)
