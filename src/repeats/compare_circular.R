@@ -7,10 +7,11 @@ compare_circular = function(sequence, template) {
   shifted_strings <- lapply(seq_len(string_length), function(X) paste0(end_substrings[X], start_substrings[X]))
   shifted_strings_reverse <- unlist(lapply(shifted_strings, rev_comp_string))
   shifted_strings_all = unlist(c(shifted_strings, shifted_strings_reverse))
-  scores = adist(template, shifted_strings_all, costs = list(ins = 1, del = 1, sub = 1))[1,]
+  scores = adist(template, shifted_strings_all, costs = list(ins = 1, del = 1, sub = 1))[1,] / max(c(nchar(sequence), nchar(template)))
   sequence_shifted = shifted_strings_all[which.min(scores)]
   return(list(score = min(scores), sequence_shifted = sequence_shifted))
 }
 
-# sequence = "accaaccttcttcttgcttctcaaagctttcatggtgtagccaaagtccgtatgagtctttggctttgtgtcttctaacaaggatacaattcttacgcctataagatccggttgcggtttaagttcttatactcaatcatacacatgacatcaagtcatattcgactccaaaacacta"
+# sequence = "accaaccttcttctcttctcaaagctttcatggtgtagccaaagtccgtatgagtctttggctttgtgtcttctaacaaggatacaattcttacgcctataagatccggttgcggtttaagttcttatactcaatcatacacatgacatcaagtcatattcgactccaaaacacta"
 # template = "taaccaaccttcttcttgcttctcaaagctttcatggtgtagccaaagtccgtatgagtctttggctttgtgtcttctaacaaggatacaattcttacgcctataagatccggttgcggtttaagttcttatactcaatcatacacatgacatcaagtcatattcgactccaaaacac"
+# compare_circular(sequence, template)

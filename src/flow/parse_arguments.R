@@ -51,7 +51,7 @@ parse_arguments <- function(arguments, run_dir) {
 
   if (is.null(arg_options$max_rep_size)) arg_options$max_rep_size <- 1000
   if (is.null(arg_options$min_rep_size)) arg_options$min_rep_size <- 7
-  if (is.null(arg_options$templates)) arg_options$templates <- ""
+  if (is.null(arg_options$templates)) arg_options$templates <- 0
   if (is.null(arg_options$cores_no)) arg_options$cores_no <- 1
   if (is.null(arg_options$max_alignment_length)) arg_options$max_alignment_length <- 200000 #This can be increased, but there's no reason to align more than 200k bp of repeats # nolint
   if (is.null(arg_options$HOR_setting_C)) arg_options$HOR_setting_C <- 2

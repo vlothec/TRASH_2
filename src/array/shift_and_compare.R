@@ -1,8 +1,8 @@
-shift_and_compare = function(sequence, templates = "") {
+shift_and_compare = function(sequence, templates = 0) {
   if(sequence == "") {
     return(paste0("_", sequence))
   }
-  score_threshold = 0.8
+  score_threshold = 0.2
 
   ### Shift =================================================
   #TODO: fix this for short sequences
@@ -12,16 +12,16 @@ shift_and_compare = function(sequence, templates = "") {
     return("_")
   }
 
-  if(templates != "") {
+  if(!inherits(templates, "numeric")) {
   ### Compare ===============================================
     scores = data.frame(score = vector(mode = "numeric", length = length(templates)), 
                         sequence_shifted = vector(mode = "character", length = length(templates)))
     for (i in seq_along(templates)) {
-      scores[i,] = list(compare_circular(sequence, templates[[i]])) 
+      scores[i,] = compare_circular(sequence, paste(templates[[i]], collapse = ""))
     }
-    if(max(scores$score) >= score_threshold) {
-      sequence = scores$sequence_shifted[which.max(scores$score)]
-      sequence = paste0(names(templates)[which.max(scores$score)], "_", sequence)
+    if(min(scores$score) <= score_threshold) {
+      sequence = scores$sequence_shifted[which.min(scores$score)]
+      sequence = paste0(names(templates)[which.min(scores$score)], "_", sequence)
     }
   } else {
     sequence = paste0("_", sequence)

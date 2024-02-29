@@ -125,11 +125,11 @@ main <- function(cmd_arguments) {
   cat("################################################################################\n")
   pb <- txtProgressBar(min = 0, max = nrow(arrays), style = 1)
   if (log_messages != "") cat("07; set templates\n", file = log_messages, append = TRUE)
-  if(cmd_arguments$templates != "") {
-    templates = read_fasta_and_list(templates)
-    if(length(templates == 0)) stop("No templates found within the template file")
+  if(cmd_arguments$templates != 0) {
+    templates = read_fasta_and_list(cmd_arguments$templates)
+    if(length(templates) == 0) stop("No templates found within the template file")
   } else {
-    templates = ""
+    templates = 0
   }
   if (log_messages != "") cat("07; start representative shift\n", file = log_messages, append = TRUE)
   arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = c("shift_and_compare", "shift_sequence", "compare_circular", "rev_comp_string", "kmer_hash_score")) %dopar% {
@@ -198,7 +198,8 @@ main <- function(cmd_arguments) {
                         score = vector(mode = "numeric"),
                         eval = vector(mode = "numeric"),
                         width = vector(mode = "numeric"),
-                        class = vector(mode = "character")))
+                        class = vector(mode = "character"),
+                        representative = vector(mode = "character")))
     }
     if(arrays$top_N[i] >= 14) {
     ## nhmmer for repeats of 14+ bp =========================================
@@ -222,7 +223,8 @@ main <- function(cmd_arguments) {
                         score = vector(mode = "numeric"),
                         eval = vector(mode = "numeric"),
                         width = vector(mode = "numeric"),
-                        class = vector(mode = "character")))
+                        class = vector(mode = "character"),
+                        representative = vector(mode = "character")))
     }
     ## add width and class ============================================================
     repeats_df$width = repeats_df$end - repeats_df$start + 1
@@ -242,7 +244,8 @@ main <- function(cmd_arguments) {
                         score = vector(mode = "numeric"),
                         eval = vector(mode = "numeric"),
                         width = vector(mode = "numeric"),
-                        class = vector(mode = "character")))
+                        class = vector(mode = "character"),
+                        representative = vector(mode = "character")))
     }
     ## handle gaps if proper array ==========================================
     #if (log_messages != "") cat("09; array no ", i, " gaps\n", file = log_messages, append = TRUE)
@@ -267,39 +270,45 @@ main <- function(cmd_arguments) {
                         score = vector(mode = "numeric"),
                         eval = vector(mode = "numeric"),
                         width = vector(mode = "numeric"),
-                        class = vector(mode = "character")))
+                        class = vector(mode = "character"),
+                        representative = vector(mode = "character")))
     }
     ## Recalculate representative ===========================================
     #if (log_messages != "") cat("09; array no ", i, " representative start\n", file = log_messages, append = TRUE)
     max_repeats_to_align <- 50
     min_repeats_to_recalculate <- 5
-    sample_IDs = which(repeats_df$strand != ".")
-    if(length(sample_IDs) >= min_repeats_to_recalculate) {
-      #if (log_messages != "") cat("09; array no ", i, " representative calculate\n", file = log_messages, append = TRUE)
-      if(length(sample_IDs) > max_repeats_to_align) sample_IDs <- sample(sample_IDs, max_repeats_to_align)
-      repeats_seq = unlist(lapply(sample_IDs, function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")[[1]]))
-      strands = repeats_df$strand[sample_IDs]
-      repeats_seq[which(strands == "-")] = unlist(lapply(repeats_seq[which(strands == "-")], rev_comp_string))
-      alignment <- write_align_read(mafft_exe = mafft_dir,
-                                    temp_dir = cmd_arguments$output_folder,
-                                    sequences = repeats_seq,
-                                    name = paste(arrays$seqID[i], arrays$numID[i], i, runif(1, 0, 1), sep = "_"))
-      consensus <- consensus_N(alignment, arrays$top_N[i])
-      if(length(consensus) != 0) arrays$representative[i] <- consensus
+    if (arrays$class[i] %in% names(templates)) {
+      repeats_df$representative <- paste(templates[[which(names(templates) == arrays$class[i])]], collapse = "")
+    } else {
+      sample_IDs = which(repeats_df$strand != ".")
+      if (length(sample_IDs) >= min_repeats_to_recalculate) {
+        #if (log_messages != "") cat("09; array no ", i, " representative calculate\n", file = log_messages, append = TRUE)
+        if (length(sample_IDs) > max_repeats_to_align) sample_IDs <- sample(sample_IDs, max_repeats_to_align)
+        repeats_seq = unlist(lapply(sample_IDs, function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")[[1]]))
+        strands = repeats_df$strand[sample_IDs]
+        repeats_seq[which(strands == "-")] = unlist(lapply(repeats_seq[which(strands == "-")], rev_comp_string))
+        alignment <- write_align_read(mafft_exe = mafft_dir,
+                                      temp_dir = cmd_arguments$output_folder,
+                                      sequences = repeats_seq,
+                                      name = paste(arrays$seqID[i], arrays$numID[i], i, runif(1, 0, 1), sep = "_"))
+        consensus <- consensus_N(alignment, arrays$top_N[i])
+        if (length(consensus) != 0) repeats_df$representative <- consensus
+      }
     }
+
     #if (log_messages != "") cat("09; array no ", i, " representative finished\n", file = log_messages, append = TRUE)
     ## If set, change to edit distance based score =========================
     if(use_adist_scores) {
       #if (log_messages != "") cat("09; array no ", i, " edit\n", file = log_messages, append = TRUE)
       repeats_seq = unlist(lapply(seq_len(nrow(repeats_df)), function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")[[1]]))
       costs = list(insertions = 1, deletions = 1, substitutions = 1)
-      if(sum(repeats_df$strand == "+") > 0) repeats_df$score[repeats_df$strand == "+"] = adist(arrays$representative[i], repeats_seq[repeats_df$strand == "+"], costs)[1,]  / nchar(arrays$representative[i]) * 100
-      if(sum(repeats_df$strand == "-") > 0) repeats_df$score[repeats_df$strand == "-"] = adist(rev_comp_string(arrays$representative[i]), repeats_seq[repeats_df$strand == "-"])[1,]  / nchar(arrays$representative[i]) * 100
+      if(sum(repeats_df$strand == "+") > 0) repeats_df$score[repeats_df$strand == "+"] = adist(repeats_df$representative[1], repeats_seq[repeats_df$strand == "+"], costs)[1,]  / nchar(repeats_df$representative[1]) * 100
+      if(sum(repeats_df$strand == "-") > 0) repeats_df$score[repeats_df$strand == "-"] = adist(rev_comp_string(repeats_df$representative[1]), repeats_seq[repeats_df$strand == "-"])[1,]  / nchar(repeats_df$representative[1]) * 100
     }
     if (log_messages != "") cat("09; array no", i, " repeats colnames: ", colnames(repeats_df), "\n", file = log_messages, append = TRUE)
     gc()
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
-    if(nrow(repeats_df) == 0) {
+    if (nrow(repeats_df) == 0) {
       return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
@@ -308,9 +317,10 @@ main <- function(cmd_arguments) {
                         score = vector(mode = "numeric"),
                         eval = vector(mode = "numeric"),
                         width = vector(mode = "numeric"),
-                        class = vector(mode = "character")))
+                        class = vector(mode = "character"),
+                        representative = vector(mode = "character")))
     }
-    repeats_df <- repeats_df[c("seqID", "arrayID", "start", "end", "strand", "score", "eval", "width", "class")]
+    repeats_df <- repeats_df[c("seqID", "arrayID", "start", "end", "strand", "score", "eval", "width", "class", "representative")]
     repeats_df$seqID = as.numeric(repeats_df$seqID)
     repeats_df$arrayID = as.numeric(repeats_df$arrayID)
     repeats_df$start = as.numeric(repeats_df$start)
@@ -335,6 +345,15 @@ main <- function(cmd_arguments) {
   cat(Sys.time())
   cat("\n")
   cat("################################################################################\n")
+
+  for(i in seq_len((nrow(arrays)))) {
+    if(sum((repeats$arrayID == i) > 0)) {
+      arrays$representative[i] <- repeats$representative[which(repeats$arrayID == i)[1]]
+    }
+  }
+  repeats <- repeats[c("seqID", "arrayID", "start", "end", "strand", "score", "eval", "width", "class")]
+
+
   arrays$repeats_number = 0
   arrays$median_repeat_width = 0
   arrays$median_score = -1
