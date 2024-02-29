@@ -2,7 +2,7 @@ shift_and_compare = function(sequence, templates = 0) {
   if(sequence == "") {
     return(paste0("_", sequence))
   }
-  score_threshold = 0.2
+  score_threshold = 0.5
 
   ### Shift =================================================
   #TODO: fix this for short sequences
@@ -22,6 +22,8 @@ shift_and_compare = function(sequence, templates = 0) {
     if(min(scores$score) <= score_threshold) {
       sequence = scores$sequence_shifted[which.min(scores$score)]
       sequence = paste0(names(templates)[which.min(scores$score)], "_", sequence)
+    } else {
+      sequence <- paste0("_", sequence)
     }
   } else {
     sequence = paste0("_", sequence)

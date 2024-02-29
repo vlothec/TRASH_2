@@ -3,7 +3,7 @@ if(!file.exists(nhmmer_file)) stop("Error: Could not find the nhmmer file")
   lines <- readLines(con = nhmmer_file)
   lines <- lines[!grepl("#", x = lines)]
   if (length(lines) == 0) {
-    return(data.frame(seqID = vector(mode = "numeric"),
+    return(data.frame(seqID = vector(mode = "character"),
                       arrayID = vector(mode = "numeric"),
                       start = vector(mode = "numeric"),
                       end = vector(mode = "numeric"),
@@ -20,7 +20,7 @@ if(!file.exists(nhmmer_file)) stop("Error: Could not find the nhmmer file")
   nhmmer <- as.data.frame(do.call(rbind, data))
 
   if(nrow(nhmmer) == 0) {
-    return(data.frame(seqID = vector(mode = "numeric"),
+    return(data.frame(seqID = vector(mode = "character"),
                       arrayID = vector(mode = "numeric"),
                       start = vector(mode = "numeric"),
                       end = vector(mode = "numeric"),

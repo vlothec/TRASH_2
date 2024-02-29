@@ -27,7 +27,7 @@ handle_gaps <- function(repeat_table, overlap_threshold = 0.1, representative_le
   }
   if (length(repeats_to_remove) != 0) repeat_table = repeat_table[-repeats_to_remove,]
   if (nrow(repeat_table) == 0) {
-    return(data.frame(seqID = vector(mode = "numeric"),
+    return(data.frame(seqID = vector(mode = "character"),
                       arrayID = vector(mode = "numeric"),
                       start = vector(mode = "numeric"),
                       end = vector(mode = "numeric"),

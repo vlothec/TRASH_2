@@ -34,7 +34,7 @@ map_default = function(i, representative, seqID, start, fasta_sequence) {
     repeats_df <- repeats_df[c("seqID", "arrayID", "start", "end", "strand", "score", "eval")]
     return(repeats_df)
   } 
-  return(data.frame(seqID = vector(mode = "numeric"),
+  return(data.frame(seqID = vector(mode = "character"),
                     arrayID = vector(mode = "numeric"),
                     start = vector(mode = "numeric"),
                     end = vector(mode = "numeric"),
