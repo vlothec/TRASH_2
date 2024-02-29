@@ -1,4 +1,5 @@
 shift_sequence <- function(sequence, k = 6) {
+  if(length(unique(strsplit(sequence, split = "")[[1]])) == 1) return(sequence)
 
   string_length <- nchar(sequence)
   # extend the sequence to easily extract kmers
@@ -36,8 +37,4 @@ shift_sequence <- function(sequence, k = 6) {
   return(sequence)
 }
 # sequence = "accaagcttcttcttgcttctcaaagctttgatggtatagccgaagtccgtatgagtctttgtctttgtatcttctaacaaggatacaatacttaggcttttaagatccggttatggttctagttgttatactcactcatacacatgacatctagtaatatttgactccaaaacacta"
-# shift_sequence(sequence, k = 5)
-
-# sequence = "ccaagcttcttcttgcttctcaaagctttgatggtgtagccgaagtccgtatgagtctttgtctttgtatcttctaacaaggatacaatacttaggcttttaagatccggttgcggttctagttgttatactcactcatacacatgacatctagtcatatttgactccaaaacactaa"
-# shift_sequence(sequence, k = 5)
-
+# shift_sequence(sequence, k = 6)

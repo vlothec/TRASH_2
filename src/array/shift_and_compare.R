@@ -7,7 +7,10 @@ shift_and_compare = function(sequence, templates = "") {
   ### Shift =================================================
   #TODO: fix this for short sequences
   sequence = shift_sequence(sequence)
-  if(!inherits(sequence, "character")) print(paste0("shift_and_compare: sequence is not character"))
+  if(!inherits(sequence, "character")) {
+    print(paste0("shift_and_compare: sequence is not character"))
+    return("_")
+  }
 
   if(templates != "") {
   ### Compare ===============================================
