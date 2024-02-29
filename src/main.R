@@ -190,7 +190,7 @@ main <- function(cmd_arguments) {
       #if (log_messages != "") cat("09; array no ", i, " no representative\n", file = log_messages, append = TRUE)
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      return(data.frame(seqID = vector(mode = "character"),
+      return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
                         end = vector(mode = "numeric"),
@@ -214,7 +214,7 @@ main <- function(cmd_arguments) {
       #if (log_messages != "") cat("09; array no ", i, " no repeats found\n", file = log_messages, append = TRUE)
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      return(data.frame(seqID = vector(mode = "character"),
+      return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
                         end = vector(mode = "numeric"),
@@ -234,7 +234,7 @@ main <- function(cmd_arguments) {
       #if (log_messages != "") cat("09; array no ", i, " no repeats after gaps\n", file = log_messages, append = TRUE)
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      return(data.frame(seqID = vector(mode = "character"),
+      return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
                         end = vector(mode = "numeric"),
@@ -259,7 +259,7 @@ main <- function(cmd_arguments) {
       #if (log_messages != "") cat("09; array no ", i, " no repeats after gaps\n", file = log_messages, append = TRUE)
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      return(data.frame(seqID = vector(mode = "character"),
+      return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
                         end = vector(mode = "numeric"),
@@ -300,7 +300,7 @@ main <- function(cmd_arguments) {
     gc()
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
     if(nrow(repeats_df) == 0) {
-      return(data.frame(seqID = vector(mode = "character"),
+      return(data.frame(seqID = vector(mode = "numeric"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
                         end = vector(mode = "numeric"),
@@ -311,7 +311,7 @@ main <- function(cmd_arguments) {
                         class = vector(mode = "character")))
     }
     repeats_df <- repeats_df[c("seqID", "arrayID", "start", "end", "strand", "score", "eval", "width", "class")]
-    repeats_df$seqID = as.character(repeats_df$seqID)
+    repeats_df$seqID = as.numeric(repeats_df$seqID)
     repeats_df$arrayID = as.numeric(repeats_df$arrayID)
     repeats_df$start = as.numeric(repeats_df$start)
     repeats_df$end = as.numeric(repeats_df$end)

@@ -28,7 +28,7 @@ sequence_window_score <- function(fasta_sequence, window_size, log_messages) {
   scores <- foreach (i = seq_along(starts), .combine = c, .export = c("log_messages", "extract_kmers", "seq_win_score_int")) %dopar% {
     seq_win_score_int(1, window_size, kmer, fasta_sequence[starts[i] : ends[i]], fraction_p)
   }
-  if((sum(is.na(scores))>0) || (length(scores) == 0)) return(100)
+  (sum(is.na(scores))>0) || (length(scores) == 0)
 
   return(scores)
 }
