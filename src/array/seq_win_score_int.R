@@ -5,7 +5,7 @@ seq_win_score_int <- function(start, end, kmer, fasta_extraction, fraction_p) {
   counts_kmers <- counts_kmers[!grepl("N", names(counts_kmers))]
 
   total_kmers <- sum(counts_kmers)
-  if (total_kmers < kmer) return(100)
+  if (total_kmers < (kmer * 2)) return(100)
 
   counts_kmers <- sort(counts_kmers, decreasing = TRUE)
   counts_kmers <- unlist(lapply(seq_along(counts_kmers), FUN = function(x, vector) return(sum(vector[1 : x])), counts_kmers))

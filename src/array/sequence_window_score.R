@@ -15,14 +15,14 @@ sequence_window_score <- function(fasta_sequence, window_size, log_messages) {
     ends <- c((starts[2 : length(starts)] - 1), sequence_full_length)
   }
   
-  scores <- foreach (i = seq_along(starts), .combine = c, .export = c("log_messages", "extract_kmers", "seq_win_score_int")) %dopar% {
+  scores <- foreach (i = seq_along(starts), .combine = c, .export = c("extract_kmers", "seq_win_score_int")) %dopar% {
     seq_win_score_int(1, window_size, kmer, fasta_sequence[starts[i] : ends[i]], fraction_p)
   }
   if ((sum(is.na(scores))>0) || (length(scores) == 0)) {
     stop("sequence_window_score did not produce result")
   }
-  if (log_messages != "") cat("\n", window_size, file = log_messages, append = TRUE)
-  if (log_messages != "") cat("\n", length(fasta_sequence), file = log_messages, append = TRUE)
+  # if (log_messages != "") cat("\n", window_size, file = log_messages, append = TRUE)
+  # if (log_messages != "") cat("\n", length(fasta_sequence), file = log_messages, append = TRUE)
 
   return(scores)
 }
