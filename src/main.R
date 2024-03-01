@@ -353,6 +353,22 @@ main <- function(cmd_arguments) {
   cat("\n")
   cat("################################################################################\n")
 
+
+  # # Find unique array IDs in repeats
+  # unique_ids <- unique(repeats$arrayID)
+
+  # # Subset repeats to only include unique IDs
+  # unique_repeats <- repeats[match(unique_ids, repeats$arrayID), ]
+
+  # # Match array IDs in arrays with unique IDs in repeats
+  # match_indices <- match(arrays$arrayID, unique_ids)
+
+  # # Identify non-NA indices
+  # non_na_indices <- !is.na(match_indices)
+
+  # # Update representative values in arrays where match is found
+  # arrays$representative[non_na_indices] <- unique_repeats$representative[match_indices[non_na_indices]]
+
   for(i in seq_len((nrow(arrays)))) {
     if(sum((repeats$arrayID == i) > 0)) {
       arrays$representative[i] <- repeats$representative[which(repeats$arrayID == i)[1]]

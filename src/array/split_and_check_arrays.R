@@ -1,5 +1,5 @@
 split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, max_repeat, min_repeat, mafft, temp_dir, src_dir, sink_output) {
-  .libPaths(c(.libPaths(), gsub("src", "R_libs", getwd())))
+  .libPaths(c(.libPaths(), gsub("src", "R_libs", src_dir)))
   sink(file.path(temp_dir, paste0(seqID, "_", arrID, "_logfile.txt")))
   print("==========================================================================")
   print(start)
