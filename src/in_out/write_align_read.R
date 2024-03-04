@@ -28,7 +28,7 @@ write_align_read <- function(mafft_exe, temp_dir, sequences, name = "", options 
                        file.path(temp_dir, paste0(name, "temp.fasta")),
                        " > ", file.path(temp_dir, paste0(name, "temp.aligned.fasta")), sep = ""), 
           wait = TRUE, stdout = TRUE, stderr = TRUE)
-  Sys.sleep(1)
+  # Sys.sleep(1)
   alignment <- seqinr::read.alignment(file.path(temp_dir, paste0(name, "temp.aligned.fasta")), format = "FASTA", forceToLower = TRUE)
   file.remove(file.path(temp_dir, paste0(name, "temp.fasta")))
   file.remove(file.path(temp_dir, paste0(name, "temp.aligned.fasta")))

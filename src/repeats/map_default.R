@@ -1,7 +1,7 @@
 map_default = function(i, representative, seqID, start, fasta_sequence) {
 
   repeats_df = NULL
-  max_mismatch = ceiling(nchar(representative) / 5)
+  max_mismatch = ceiling(nchar(representative) / 10)
   ## find forward
   match_fw <- Biostrings::matchPattern(pattern = representative, subject = fasta_sequence, max.mismatch = max_mismatch)
   if (length(match_fw) > 0) {

@@ -22,6 +22,7 @@ for (i in seq_along(source_files)) {
 
 if (installed_and_checked()) {
   arguments <- parse_arguments(arguments, run_dir)
+  set.seed(0)
   main(arguments)
   print("TRASH exiting 0")
   print(paste0("Time elapsed: ", Sys.time() - timeA))

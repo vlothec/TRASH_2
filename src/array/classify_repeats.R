@@ -14,15 +14,21 @@ classify_repeats <- function(repeat_df) {
   repeat_df_temp$rep_width = nchar(repeat_df_temp$representative)
 
   ## Classify
-  size_dif_to_check <- 0.2 # fraction of the checked rep size
-  max_edit_to_classify <- 0.3 # again, fraction of the checked rep size
+  size_dif_to_check <- 0.1 # fraction of the checked rep size to check against
+  max_edit_to_classify <- 0.3 # again, fraction of the checked rep size to classify as similar
   names_iterator <- 1
   while(length(which(repeat_df_temp$class == "")) > 0) {
     which_top <- which.max(repeat_df_temp$importance)
     new_class_seq <- repeat_df_temp$representative[which_top]
     new_class_name <- paste0(repeat_df_temp$rep_width[which_top], "_", names_iterator)
     class_bp_range <- floor(repeat_df_temp$rep_width[which_top] * (1 - size_dif_to_check)) : ceiling(repeat_df_temp$rep_width[which_top] * (1 + size_dif_to_check))
-    which_to_compare <- which(repeat_df_temp$rep_width %in% class_bp_range)
+    which_to_compare <- which((repeat_df_temp$rep_width %in% class_bp_range) & (repeat_df_temp$class != ""))
+    if(length(which_to_compare) == 0) {
+      repeat_df_temp$class[which_top] <- new_class_name
+      repeat_df_temp$importance[which_top] <- 0
+      names_iterator = names_iterator + 1
+      next
+    }
     distances = adist(new_class_seq, repeat_df_temp$representative[which_to_compare]) / repeat_df_temp$rep_width[which_top]
     similar = which(distances <= max_edit_to_classify)
     if (length(similar) > 0) {

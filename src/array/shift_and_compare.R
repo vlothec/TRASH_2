@@ -5,7 +5,7 @@ shift_and_compare = function(sequence, templates = 0) {
   score_threshold = 0.5
 
   ### Shift =================================================
-  #TODO: fix this for short sequences
+  #TODO: fix this for short sequences, for now it's set so it's not working for short
   sequence = shift_sequence(sequence)
   if(!inherits(sequence, "character")) {
     print(paste0("shift_and_compare: sequence is not character"))

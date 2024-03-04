@@ -1,0 +1,36 @@
+Log messages of file:   CreinhardtiiCC_4532_707_v6.0.fa 
+
+Time:         Mon Mar  4 16:56:57 2024 
+Max repeat size:  1000 
+Min repeat size:  7 
+Templates file:  0 
+Cores number:  31 
+03 / 14 
+Fasta sizes:  8225636 8655884 9286894 4130073 3682160 8913359 6492107 4526983 6807148 6800247 4479522 9952739 5281438 4217303 5870643 8042475 6954842 146728 104829 104799 102992 102447 97645 86382 79732 73703 72308 46567 40261 39771 35441 34618 34215 33186 30690 30442 29958 29289 27844 26488 26100 25547 22868 21662 21071 20971 19647 18714 18264 17693 17217 16980 14371 14279 12394 10144 7790 205535 15789 374891 
+04 / 14 
+Finished scores, length of the list:  7477 7868 8442 3754 3347 8103 5901 4115 6188 6182 4072 9047 4801 3833 5336 7311 6322 133 95 95 93 93 88 78 72 67 65 42 36 36 32 31 31 30 27 27 27 26 25 24 23 23 20 19 19 19 17 17 16 16 15 15 13 12 11 9 7 186 14 340 
+
+05 / 14 
+Finished regions, nrow of the regions:  17973 
+
+06 / 14 Where's this error?06 / 14 
+Finished arrays, nrow of the arrays:  19538 
+07; set templates
+07; start representative shift
+07; finished representative shift
+07; assigning classes
+07 / 14 
+Finished representative, nrow of the arrays:  19538 
+8 class start:  1709568669 
+8 shift start:  1709568774 
+8 finito:  1709568966 
+08 / 14 
+Finished classifications, nrow of the arrays:  19538 
+09; map loop
+09 / 14 
+Finished mapping, nrow of the repeats:  85897 
+10 / 14 
+Finished summarising, nrow of the arrays:  19538 
+14 / 14 
+## Done ##
+Time:          Mon Mar  4 17:31:58 2024 

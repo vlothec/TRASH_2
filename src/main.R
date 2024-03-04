@@ -67,9 +67,9 @@ main <- function(cmd_arguments) {
   cat("################################################################################\n")
   repetitive_regions <- data.frame(starts = NULL, ends = NULL, scores = NULL, seqID = NULL, numID = NULL)
   for (i in seq_along(repeat_scores)) {
-    if (log_messages != "") cat(" ", i, "\n", file = log_messages, append = TRUE)
-    if (log_messages != "") cat(" ", length(fasta_content[[i]]), "\n", file = log_messages, append = TRUE)
-    if (log_messages != "") cat(" ", length(repeat_scores[[i]]), "\n", file = log_messages, append = TRUE)
+    # if (log_messages != "") cat(" ", i, "\n", file = log_messages, append = TRUE)
+    # if (log_messages != "") cat(" ", length(fasta_content[[i]]), "\n", file = log_messages, append = TRUE)
+    # if (log_messages != "") cat(" ", length(repeat_scores[[i]]), "\n", file = log_messages, append = TRUE)
     regions_of_sequence <- merge_windows(list_of_scores = repeat_scores[[i]], window_size = window_size, sequence_full_length = length(fasta_content[[i]]), log_messages)
     if (nrow(regions_of_sequence) != 0) {
       regions_of_sequence$seqID <- names(fasta_content)[[i]]
@@ -92,10 +92,12 @@ main <- function(cmd_arguments) {
   region_sizes = repetitive_regions$ends - repetitive_regions$starts
   progress_values = region_sizes / sum(region_sizes)
   pb <- txtProgressBar(min = 0, max = 1, style = 1)
+  if (log_messages != "") cat("\n06 / 14 Where's this error?", file = log_messages, append = TRUE)
   arrays <- foreach (i = seq_len(nrow(repetitive_regions)),
                      .combine = rbind,
                      .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read")) %dopar% {
-    .libPaths(c(.libPaths(), gsub("src", "R_libs", getwd())))
+    # if (log_messages != "") cat("\n Got in region", i, file = log_messages, append = TRUE)
+    #.libPaths(c(.libPaths(), gsub("src", "R_libs", getwd())))
     out = split_and_check_arrays(start = repetitive_regions$starts[i],
                                   end = repetitive_regions$ends[i],
                                   sequence = fasta_content[[repetitive_regions$numID[i]]][repetitive_regions$starts[i] : repetitive_regions$ends[i]],
@@ -134,7 +136,7 @@ main <- function(cmd_arguments) {
   if (log_messages != "") cat("07; start representative shift\n", file = log_messages, append = TRUE)
   arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = c("shift_and_compare", "shift_sequence", "compare_circular", "rev_comp_string", "kmer_hash_score")) %dopar% {
     setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
-    if (log_messages != "") cat("07; shifting ", arrays$representative[i],"\n", file = log_messages, append = TRUE)
+    # if (log_messages != "") cat("07; shifting ", arrays$representative[i],"\n", file = log_messages, append = TRUE)
     if(!inherits(arrays$representative[i], "character")) return("_")
     return(shift_and_compare(arrays$representative[i], templates))
   }
@@ -159,13 +161,15 @@ main <- function(cmd_arguments) {
   cat(Sys.time())
   cat("\n")
   cat("################################################################################\n")
+  if (log_messages != "") cat("8 class start: ", Sys.time(), "\n", file = log_messages, append = TRUE)
   arrays = classify_repeats(repeat_df = arrays)
   ## Shift representatives to match the "most important" one ================
   if(do_shift_classes) {
     classes <- unique(arrays$class)
     classes <- classes[!(classes %in% c(names(templates), "none_identified"))]
+    if (log_messages != "") cat("8 shift start: ", Sys.time(), "\n", file = log_messages, append = TRUE)
     arrays_t <- foreach (i = seq_along(classes), .combine = rbind, .export = c("shift_classes", "compare_circular", "rev_comp_string")) %dopar% {
-      if (log_messages != "") cat("08 / 14 \nClassifying class ", i, "\n", file = log_messages, append = TRUE)
+      # if (log_messages != "") cat("08 / 14 \nClassifying class ", i, "\n", file = log_messages, append = TRUE)
       arrays_class <- arrays[arrays$class == classes[i], ]
       arrays_class$representative <- shift_classes(arrays_class)
       return(arrays_class)
@@ -173,6 +177,7 @@ main <- function(cmd_arguments) {
     arrays <- rbind(arrays_t, arrays[which(arrays$class %in% c(names(templates), "none_identified")), ])
     remove(arrays_t)
   }
+  if (log_messages != "") cat("8 finito: ", Sys.time(), "\n", file = log_messages, append = TRUE)
 
   if (log_messages != "") cat("08 / 14 \nFinished classifications, nrow of the arrays: ", nrow(arrays), "\n", file = log_messages, append = TRUE)
 
@@ -187,8 +192,7 @@ main <- function(cmd_arguments) {
   pb <- txtProgressBar(style = 1)
   if (log_messages != "") cat("09; map loop\n", file = log_messages, append = TRUE)
   repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
-    #msg <- paste0("_start_", i, "_\n")
-    #if (log_messages != "") cat(msg, file = log_messages, append = TRUE)
+    time_report_df = as.numeric(Sys.time())
     if (arrays$representative[i] == "") {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
@@ -212,6 +216,7 @@ main <- function(cmd_arguments) {
     ## matchpattern for shorter =============================================
       repeats_df = map_default(i, arrays$representative[i], arrays$seqID[i], arrays$start[i], paste(fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], collapse = ""))
     }
+    time_report_df = c(time_report_df, as.numeric(Sys.time()))
     
     if(nrow(repeats_df) < 2) {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
@@ -249,6 +254,7 @@ main <- function(cmd_arguments) {
                         representative = vector(mode = "character"),
                         score_template = vector(mode = "numeric")))
     }
+    time_report_df = c(time_report_df, as.numeric(Sys.time()))
     ## handle gaps if proper array ==========================================
     
     if (fix_gaps) {
@@ -259,10 +265,11 @@ main <- function(cmd_arguments) {
       #   for (j in seq_len(nrow(repeats_df))) repeats_df$class[j] <- paste0(repeats_df$class[j], "_scattered")
       # }
     }
+    time_report_df = c(time_report_df, as.numeric(Sys.time()))
     
     ## Return nothing if handle_gaps removed all repeats ====================
     if (nrow(repeats_df) < 2) {
-      if (log_messages != "" && i == 1) cat("09; array no ", i, " no repeats after gaps\n", file = log_messages, append = TRUE)
+      # if (log_messages != "" && i == 1) cat("09; array no ", i, " no repeats after gaps\n", file = log_messages, append = TRUE)
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
       return(data.frame(seqID = vector(mode = "character"),
@@ -278,8 +285,10 @@ main <- function(cmd_arguments) {
                         score_template = vector(mode = "numeric")))
     }
     ## Recalculate representative ===========================================
-    max_repeats_to_align <- 50
-    min_repeats_to_recalculate <- 5
+    # TODO: Use more repeats for long arrays, this is stringent and good for most arrays, but some deserve a better recalculation
+    # TODO: check if its the mafft call that is the long part here and see how write_align_read can be sped up
+    max_repeats_to_align <- 15
+    min_repeats_to_recalculate <- 10
     repeats_df$representative <- arrays$representative[i]
     repeats_df$score_template <- -1
     sample_IDs = which(repeats_df$strand != ".")
@@ -288,17 +297,19 @@ main <- function(cmd_arguments) {
       repeats_seq = unlist(lapply(sample_IDs, function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")))
       strands = repeats_df$strand[sample_IDs]
       repeats_seq[which(strands == "-")] = unlist(lapply(repeats_seq[which(strands == "-")], rev_comp_string))
-      if(i==1) print(repeats_seq)
       alignment <- write_align_read(mafft_exe = mafft_dir,
                                     temp_dir = cmd_arguments$output_folder,
                                     sequences = repeats_seq,
-                                    name = paste(arrays$seqID[i], arrays$numID[i], i, runif(1, 0, 1), sep = "_"))
+                                    name = paste(basename(cmd_arguments$fasta_file), arrays$seqID[i], arrays$numID[i], i, runif(1, 0, 1), sep = "_"))
       consensus <- consensus_N(alignment, arrays$top_N[i])
       if (length(consensus) != 0) repeats_df$representative <- consensus
     }
+    time_report_df = c(time_report_df, as.numeric(Sys.time()))
 
-    if (log_messages != "") cat("09; array no ", i, " representative finished\n", file = log_messages, append = TRUE)
+    # if (log_messages != "") cat("09; array no ", i, " representative finished\n", file = log_messages, append = TRUE)
+
     ## If set, change to edit distance based score =========================
+    # TODO: use only unique repeats to recalculate, should make it run faster for arrays with many repeats (where many are also identical)
     if(use_adist_scores) {
       repeats_seq = unlist(lapply(seq_len(nrow(repeats_df)), function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")))
       costs = list(insertions = 1, deletions = 1, substitutions = 1)
@@ -311,6 +322,7 @@ main <- function(cmd_arguments) {
         if (sum(repeats_df$strand == "-") > 0) repeats_df$score_template[repeats_df$strand == "-"] = adist(rev_comp_string(template), repeats_seq[repeats_df$strand == "-"])[1,]  / nchar(template) * 100
       }
     }
+    time_report_df = c(time_report_df, as.numeric(Sys.time()))
     gc()
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
     if (nrow(repeats_df) < 2) {
