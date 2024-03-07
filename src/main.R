@@ -35,7 +35,7 @@ main <- function(cmd_arguments) {
   }
 
   ### 02 / 14 Settings ==================================================================================================
-  kmer <- 12
+  kmer <- 10
   window_size <- (cmd_arguments$max_rep_size + kmer) * 2
   use_adist_scores <- TRUE # using nhmmer, recalculate scores for consistency with other methods
   fix_overlaps <- TRUE

@@ -2,7 +2,7 @@ compare_circular = function(sequence, template, max_size_dif) {
   # brute force it with adist to all shifts
   # TODO: Do it recursive or use compare_kmer_grep into finding the best shift
   if(!(nchar(sequence) %in% floor(nchar(template) * (1 - max_size_dif)) : ceiling(nchar(template) * (1 + max_size_dif)))) {
-    return(list(score = 100, sequence_shifted = sequence))
+    return(list(score = 1, sequence_shifted = sequence))
   }
   string_length <- nchar(sequence)
   start_substrings <- lapply(seq_len(string_length), function(X) substr(sequence, 1, X))
