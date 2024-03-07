@@ -1,6 +1,9 @@
-compare_circular = function(sequence, template) {
+compare_circular = function(sequence, template, max_size_dif) {
   # brute force it with adist to all shifts
-  # TODO: Do it recursive, compare to 4 shifts, choose best, keep going
+  # TODO: Do it recursive or use compare_kmer_grep into finding the best shift
+  if(!(nchar(sequence) %in% floor(nchar(template) * (1 - max_size_dif)) : ceiling(nchar(template) * (1 + max_size_dif)))) {
+    return(list(score = 100, sequence_shifted = sequence))
+  }
   string_length <- nchar(sequence)
   start_substrings <- lapply(seq_len(string_length), function(X) substr(sequence, 1, X))
   end_substrings <- lapply(seq_len(string_length), function(X) substr(sequence, (X + 1), string_length))
@@ -11,7 +14,3 @@ compare_circular = function(sequence, template) {
   sequence_shifted = shifted_strings_all[which.min(scores)]
   return(list(score = min(scores), sequence_shifted = sequence_shifted))
 }
-
-# sequence = "accaaccttcttctcttctcaaagctttcatggtgtagccaaagtccgtatgagtctttggctttgtgtcttctaacaaggatacaattcttacgcctataagatccggttgcggtttaagttcttatactcaatcatacacatgacatcaagtcatattcgactccaaaacacta"
-# template = "taaccaaccttcttcttgcttctcaaagctttcatggtgtagccaaagtccgtatgagtctttggctttgtgtcttctaacaaggatacaattcttacgcctataagatccggttgcggtttaagttcttatactcaatcatacacatgacatcaagtcatattcgactccaaaacac"
-# compare_circular(sequence, template)

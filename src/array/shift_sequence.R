@@ -1,4 +1,4 @@
-shift_sequence <- function(sequence, k = 6) {
+shift_sequence <- function(sequence, k = 3) {
   if(length(unique(strsplit(sequence, split = "")[[1]])) == 1) return(sequence)
 
   string_length <- nchar(sequence)
@@ -36,5 +36,8 @@ shift_sequence <- function(sequence, k = 6) {
   }
   return(sequence)
 }
-# sequence = "accaagcttcttcttgcttctcaaagctttgatggtatagccgaagtccgtatgagtctttgtctttgtatcttctaacaaggatacaatacttaggcttttaagatccggttatggttctagttgttatactcactcatacacatgacatctagtaatatttgactccaaaacacta"
+# sequence = "tttatctggggatattcggtttttccccataggcctcaatgggctcccaaatgtcccttcgcagattctccaaaagagtgtttccaacctgctgaatcaaaagaaaggtttaactctgtgagatgaatccacacatcacaaagcagtttcacagatagcttctttctagtt"
+# shift_sequence(sequence, k = 6)
+
+# sequence = "tttttcaccataggcctcaatgagctcccaaatgtcctttcgcagattctacaaaaacagtgtttccaaactgctgaatcaaaagaaaggtttaactctgtgagatgaatgcacacatcacaaagcagtttctcagaaagcttccttctagtttttatctgaagatattttc"
 # shift_sequence(sequence, k = 6)

@@ -5,10 +5,10 @@ handle_overlaps <- function(repeat_table, overlap_threshold = 0.1, representativ
   repeat_table$overlap_with_next[repeat_table$overlap_with_next < 0] <- 0
 
   while(sum(repeat_table$overlap_with_next) > 0) {
-    this_smaller_than_next <- repeat_table$width[2 : nrow(repeat_table)] < repeat_table$width[1 : (nrow(repeat_table) - 1)]
+    this_smaller_than_next <- repeat_table$width[2 : nrow(repeat_table)] > repeat_table$width[1 : (nrow(repeat_table) - 1)]
     repeat_table$this_next_min_width <- repeat_table$width
     repeat_table$this_next_min_width[this_smaller_than_next] <- repeat_table$width[this_smaller_than_next] 
-    repeat_table$this_next_min_width[!this_smaller_than_next] <- repeat_table$width[which(!this_smaller_than_next) + 1]
+    repeat_table$this_next_min_width[which(!this_smaller_than_next)] <- repeat_table$width[which(!this_smaller_than_next) + 1]
 
     repeat_table$overlap_fraction = repeat_table$overlap_with_next / repeat_table$this_next_min_width
 

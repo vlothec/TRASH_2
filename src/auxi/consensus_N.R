@@ -2,7 +2,8 @@
 
 consensus_N = function(alignment, N)
 {
-  alignment.matrix = seqinr::as.matrix.alignment(alignment)
+  alignment.matrix = tolower(as.matrix(Biostrings::unmasked(alignment)))
+  # alignment.matrix = as.matrix.alignment(alignment)
   
   frequencies = vector(mode = "numeric", length = ncol(alignment.matrix))
   
@@ -34,32 +35,3 @@ consensus_N = function(alignment, N)
   
   return(tolower(paste(consensus, collapse = "")))
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

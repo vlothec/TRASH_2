@@ -31,6 +31,9 @@ installed_and_checked <- function() {
     install.packages("BiocManager", lib = "../R_libs", repos = "http://cran.us.r-project.org")
     BiocManager::install("Biostrings")
   }
+  if (!requireNamespace("msa", quietly = TRUE)) {
+    BiocManager::install("msa")
+  }
   if (suppress_messages) {
     suppressMessages(library(stringr))
     suppressMessages(library(stringdist))
