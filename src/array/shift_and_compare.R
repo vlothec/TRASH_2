@@ -20,7 +20,6 @@ shift_and_compare = function(sequence, templates = 0) {
     for (i in seq_along(templates)) {
       scores[i,] = compare_circular(sequence, paste(templates[[i]], collapse = ""), max_size_dif)
     }
-    print(scores$score)
     if(min(scores$score) <= score_threshold) {
       sequence = scores$sequence_shifted[which.min(scores$score)]
       sequence = paste0(names(templates)[which.min(scores$score)], "_", sequence)

@@ -37,7 +37,6 @@ main <- function(cmd_arguments) {
   ### 02 / 14 Settings ==================================================================================================
   kmer <- 10
   window_size <- (cmd_arguments$max_rep_size + kmer) * 2
-  use_adist_scores <- TRUE # using nhmmer, recalculate scores for consistency with other methods
   fix_overlaps <- TRUE
   fix_gaps <- TRUE
   do_shift_classes <- TRUE
@@ -278,7 +277,7 @@ main <- function(cmd_arguments) {
     repeats_df$class <- arrays$class[i]
     ## Handle overlaps ======================================================
 
-    if (fix_overlaps) repeats_df <- handle_overlaps(repeats_df, overlap_threshold = 0.1, representative_len = arrays$top_N[i])
+    if (fix_overlaps) repeats_df <- handle_overlaps(repeats_df, overlap_threshold = 0.1)
     if (nrow(repeats_df) < 2) {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
@@ -339,19 +338,53 @@ main <- function(cmd_arguments) {
     }
     time_report_df <- c(time_report_df, as.numeric(Sys.time()))
 
-    ## If set, change to edit distance based score =========================
+    ## Change to edit distance based score =================================
     # TODO: use only unique repeats to recalculate, should make it run faster for arrays with many repeats (where many are also identical)
-    if (use_adist_scores) {
-      repeats_seq <- unlist(lapply(seq_len(nrow(repeats_df)), function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")))
-      costs <- list(insertions = 1, deletions = 1, substitutions = 1)
-      if (sum(repeats_df$strand == "+") > 0) repeats_df$score[repeats_df$strand == "+"] <- adist(repeats_df$representative[1], repeats_seq[repeats_df$strand == "+"], costs)[1, ]  / nchar(repeats_df$representative[1]) * 100
-      if (sum(repeats_df$strand == "-") > 0) repeats_df$score[repeats_df$strand == "-"] <- adist(rev_comp_string(repeats_df$representative[1]), repeats_seq[repeats_df$strand == "-"])[1, ]  / nchar(repeats_df$representative[1]) * 100
-
-      if (arrays$class[i] %in% names(templates)) {
-        template <- paste(templates[[which(arrays$class[i] == names(templates))]], collapse = "")
-        if (sum(repeats_df$strand == "+") > 0) repeats_df$score_template[repeats_df$strand == "+"] <- adist(template, repeats_seq[repeats_df$strand == "+"], costs)[1, ]  / nchar(template) * 100
-        if (sum(repeats_df$strand == "-") > 0) repeats_df$score_template[repeats_df$strand == "-"] <- adist(rev_comp_string(template), repeats_seq[repeats_df$strand == "-"])[1, ]  / nchar(template) * 100
+    repeats_seq <- unlist(lapply(seq_len(nrow(repeats_df)), function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")))
+    costs <- list(insertions = 1, deletions = 1, substitutions = 1)
+    if (sum(repeats_df$strand == "+") > 0) repeats_df$score[repeats_df$strand == "+"] <- adist(repeats_df$representative[1], repeats_seq[repeats_df$strand == "+"], costs)[1, ]  / nchar(repeats_df$representative[1]) * 100
+    if (sum(repeats_df$strand == "-") > 0) repeats_df$score[repeats_df$strand == "-"] <- adist(rev_comp_string(repeats_df$representative[1]), repeats_seq[repeats_df$strand == "-"])[1, ]  / nchar(repeats_df$representative[1]) * 100
+    if (arrays$class[i] %in% names(templates)) {
+      template <- paste(templates[[which(arrays$class[i] == names(templates))]], collapse = "")
+      if (sum(repeats_df$strand == "+") > 0) repeats_df$score_template[repeats_df$strand == "+"] <- adist(template, repeats_seq[repeats_df$strand == "+"], costs)[1, ]  / nchar(template) * 100
+      if (sum(repeats_df$strand == "-") > 0) repeats_df$score_template[repeats_df$strand == "-"] <- adist(rev_comp_string(template), repeats_seq[repeats_df$strand == "-"])[1, ]  / nchar(template) * 100
+    }
+    ### Correct repeats split into two by nhmmer ===========================
+    score_min_to_merge = 30
+    size_max_to_merge = 1.0
+    i = 1
+    while(i < nrow(repeats_df)) {
+      if (repeats_df$score[i] > score_min_to_merge &&
+            repeats_df$score[i + 1] > score_min_to_merge &&
+            (sum(repeats_df$width[i : (i + 1)]) < (size_max_to_merge * nchar(repeats_df$representative[1])))) {
+        # both have high score and are short
+        if ((repeats_df$strand[i] == "+") && (repeats_df$strand[i + 1] == "+")) {
+          new_score = adist(repeats_df$representative[1], paste0(repeats_seq[i : (i + 1)], collapse = ""), costs)[1, ]  / nchar(repeats_df$representative[1]) * 100
+          if (new_score < min(repeats_df$score[i : (i + 1)])) {
+            repeats_df$end[i] = repeats_df$end[i + 1]
+            repeats_df = repeats_df[-(i + 1),]
+            repeats_seq = repeats_seq[-(i + 1)]
+            repeats_seq[i] = paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[i] : repeats_df$end[i]], collapse = "")
+            repeats_df$score[i] = new_score
+            if (arrays$class[i] %in% names(templates)) {
+              repeats_df$score_template[i] <- adist(template, repeats_seq[i])[1, ]  / nchar(template) * 100
+            }
+          }
+        } else if ((repeats_df$strand[i] == "-") && (repeats_df$strand[i + 1] == "-")) {
+          new_score = adist(rev_comp_string(repeats_df$representative[1]), paste0(repeats_seq[i : (i + 1)], collapse = ""), costs)[1, ]  / nchar(repeats_df$representative[1]) * 100
+          if (new_score < min(repeats_df$score[i : (i + 1)])) {
+            repeats_df$end[i] = repeats_df$end[i + 1]
+            repeats_df = repeats_df[-(i + 1), ]
+            repeats_seq = repeats_seq[-(i + 1)]
+            repeats_seq[i] = paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[i] : repeats_df$end[i]], collapse = "")
+            repeats_df$score[i] = new_score
+            if (arrays$class[i] %in% names(templates)) {
+              repeats_df$score_template[i] <- adist(rev_comp_string(template), repeats_seq[i])[1, ]  / nchar(template) * 100
+            }
+          }
+        }
       }
+      i = i + 1
     }
     time_report_df <- c(time_report_df, as.numeric(Sys.time()))
     gc()
@@ -418,7 +451,7 @@ main <- function(cmd_arguments) {
     if (nrow(repeats_temp) > 0) {
       arrays$repeats_number[i] <- nrow(repeats_temp)
       arrays$median_repeat_width[i] <- ceiling(median(repeats_temp$width))
-      if (use_adist_scores) arrays$median_score[i] <- ceiling(median(repeats_temp$score))
+      arrays$median_score[i] <- ceiling(median(repeats_temp$score))
     }
   }
   arrays <- arrays[arrays$repeats_number != 0, ]
