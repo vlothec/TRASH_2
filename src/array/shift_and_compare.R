@@ -2,7 +2,7 @@ shift_and_compare = function(sequence, templates = 0) {
   if(sequence == "") {
     return(paste0("_", sequence))
   }
-  score_threshold = 0.2
+  score_threshold = 0.15
   max_size_dif = 0.1
 
   ### Shift =================================================
