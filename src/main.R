@@ -106,6 +106,7 @@ main <- function(cmd_arguments) {
   region_sizes <- repetitive_regions$ends - repetitive_regions$starts
   progress_values <- region_sizes / sum(region_sizes)
   pb <- txtProgressBar(min = 0, max = 1, style = 1)
+  print("where error")
   arrays <- foreach (i = seq_len(nrow(repetitive_regions)),
                      .combine = rbind,
                      .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read", "seq_win_score_int")) %dopar% {
@@ -125,6 +126,7 @@ main <- function(cmd_arguments) {
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
     return(out)
   }
+  print("where error")
   close(pb)
   gc()
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_aregarrays.csv")), row.names = FALSE)
