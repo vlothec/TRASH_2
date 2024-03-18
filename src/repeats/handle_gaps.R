@@ -5,7 +5,7 @@ handle_gaps <- function(repeat_table, representative_len) {
   repeat_table$gap_to_next[repeat_table$gap_to_next < 0] <- 0
   repeat_table$gap_to_next[nrow(repeat_table)] <- 9999999
 
-  repeats_to_remove = NULL
+  repeats_to_remove <- NULL
 
   for(i in seq_len(nrow(repeat_table))) {
     if(repeat_table$gap_to_next[i] > 0) {

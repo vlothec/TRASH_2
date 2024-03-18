@@ -37,9 +37,6 @@ main <- function(cmd_arguments) {
   ### 02 / 14 Settings ==================================================================================================
   kmer <- 10
   window_size <- (cmd_arguments$max_rep_size + kmer) * 2
-  fix_overlaps <- TRUE
-  fix_gaps <- TRUE
-  do_shift_classes <- TRUE
   report_runtime <- TRUE
 
   times <- list(time = as.numeric(Sys.time()), event = "Start main function", data_type = "none", data_value = 0)
@@ -195,22 +192,18 @@ main <- function(cmd_arguments) {
 
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_arrays.csv")), row.names = FALSE)
 
-  if (do_shift_classes) {
-    classes <- unique(arrays$class)
-    classes <- classes[!(classes %in% c(names(templates), "none_identified"))]
-    if (length(classes) != 0) {
-      pb <- txtProgressBar(style = 1, min = 0, max = length(classes))
-      arrays_t <- foreach (i = seq_along(classes), .combine = rbind, .export = c("compare_kmer_grep", "shift_classes", "compare_circular", "rev_comp_string")) %dopar% {
-        arrays_class <- arrays[arrays$class == classes[i], ]
-        arrays_class$representative <- shift_classes(arrays_class, kmer = 6)
-        setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
-        return(arrays_class)
-      }
-      arrays <- rbind(arrays_t, arrays[which(arrays$class %in% c(names(templates), "none_identified")), ])
-      remove(arrays_t)
-    } else {
-      cat("================================================================================")
+  classes <- unique(arrays$class)
+  classes <- classes[!(classes %in% c(names(templates), "none_identified"))]
+  if (length(classes) != 0) {
+    pb <- txtProgressBar(style = 1, min = 0, max = length(classes))
+    arrays_t <- foreach (i = seq_along(classes), .combine = rbind, .export = c("compare_kmer_grep", "shift_classes", "compare_circular", "rev_comp_string")) %dopar% {
+      arrays_class <- arrays[arrays$class == classes[i], ]
+      arrays_class$representative <- shift_classes(arrays_class, kmer = 6)
+      setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
+      return(arrays_class)
     }
+    arrays <- rbind(arrays_t, arrays[which(arrays$class %in% c(names(templates), "none_identified")), ])
+    remove(arrays_t)
   } else {
     cat("================================================================================")
   }
@@ -230,12 +223,9 @@ main <- function(cmd_arguments) {
   array_sizes <- arrays$end - arrays$start
   progress_values <- array_sizes / sum(array_sizes)
   pb <- txtProgressBar(style = 1)
-  repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
+  repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("fill_gaps", "write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
     time_report_df <- as.numeric(Sys.time())
-    if (arrays$representative[i] == "") {
-      setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
-      gc()
-      return(data.frame(seqID = vector(mode = "character"),
+    default_df = data.frame(seqID = vector(mode = "character"),
                         arrayID = vector(mode = "numeric"),
                         start = vector(mode = "numeric"),
                         end = vector(mode = "numeric"),
@@ -245,7 +235,11 @@ main <- function(cmd_arguments) {
                         width = vector(mode = "numeric"),
                         class = vector(mode = "character"),
                         representative = vector(mode = "character"),
-                        score_template = vector(mode = "numeric")))
+                        score_template = vector(mode = "numeric"))
+    if (arrays$representative[i] == "") {
+      setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+      gc()
+      return(default_df)
     }
     if (arrays$top_N[i] >= 14) {
       ## nhmmer for repeats of 14+ bp =======================================
@@ -260,62 +254,30 @@ main <- function(cmd_arguments) {
     if (nrow(repeats_df) < 2) {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      return(data.frame(seqID = vector(mode = "character"),
-                        arrayID = vector(mode = "numeric"),
-                        start = vector(mode = "numeric"),
-                        end = vector(mode = "numeric"),
-                        strand = vector(mode = "character"),
-                        score = vector(mode = "numeric"),
-                        eval = vector(mode = "numeric"),
-                        width = vector(mode = "numeric"),
-                        class = vector(mode = "character"),
-                        representative = vector(mode = "character"),
-                        score_template = vector(mode = "numeric")))
+      return(default_df)
     }
     ## add width and class ============================================================
     repeats_df$width <- repeats_df$end - repeats_df$start + 1
     repeats_df$class <- arrays$class[i]
     ## Handle overlaps ======================================================
 
-    if (fix_overlaps) repeats_df <- handle_overlaps(repeats_df, overlap_threshold = 0.1)
+    repeats_df <- handle_overlaps(repeats_df, overlap_threshold = 0.1)
     if (nrow(repeats_df) < 2) {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      return(data.frame(seqID = vector(mode = "character"),
-                        arrayID = vector(mode = "numeric"),
-                        start = vector(mode = "numeric"),
-                        end = vector(mode = "numeric"),
-                        strand = vector(mode = "character"),
-                        score = vector(mode = "numeric"),
-                        eval = vector(mode = "numeric"),
-                        width = vector(mode = "numeric"),
-                        class = vector(mode = "character"),
-                        representative = vector(mode = "character"),
-                        score_template = vector(mode = "numeric")))
+      return(default_df)
     }
     time_report_df <- c(time_report_df, as.numeric(Sys.time()))
     ## handle gaps if proper array ==========================================
+    repeats_df <- handle_gaps(repeats_df, representative_len = arrays$top_N[i])
 
-    if (fix_gaps) {
-      repeats_df <- handle_gaps(repeats_df, representative_len = arrays$top_N[i])
-    }
     time_report_df <- c(time_report_df, as.numeric(Sys.time()))
 
     ## Return nothing if handle_gaps removed all repeats ====================
     if (nrow(repeats_df) < 2) {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
-      return(data.frame(seqID = vector(mode = "character"),
-                        arrayID = vector(mode = "numeric"),
-                        start = vector(mode = "numeric"),
-                        end = vector(mode = "numeric"),
-                        strand = vector(mode = "character"),
-                        score = vector(mode = "numeric"),
-                        eval = vector(mode = "numeric"),
-                        width = vector(mode = "numeric"),
-                        class = vector(mode = "character"),
-                        representative = vector(mode = "character"),
-                        score_template = vector(mode = "numeric")))
+      return(default_df)
     }
     ## Recalculate representative ===========================================
     # TODO: Use more repeats for long arrays, this is stringent and good for most arrays, but some deserve a better recalculation
@@ -338,7 +300,11 @@ main <- function(cmd_arguments) {
     }
     time_report_df <- c(time_report_df, as.numeric(Sys.time()))
 
-    ## Change to edit distance based score =================================
+    ## check if short gaps contain the repeat ===============================
+    repeats_df <- fill_gaps(repeats_df, fasta_content[[arrays$numID[i]]][arrays$start[i] : arrays$end[i]], arrays$start[i])
+    time_report_df <- c(time_report_df, as.numeric(Sys.time()))
+
+    ## Change to edit distance based score ==================================
     # TODO: use only unique repeats to recalculate, should make it run faster for arrays with many repeats (where many are also identical)
     repeats_seq <- unlist(lapply(seq_len(nrow(repeats_df)), function(X) paste0(fasta_content[[arrays$numID[i]]][repeats_df$start[X] : repeats_df$end[X]], collapse = "")))
     costs <- list(insertions = 1, deletions = 1, substitutions = 1)
@@ -349,10 +315,10 @@ main <- function(cmd_arguments) {
       if (sum(repeats_df$strand == "+") > 0) repeats_df$score_template[repeats_df$strand == "+"] <- adist(template, repeats_seq[repeats_df$strand == "+"], costs)[1, ]  / nchar(template) * 100
       if (sum(repeats_df$strand == "-") > 0) repeats_df$score_template[repeats_df$strand == "-"] <- adist(rev_comp_string(template), repeats_seq[repeats_df$strand == "-"])[1, ]  / nchar(template) * 100
     }
-    ### Correct repeats split into two by nhmmer ===========================
-    score_min_to_merge = 30
-    size_max_to_merge = 1.0
-    i = 1
+    ### Correct repeats split into two by nhmmer ============================
+    score_min_to_merge <- 30
+    size_max_to_merge <- 1.0
+    i <- 1
     while(i < nrow(repeats_df)) {
       if (repeats_df$score[i] > score_min_to_merge &&
             repeats_df$score[i + 1] > score_min_to_merge &&
@@ -390,17 +356,7 @@ main <- function(cmd_arguments) {
     gc()
     setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
     if (nrow(repeats_df) < 2) {
-      return(data.frame(seqID = vector(mode = "character"),
-                        arrayID = vector(mode = "numeric"),
-                        start = vector(mode = "numeric"),
-                        end = vector(mode = "numeric"),
-                        strand = vector(mode = "character"),
-                        score = vector(mode = "numeric"),
-                        eval = vector(mode = "numeric"),
-                        width = vector(mode = "numeric"),
-                        class = vector(mode = "character"),
-                        representative = vector(mode = "character"),
-                        score_template = vector(mode = "numeric")))
+      return(default_df)
     }
     repeats_df <- repeats_df[c("seqID", "arrayID", "start", "end", "strand", "score", "eval", "width", "class", "representative", "score_template")]
     repeats_df$seqID <- as.character(repeats_df$seqID)
