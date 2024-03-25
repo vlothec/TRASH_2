@@ -38,6 +38,7 @@ main <- function(cmd_arguments) {
   kmer <- 10
   window_size <- (cmd_arguments$max_rep_size + kmer) * 2
   report_runtime <- TRUE
+  add_sequence_info <- TRUE
 
   times <- list(time = as.numeric(Sys.time()), event = "Start main function", data_type = "none", data_value = 0)
 
@@ -461,6 +462,16 @@ main <- function(cmd_arguments) {
              strand = 5,
              attributes = c(9, 6, 10),
              attribute.names = c("Name=", "Arry_EDS=", "Family_EDS="))
+
+  if (add_sequence_info) {
+    repeats$sequence <- ""
+
+    repeats$sequence <- unlist(lapply(seq_len(nrow(repeats)), function(X) paste0(fasta_content[[which(names(fasta_content) == repeats$seqID[X])]][repeats$start[X] : repeats$end[X]], collapse = "")))
+
+    repeats$sequence[which(repeats$strand == "-")] <- unlist(lapply(repeats$sequence[which(repeats$strand == "-")], rev_comp_string))
+    write.csv(x = repeats, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_repeats_with_seq.csv")), row.names = FALSE)
+  }
+
   cat("================================================================================\n")
   times$time <- append(times$time, as.numeric(Sys.time()))
   times$event <- append(times$event, "Finished 13 saved repeats info")
