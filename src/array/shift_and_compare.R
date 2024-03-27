@@ -1,6 +1,6 @@
 shift_and_compare = function(sequence, templates = 0) {
   if(sequence == "") {
-    return(paste0("_", sequence))
+    return(paste0("_split_", sequence))
   }
   score_threshold = 0.2
   max_size_dif = 0.15
@@ -10,7 +10,7 @@ shift_and_compare = function(sequence, templates = 0) {
   sequence = shift_sequence(sequence)
   if(!inherits(sequence, "character")) {
     print(paste0("shift_and_compare: sequence is not character"))
-    return("_")
+    return("_split_")
   }
 
   if(!inherits(templates, "numeric")) {
@@ -22,12 +22,12 @@ shift_and_compare = function(sequence, templates = 0) {
     }
     if(min(scores$score) <= score_threshold) {
       sequence = scores$sequence_shifted[which.min(scores$score)]
-      sequence = paste0(names(templates)[which.min(scores$score)], "_", sequence)
+      sequence = paste0(names(templates)[which.min(scores$score)], "_split_", sequence)
     } else {
-      sequence <- paste0("_", sequence)
+      sequence <- paste0("_split_", sequence)
     }
   } else {
-    sequence = paste0("_", sequence)
+    sequence = paste0("_split_", sequence)
   }
   if(!inherits(sequence, "character")) print(paste0("shift_and_compare: sequence is not character"))
   return(sequence)

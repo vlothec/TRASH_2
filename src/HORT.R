@@ -12,11 +12,9 @@ this_file <- function() {
 arguments <- commandArgs(trailingOnly = TRUE)
 run_dir <- getwd()
 
-setwd(gsub("TRASH.R", "", this_file()))
-source_files <- list.files(path = ".", pattern = ".R", recursive = TRUE)
-source_files <- unlist(source_files[-grep("TRASH.R", source_files)])
-source_files <- unlist(source_files[-grep("hort", source_files)])
-source_files <- unlist(source_files[-grep("HORT.R", source_files)])
+setwd(gsub("HORT.R", "", this_file()))
+source_files <- list.files(path = "./hort/", pattern = ".R", recursive = TRUE, full.names = TRUE)
+source_files <- unlist(source_files)
 for (i in seq_along(source_files)) {
   source(source_files[i])
 }
@@ -24,10 +22,10 @@ for (i in seq_along(source_files)) {
 if (installed_and_checked()) {
   arguments <- parse_arguments(arguments, run_dir)
   set.seed(0)
-  main(arguments)
-  print("TRASH exiting correctly")
+  hort(arguments)
+  print("TRASH HOR exiting correctly")
   print(paste0("Time elapsed: ", dhms(as.numeric(Sys.time()) - timeA)))
 } else {
-  print("TRASH exiting 1")
+  print("TRASH HOR exiting 1")
   print(paste0("Time elapsed: ", dhms(as.numeric(Sys.time()) - timeA)))
 }

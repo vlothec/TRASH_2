@@ -1,6 +1,18 @@
 read_and_format_nhmmer <- function(nhmmer_file, seqID, arrayID) { # nolint
-if(!file.exists(nhmmer_file)) stop("Error: Could not find the nhmmer file")
+  if (!file.exists(nhmmer_file)) warning(paste0("read_and_format_nhmmer Warning: could not find the nhmmer file: ",
+                                                nhmmer_file))
+  if (file.size(nhmmer_file) == 0) warning(paste0("read_and_format_nhmmer Warning: the nhmmer file is empty ",
+                                                  nhmmer_file))
   lines <- readLines(con = nhmmer_file)
+  if (length(lines) == 0) {
+    return(data.frame(seqID = vector(mode = "character"),
+                      arrayID = vector(mode = "numeric"),
+                      start = vector(mode = "numeric"),
+                      end = vector(mode = "numeric"),
+                      strand = vector(mode = "character"),
+                      score = vector(mode = "numeric",),
+                      eval = vector(mode = "numeric")))
+  }
   lines <- lines[!grepl("#", x = lines)]
   if (length(lines) == 0) {
     return(data.frame(seqID = vector(mode = "character"),
@@ -19,7 +31,7 @@ if(!file.exists(nhmmer_file)) stop("Error: Could not find the nhmmer file")
   # Convert the list to a data frame
   nhmmer <- as.data.frame(do.call(rbind, data))
 
-  if(nrow(nhmmer) == 0) {
+  if (nrow(nhmmer) == 0) {
     return(data.frame(seqID = vector(mode = "character"),
                       arrayID = vector(mode = "numeric"),
                       start = vector(mode = "numeric"),

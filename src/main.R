@@ -169,12 +169,12 @@ main <- function(cmd_arguments) {
 
   arrays$class <- ""
   for (i in seq_len(nrow(arrays))) {
-    if (arrays$representative[i] == "_") {
+    if (arrays$representative[i] == "_split_") {
       arrays$representative[i] <- ""
       next()
     }
-    arrays$class[i] <- strsplit(arrays$representative[i], split = "_")[[1]][1]
-    arrays$representative[i] <- strsplit(arrays$representative[i], split = "_")[[1]][2]
+    arrays$class[i] <- strsplit(arrays$representative[i], split = "_split_")[[1]][1]
+    arrays$representative[i] <- strsplit(arrays$representative[i], split = "_split_")[[1]][2]
   }
   close(pb)
   times$time <- append(times$time, as.numeric(Sys.time()))
