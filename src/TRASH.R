@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+options(error=recover) 
 timeA <- as.numeric(Sys.time())
 this_file <- function() {
   cmd_args <- commandArgs(trailingOnly = FALSE)

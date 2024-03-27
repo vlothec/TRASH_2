@@ -12,6 +12,11 @@ write_align_read <- function(mafft_exe, temp_dir, sequences, name = "", options 
     stop("seq_names are not a character string")
   }
 
+  if (length(sequences) == 0) {
+    warning("write_align_read: no sequence provided")
+    return(NULL)
+  }
+
   if (seq_names == "") seq_names <- seq_along(sequences)
 
   if (options == "") options <- "--retree 2 --inputorder"

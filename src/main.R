@@ -18,11 +18,11 @@ main <- function(cmd_arguments) {
   log_messages <- file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_main_log_file.txt")) #TODO make into a flag
   log_messages <- ""
 
-  cl <- makeCluster(cmd_arguments$cores_no)
+  cl <- makeCluster(cmd_arguments$cores_no, outfile="")
   registerDoParallel(cl)
   foreach (i = 1 : getDoParWorkers()) %dopar% {
-    sink() # brings output back to the console
-    set.seed(0) # Sets random seed for reproducibility
+    # sink() # brings output back to the console
+    # set.seed(0) # Sets random seed for reproducibility
   }
 
   if (log_messages != "") {
@@ -56,25 +56,29 @@ main <- function(cmd_arguments) {
   times$event <- append(times$event, "03 Fasta loaded")
   times$data_type <- append(times$data_type, "Fasta total length")
   times$data_value <- append(times$data_value, sum(sapply(fasta_content, length)))
+  if(length(fasta_content) == 0) {warning("Fasta could no be read or is empty"); return(1)}
 
   ### 04 / 14 Calculate repeat scores for each sequence =================================================================
   cat(" 04 / 13 Calculating repeat scores for each sequence             ")
   cat(Sys.time())
   cat("\n")
   cat("################################################################################\n")
-  pb <- txtProgressBar(min = 0, max = length(fasta_content), style = 1)
+  # pb <- txtProgressBar(min = 0, max = length(fasta_content), style = 1)
   repeat_scores <- list()
+  cat("\n")
   for (i in seq_along(fasta_content)) {
-    repeat_scores <- append(repeat_scores, list(sequence_window_score(fasta_content[[i]], window_size, kmer))) # it's parallel
-    setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
+    cat(i, " ")
+    repeat_scores <- append(repeat_scores, list(sequence_window_score(fasta_content[[i]], window_size, kmer))) # it's parallel inside
+    # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
   }
-  close(pb)
+  cat("\n")
+  # close(pb)
   gc()
   times$time <- append(times$time, as.numeric(Sys.time()))
   times$event <- append(times$event, "Finished 04 sequence window score")
   times$data_type <- append(times$data_type, "Fasta total length")
   times$data_value <- append(times$data_value, sum(sapply(fasta_content, length)))
-
+  warnings()
   ### 05 / 14 Identify regions with high repeat content and merge into a df =============================================
   cat(" 05 / 13 Identifying regions with high repeat content            ")
   cat(Sys.time())
@@ -82,6 +86,7 @@ main <- function(cmd_arguments) {
   cat("################################################################################\n")
   repetitive_regions <- data.frame(starts = NULL, ends = NULL, scores = NULL, seqID = NULL, numID = NULL)
   for (i in seq_along(repeat_scores)) {
+    if (length(repeat_scores[[i]]) == 0) next
     regions_of_sequence <- merge_windows(list_of_scores = repeat_scores[[i]], window_size = window_size, sequence_full_length = length(fasta_content[[i]]), log_messages)
     if (nrow(regions_of_sequence) != 0) {
       regions_of_sequence$seqID <- names(fasta_content)[[i]]
@@ -98,7 +103,7 @@ main <- function(cmd_arguments) {
   times$event <- append(times$event, "Finished 05 merge windows into regions")
   times$data_type <- append(times$data_type, "Number of windows to merge")
   times$data_value <- append(times$data_value, sum(sapply(repeat_scores, length)))
-
+  warnings()
   ### 06 / 14 Split regions into arrays =================================================================================
   cat(" 06 / 13 Identifying individual arrays with repeats              ")
   cat(Sys.time())
@@ -106,7 +111,7 @@ main <- function(cmd_arguments) {
   cat("################################################################################\n")
   region_sizes <- repetitive_regions$ends - repetitive_regions$starts
   progress_values <- region_sizes / sum(region_sizes)
-  pb <- txtProgressBar(min = 0, max = 1, style = 1)
+  # pb <- txtProgressBar(min = 0, max = 1, style = 1)
   print("where error")
   arrays <- foreach (i = seq_len(nrow(repetitive_regions)),
                      .combine = rbind,
@@ -124,11 +129,12 @@ main <- function(cmd_arguments) {
                                   src_dir = getwd(),
                                   sink_output = FALSE,
                                   kmer = kmer)
-    setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+    # setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+    warnings()
     return(out)
   }
   print("where error")
-  close(pb)
+  # close(pb)
   gc()
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_aregarrays.csv")), row.names = FALSE)
 
@@ -137,13 +143,13 @@ main <- function(cmd_arguments) {
   times$event <- append(times$event, "Finished 06 split regions into arrays")
   times$data_type <- append(times$data_type, "Total length of arrays")
   times$data_value <- append(times$data_value, sum(arrays$end - arrays$start))
-
+  warnings()
   ### 07 / 14 Shift representative repeats and apply templates ==========================================================
   cat(" 07 / 13 Shifting representative and comparing templates         ")
   cat(Sys.time())
   cat("\n")
   cat("################################################################################\n")
-  pb <- txtProgressBar(min = 0, max = nrow(arrays), style = 1)
+  # pb <- txtProgressBar(min = 0, max = nrow(arrays), style = 1)
   if (cmd_arguments$templates != 0) {
     templates <- read_fasta_and_list(cmd_arguments$templates)
     length_templates <- length(templates)
@@ -158,7 +164,7 @@ main <- function(cmd_arguments) {
   times$data_value <- append(times$data_value, length_templates)
 
   arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = c("shift_and_compare", "shift_sequence", "compare_circular", "rev_comp_string", "kmer_hash_score")) %dopar% {
-    setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
+    # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
     if (!inherits(arrays$representative[i], "character")) return("_")
     return(shift_and_compare(arrays$representative[i], templates))
   }
@@ -176,12 +182,12 @@ main <- function(cmd_arguments) {
     arrays$class[i] <- strsplit(arrays$representative[i], split = "_split_")[[1]][1]
     arrays$representative[i] <- strsplit(arrays$representative[i], split = "_split_")[[1]][2]
   }
-  close(pb)
+  # close(pb)
   times$time <- append(times$time, as.numeric(Sys.time()))
   times$event <- append(times$event, "Finished 07")
   times$data_type <- append(times$data_type, "Arrays nrow")
   times$data_value <- append(times$data_value, nrow(arrays))
-
+  warnings()
   ### 08 / 14 Classify unclassified and shift ===========================================================================
   cat(" 08 / 13 Classifying remaining representative repeats            ")
   cat(Sys.time())
@@ -198,14 +204,15 @@ main <- function(cmd_arguments) {
   classes <- unique(arrays$class)
   classes <- classes[!(classes %in% c(names(templates), "none_identified"))]
   if (length(classes) != 0) {
-    pb <- txtProgressBar(style = 1, min = 0, max = length(classes))
+    # pb <- txtProgressBar(style = 1, min = 0, max = length(classes))
     arrays_t <- foreach (i = seq_along(classes), .combine = rbind, .export = c("compare_kmer_grep", "shift_classes", "compare_circular", "rev_comp_string")) %dopar% {
       arrays_class <- arrays[arrays$class == classes[i], ]
       arrays_class$representative <- shift_classes(arrays_class, kmer = 6)
-      setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
+      # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
       return(arrays_class)
     }
     arrays <- rbind(arrays_t, arrays[which(arrays$class %in% c(names(templates), "none_identified")), ])
+    # close(pb)
     remove(arrays_t)
   } else {
     cat("================================================================================")
@@ -217,7 +224,7 @@ main <- function(cmd_arguments) {
   times$event <- append(times$event, "Finished 08 shift classes")
   times$data_type <- append(times$data_type, "Unique classes number")
   times$data_value <- append(times$data_value, length(unique(arrays$class)))
-
+  warnings()
   ### 09 / 14 Map repeats ===============================================================================================
   cat(" 09 / 13 Mapping array representatives                           ")
   cat(Sys.time())
@@ -225,7 +232,7 @@ main <- function(cmd_arguments) {
   cat("################################################################################\n")
   array_sizes <- arrays$end - arrays$start
   progress_values <- array_sizes / sum(array_sizes)
-  pb <- txtProgressBar(style = 1)
+  # pb <- txtProgressBar(style = 1)
   repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("fill_gaps", "write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
     time_report_df <- as.numeric(Sys.time())
     default_df = data.frame(seqID = vector(mode = "character"),
@@ -240,7 +247,7 @@ main <- function(cmd_arguments) {
                         representative = vector(mode = "character"),
                         score_template = vector(mode = "numeric"))
     if (arrays$representative[i] == "") {
-      setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+      # setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
       return(default_df)
     }
@@ -255,7 +262,7 @@ main <- function(cmd_arguments) {
     time_report_df <- c(time_report_df, as.numeric(Sys.time()))
 
     if (nrow(repeats_df) < 2) {
-      setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+      # setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
       return(default_df)
     }
@@ -266,7 +273,7 @@ main <- function(cmd_arguments) {
 
     repeats_df <- handle_overlaps(repeats_df, overlap_threshold = 0.1)
     if (nrow(repeats_df) < 2) {
-      setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+      # setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
       return(default_df)
     }
@@ -278,7 +285,7 @@ main <- function(cmd_arguments) {
 
     ## Return nothing if handle_gaps removed all repeats ====================
     if (nrow(repeats_df) < 2) {
-      setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+      # setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
       gc()
       return(default_df)
     }
@@ -357,7 +364,7 @@ main <- function(cmd_arguments) {
     }
     time_report_df <- c(time_report_df, as.numeric(Sys.time()))
     gc()
-    setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+    # setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
     if (nrow(repeats_df) < 2) {
       return(default_df)
     }
@@ -373,14 +380,15 @@ main <- function(cmd_arguments) {
     repeats_df$class <- as.character(repeats_df$class)
     repeats_df$representative <- as.character(repeats_df$representative)
     repeats_df$score_template <- as.numeric(repeats_df$score_template)
+    warnings()
     return(repeats_df)
   }
-  close(pb)
+  # close(pb)
   times$time <- append(times$time, as.numeric(Sys.time()))
   times$event <- append(times$event, "Finished 09 map repeats")
   times$data_type <- append(times$data_type, "Repeats number")
   times$data_value <- append(times$data_value, nrow(repeats))
-
+  warnings()
   ### 10 / 14 ===========================================================================================================
 
   ### 11 / 14 Summarise array information ===============================================================================
