@@ -59,7 +59,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
       windows_comparison_score[i] <- sum(kmers_window_B %in% kmers_window_A) / length(kmers_window_B)
     }
     
-    remove(window_starts, window_ends, window_ends_compare)
+    remove(window_starts, window_ends_compare)
   }
   gc()
   if (length(windows_comparison_score) == 0) {
@@ -133,7 +133,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
       remove(array_breaks_coordinates)
     }
   }
-  remove(window_starts_compare)
+  remove(window_starts_compare, window_ends)
   gc()
   if (!inherits(arrays, "data.frame")) { # sanity check, this should not happen
     arrays <- data.frame(start = start, end = end, seqID = seqID, numID = numID, score = -3, top_N = 0, top_5_N = "", representative = "")
