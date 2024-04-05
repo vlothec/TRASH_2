@@ -21,14 +21,39 @@ sequence_window_score <- function(fasta_sequence, window_size, kmer = 10) {
     }
     ends[ends > sequence_full_length] <- sequence_full_length
   }
-  
-  scores <- foreach (i = seq_along(starts), .combine = c, .export = c("extract_kmers", "seq_win_score_int")) %dopar% {
-    seq_win_score_int(1, window_size, kmer, fasta_sequence[starts[i] : ends[i]], fraction_p)
+  # cat(seq_along(starts), "\n")
+  #divide into chunks
+  scores <- NULL
+
+  chunk_starts <- seq(1, length(starts), 10000)
+  chunk_starts <- c(chunk_starts, (length(starts) + 1))
+  cat("Sequence full length: ", round(sequence_full_length / 1000000, 3), " Mbp \t", sep = "")
+  cat("Chunks to complete: ", (length(chunk_starts) - 1), ". Finished: ", sep = "")
+
+  for(i in 1 : (length(chunk_starts) - 1)) {
+    sequence_substring <- fasta_sequence[starts[chunk_starts[i]] : ends[chunk_starts[i + 1] - 1]]
+    scores <- c(scores, foreach::foreach (j = (chunk_starts[i] : (chunk_starts[i + 1] - 1)),
+                                          .combine = c,
+                                          .export = c("seq_win_score_int")) %dopar% {
+      # cat(paste("A", i, j, "",  sep = " "))
+      result <- seq_win_score_int(1, window_size, kmer, sequence_substring[(starts[j] - starts[chunk_starts[i]] + 1) : (ends[j] - starts[chunk_starts[i]] + 1)], fraction_p)
+      # cat(paste("B", i, j, "",  sep = " "))
+      return(result)
+    })
+    cat(i, "")
   }
-  # scores <- NULL
-  # for (i in seq_along(starts)) {
-  #   scores = c(scores, seq_win_score_int(1, window_size, kmer, fasta_sequence[starts[i] : ends[i]], fraction_p))
+  cat("\n")
+  # cat("a ", length(starts), sequence_full_length, "\n")
+  # scores <- foreach::foreach (i = seq_along(starts),
+  #                             .combine = c,
+  #                             .export = c("seq_win_score_int")) %dopar% {
+  #   cat(paste("A", i, "",  sep = " "))
+  #   result <- seq_win_score_int(1, window_size, kmer, fasta_sequence[starts[i] : ends[i]], fraction_p)
+  #   cat(paste("B", i, "",  sep = " "))
+  #   return(result)
   # }
+  # cat("C ")
+
   if ((sum(is.na(scores))>0) || (length(scores) == 0)) {
     stop("sequence_window_score did not produce valid result")
   }

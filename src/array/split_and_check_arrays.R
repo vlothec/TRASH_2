@@ -58,8 +58,9 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
       kmers_window_B <- kmers_list[window_starts_compare[i] : window_ends_compare[i]]
       windows_comparison_score[i] <- sum(kmers_window_B %in% kmers_window_A) / length(kmers_window_B)
     }
+    
+    remove(window_starts, window_ends, window_ends_compare)
   }
-  remove(window_starts, window_ends)
   gc()
   if (length(windows_comparison_score) == 0) {
     # the region is too small to compare anything, analyse it as is
@@ -89,7 +90,6 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
         i <- i + 1
       }
     }
-
     if (length(window_event) <= 2) {
       # no second array found, report as is
       arrays <- data.frame(start = start, end = end, seqID = seqID, numID = numID, score = 0, top_N = 0, top_5_N = "", representative = "")
@@ -130,9 +130,10 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
                                    top_N = 0,
                                    top_5_N = "",
                                    representative = ""))
+      remove(array_breaks_coordinates)
     }
   }
-  remove(window_starts_compare, window_ends_compare, array_breaks_coordinates)
+  remove(window_starts_compare)
   gc()
   if (!inherits(arrays, "data.frame")) { # sanity check, this should not happen
     arrays <- data.frame(start = start, end = end, seqID = seqID, numID = numID, score = -3, top_N = 0, top_5_N = "", representative = "")
@@ -149,6 +150,11 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     counts_kmers <- table(kmers_list_local)
     counts_kmers <- counts_kmers[order(counts_kmers, decreasing = TRUE)]
     kmer_names <- names(counts_kmers)
+
+    if (length(counts_kmers) == 0) {
+      print("Empty array, should not happen")
+      next
+    }
     #clean up N containing kmers
     counts_kmers <- counts_kmers[!grepl("N", kmer_names)]
     kmer_names <- kmer_names[!grepl("N", kmer_names)]
@@ -156,7 +162,6 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     kmer_names <- kmer_names[!grepl("n", kmer_names)]
 
     if (length(counts_kmers) == 0) {
-      print("Empty array, should not happen")
       next
     }
 
@@ -250,7 +255,6 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     }
     time_report_df <- c(time_report_df, as.numeric(Sys.time())) #N B
     remove(kmer_starts, kmer_starts_2, distances, window_starts, window_ends)
-    gc()
 
     top_N_array <- sort(table(moving_top_distance[moving_top_distance != 0]), decreasing = TRUE)
     remove(moving_top_distance)

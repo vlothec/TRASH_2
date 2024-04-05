@@ -31,9 +31,9 @@ merge_windows <- function(list_of_scores, window_size, sequence_full_length, log
   }
 
   if (length(starts) == 1) {
-    repetitive_regions <- data.frame(starts = start[list_of_scores < threshold],
-                                     ends = sequence_full_length[list_of_scores < threshold],
-                                     scores = list_of_scores[list_of_scores < threshold])
+    repetitive_regions <- data.frame(starts = starts,
+                                     ends = sequence_full_length,
+                                     scores = list_of_scores)
     return(repetitive_regions)
   }
 

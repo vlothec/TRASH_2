@@ -15,8 +15,8 @@ installed_and_checked <- function() {
     install.packages("seqinr", lib = "../R_libs", repos = "http://cran.us.r-project.org")
   }
   if (!requireNamespace("doParallel", quietly = TRUE)) {
-    # install.packages("doParallel", lib = "../R_libs", repos = "http://cran.us.r-project.org")
-    install.packages("doParallel", repos = "http://cran.us.r-project.org") #This needs to be in the main directory for the parallel workers to have access to it I believe # TODO: check if true
+    install.packages("doParallel", lib = "../R_libs", repos = "http://cran.us.r-project.org")
+    # install.packages("doParallel", repos = "http://cran.us.r-project.org") #This needs to be in the main directory for the parallel workers to have access to it I believe # TODO: check if true
   }
   # if (!requireNamespace("doSNOW", quietly = TRUE)) {
   #   install.packages("doSNOW", lib = "../R_libs", repos = "http://cran.us.r-project.org")
@@ -29,10 +29,10 @@ installed_and_checked <- function() {
   }
   if (!requireNamespace("Biostrings", quietly = TRUE)) {
     install.packages("BiocManager", lib = "../R_libs", repos = "http://cran.us.r-project.org")
-    BiocManager::install("Biostrings")
+    BiocManager::install("Biostrings", lib = "../R_libs")
   }
   if (!requireNamespace("msa", quietly = TRUE)) {
-    BiocManager::install("msa")
+    BiocManager::install("msa", lib = "../R_libs")
   }
   if (suppress_messages) {
     suppressMessages(library(stringr))

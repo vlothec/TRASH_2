@@ -1,13 +1,15 @@
 main <- function(cmd_arguments) {
-  cat("TRASH: workspace initialised                                     ")
+  cat("################################################################################\n")
+  cat("###           TRASH: workspace initialised                       ")
   cat(Sys.time())
-  cat("\n")
+  cat("  ###\n")
   cat("################################################################################\n")
   # TODO: remove this development settings
   if (Sys.info()["sysname"] == "Windows") {
     mafft_dir <- "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat"
     # nhmmer_dir <- "../dep/hmmer/nhmmer.exe"
-    nhmmer_dir <- "C:/cygwin64/home/Piotr Włodzimierz/hmmer/hmmer-3.4/src/nhmmer.exe"
+    # nhmmer_dir <- "C:/cygwin64/home/Piotr Włodzimierz/hmmer/hmmer-3.4/src/nhmmer.exe"
+    nhmmer_dir <- "C:/cygwin64/home/vlothec/bin/nhmmer.exe"
   } else {
     mafft_dir <- "mafft"
     nhmmer_dir <- "nhmmer"
@@ -20,13 +22,13 @@ main <- function(cmd_arguments) {
 
   # cl <- makeCluster(cmd_arguments$cores_no, outfile="")
   cl <- makeCluster(cmd_arguments$cores_no, outfile="")
-  # cl <- makeForkCluster(cmd_arguments$cores_no, outfile="")
+  clusterEvalQ(cl, .libPaths(c(.libPaths(), gsub("src", "R_libs", getwd()))))
   registerDoParallel(cl)
-  foreach (i = 1 : getDoParWorkers()) %dopar% {
-    set.seed(0) # Sets random seed for reproducibility
-    # setwd(cmd_arguments$output_folder)
-    # options(error = function() {traceback(2, max.lines=500); if(!interactive()) quit(save="no", status=1, runLast=T)})
-  }
+  # foreach (i = 1 : getDoParWorkers()) %dopar% {
+  #   # set.seed(0) # Sets random seed for reproducibility
+  #   # setwd(cmd_arguments$output_folder)
+  #   # options(error = function() {traceback(2, max.lines=500); if(!interactive()) quit(save="no", status=1, runLast=T)})
+  # }
 
   if (log_messages != "") {
     cat("Log messages of file:  ", basename(cmd_arguments$fasta_file), "\n",
@@ -66,20 +68,19 @@ main <- function(cmd_arguments) {
   cat(Sys.time())
   cat("\n")
   cat("################################################################################\n")
-  # pb <- txtProgressBar(min = 0, max = length(fasta_content), style = 1)
+  chromosome_lengths <- unlist(lapply(seq_along(fasta_content), function(X) length(fasta_content[[X]])))
+  cat("  Assembly total length:\t", round(sum(chromosome_lengths) / 1000000, 1), "Mbp \n")
+  cat("  Sequences count:\t\t", length(chromosome_lengths), " \n")
+  cat("  Sequences names:\t\t", names(fasta_content), "\n")
+  cat("  Sequences lengths (bp):\t", chromosome_lengths, "\n\n")
+  
   repeat_scores <- list()
-  # cat("\n")
-  # repeat_scores <- foreach (i = seq_along(fasta_content), .combine = c, .export = c("sequence_window_score", "seq_win_score_int", "extract_kmers", "genomic_bins_starts")) %dopar% {
-  #   return(list(sequence_window_score(fasta_content[[i]], window_size, kmer)))
-  # }
-    
   for (i in seq_along(fasta_content)) {
-    cat(i, " ")
+    cat("  Chromosome ", i, ": ", names(fasta_content)[i], " \t", sep = "")
     repeat_scores <- append(repeat_scores, list(sequence_window_score(fasta_content[[i]], window_size, kmer))) # it's parallel inside
-  #   # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
   }
-  cat("\n", cmd_arguments$fasta_file, "\n")
-  # close(pb)
+  cat("\n")
+  cat("================================================================================\n")
   gc()
   times$time <- append(times$time, as.numeric(Sys.time()))
   times$event <- append(times$event, "Finished 04 sequence window score")
@@ -117,35 +118,43 @@ main <- function(cmd_arguments) {
   cat("\n")
   cat("################################################################################\n")
   region_sizes <- repetitive_regions$ends - repetitive_regions$starts
-  progress_values <- region_sizes / sum(region_sizes)
-  # pb <- txtProgressBar(min = 0, max = 1, style = 1)
-  print("where error")
   arrays <- NULL
-  arrays <- foreach (i = seq_len(nrow(repetitive_regions)),
-                     .combine = rbind,
-                     .packages =c("Biostrings", "msa"),
-                     .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read", "seq_win_score_int")) %dopar% {
-    cat(i, " ")
-    out <- split_and_check_arrays(start = repetitive_regions$starts[i],
-                                  end = repetitive_regions$ends[i],
-                                  sequence = fasta_content[[repetitive_regions$numID[i]]][repetitive_regions$starts[i] : repetitive_regions$ends[i]],
-                                  seqID = repetitive_regions$seqID[i],
-                                  numID = repetitive_regions$numID[i],
-                                  arrID = i,
-                                  max_repeat = cmd_arguments$max_rep_size,
-                                  min_repeat = cmd_arguments$min_rep_size,
-                                  mafft = mafft_dir,
-                                  temp_dir = cmd_arguments$output_folder,
-                                  src_dir = getwd(),
-                                  sink_output = FALSE,
-                                  kmer = kmer)
-    # setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
-    gc()
-    warnings()
-    return(out)
+  for (i in seq_along(fasta_content)) {
+    cat("  Chromosome ", i, ": ", names(fasta_content)[i], " \t", sep = "")
+    repetitive_regions_chr <- repetitive_regions[repetitive_regions$numID == i,]
+    cat("Repetitive regions in the sequence: ", length(repetitive_regions_chr), " \t", sep = "")
+    if(nrow(repetitive_regions_chr) == 0) next
+    region_chunk <- seq(1, nrow(repetitive_regions_chr), 1000)
+    cat("Chunks to complete: ", length(region_chunk), ". Finished: ", sep = "")
+    region_chunk <- c(region_chunk, (nrow(repetitive_regions_chr) + 1))
+    for(j in 1 : (length(region_chunk) - 1)) {
+      sequence_substring <- fasta_content[[i]][repetitive_regions_chr$starts[region_chunk[j]] : repetitive_regions_chr$ends[region_chunk[j + 1] - 1]]
+      arrays <- rbind(arrays, foreach (k = seq_len(nrow(repetitive_regions_chr)),
+                        .combine = rbind,
+                        #  .packages = c("Biostrings", "msa"),
+                        .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read", "seq_win_score_int")) %dopar% {
+        out <- split_and_check_arrays(start = repetitive_regions_chr$starts[k],
+                                      end = repetitive_regions_chr$ends[k],
+                                      sequence = sequence_substring[repetitive_regions_chr$starts[k] : repetitive_regions_chr$ends[k]],
+                                      seqID = repetitive_regions_chr$seqID[k],
+                                      numID = repetitive_regions_chr$numID[k],
+                                      arrID = k,
+                                      max_repeat = cmd_arguments$max_rep_size,
+                                      min_repeat = cmd_arguments$min_rep_size,
+                                      mafft = mafft_dir,
+                                      temp_dir = cmd_arguments$output_folder,
+                                      src_dir = getwd(),
+                                      sink_output = FALSE,
+                                      kmer = kmer)
+        gc()
+        warnings()
+        return(out)
+      })
+      cat(j, "")
+    }
+    cat("\n")
   }
-  print("where error")
-  # close(pb)
+  cat("================================================================================\n")
   gc()
   write.csv(x = arrays, file = file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_aregarrays.csv")), row.names = FALSE)
 
@@ -160,7 +169,7 @@ main <- function(cmd_arguments) {
   cat(Sys.time())
   cat("\n")
   cat("################################################################################\n")
-  # pb <- txtProgressBar(min = 0, max = nrow(arrays), style = 1)
+  pb <- txtProgressBar(min = 0, max = nrow(arrays), style = 1)
   if (cmd_arguments$templates != 0) {
     templates <- read_fasta_and_list(cmd_arguments$templates)
     length_templates <- length(templates)
@@ -177,7 +186,7 @@ main <- function(cmd_arguments) {
   arrays$representative <- foreach (i = seq_len(nrow(arrays)),
                                     .combine = c,
                                     .export = c("shift_and_compare", "shift_sequence", "compare_circular", "rev_comp_string", "kmer_hash_score")) %dopar% {
-    # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
+    setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
     if (!inherits(arrays$representative[i], "character")) return("_")
     return(shift_and_compare(arrays$representative[i], templates))
   }
@@ -195,7 +204,7 @@ main <- function(cmd_arguments) {
     arrays$class[i] <- strsplit(arrays$representative[i], split = "_split_")[[1]][1]
     arrays$representative[i] <- strsplit(arrays$representative[i], split = "_split_")[[1]][2]
   }
-  # close(pb)
+  close(pb)
   times$time <- append(times$time, as.numeric(Sys.time()))
   times$event <- append(times$event, "Finished 07")
   times$data_type <- append(times$data_type, "Arrays nrow")
@@ -217,16 +226,16 @@ main <- function(cmd_arguments) {
   classes <- unique(arrays$class)
   classes <- classes[!(classes %in% c(names(templates), "none_identified"))]
   if (length(classes) != 0) {
-    # pb <- txtProgressBar(style = 1, min = 0, max = length(classes))
+    pb <- txtProgressBar(style = 1, min = 0, max = length(classes))
     arrays_t <- foreach (i = seq_along(classes), .combine = rbind, .export = c("compare_kmer_grep", "shift_classes", "compare_circular", "rev_comp_string")) %dopar% {
       arrays_class <- arrays[arrays$class == classes[i], ]
       arrays_class$representative <- shift_classes(arrays_class, kmer = 6)
-      # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
+      setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
       gc()
       return(arrays_class)
     }
     arrays <- rbind(arrays_t, arrays[which(arrays$class %in% c(names(templates), "none_identified")), ])
-    # close(pb)
+    close(pb)
     remove(arrays_t)
   } else {
     cat("================================================================================")
@@ -249,7 +258,7 @@ main <- function(cmd_arguments) {
   # pb <- txtProgressBar(style = 1)
   repeats <- foreach (i = seq_len(nrow(arrays)),
                       .combine = rbind,
-                      .packages = c("Biostrings", "seqinr", "msa"),
+                      # .packages = c("Biostrings", "seqinr", "msa"),
                       .export = c("fill_gaps", "write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
     time_report_df <- as.numeric(Sys.time())
     default_df = data.frame(seqID = vector(mode = "character"),

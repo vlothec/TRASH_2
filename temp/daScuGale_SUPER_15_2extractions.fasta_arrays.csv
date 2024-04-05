@@ -1,12 +1,4 @@
-"start","end","seqID","numID","score","top_N","top_5_N","representative"
-2201,4400,"da_ScuGale1.1_SUPER_15_extr2",1,0.000625,0,".",""
-5501,6600,"da_ScuGale1.1_SUPER_15_extr2",1,0,0,".",""
-11001,49200,"da_ScuGale1.1_SUPER_15_extr2",1,0.506280536912752,124,".N_124_Count_355.N_29_Count_1.","ataaaactaatctgtaactctaagtgtaacgattattgaaaacttgttgaccaagtaaagagttaattgtactcgaatcatcttctaaagagttaatggtactcgattaatcttctaactaaac"
-49201,54800,"da_ScuGale1.1_SUPER_15_extr2",1,0.185389380530973,339,".N_339_Count_11.N_346_Count_6.N_589_Count_6.N_702_Count_6.N_372_Count_3.","aaagcttgttagaactcttaatgatgtgttccttaacattaattgtccatgttataactagattgaataactttggttatgaatacgattactatagtcttgtctttgtgtttagccgtaagttcttttagatttgatttatgatataagttttgtgctaaacttctacgtcaaaagtcaaatagttcggtcaaagcttactaaagcttgtgagaagcatcgttttccacttcttaagagttaattgtactcgaataatcttctaaagaggtaactgtactcattaatcttctagctcaggattaaactaatctgtaactctaagtgtaacaattattg"
-54801,56100,"da_ScuGale1.1_SUPER_15_extr2",1,0.0926923076923077,3,".N_3_Count_10.","att"
-57201,58300,"da_ScuGale1.1_SUPER_15_extr2",1,0,0,".",""
-1,1200,"da_ScuGale1.1_SUPER_15_extr1",2,0.1224,94,".N_94_Count_4.N_124_Count_4.N_30_Count_1.","taatcttctaactcaacataaaactaattcttaactctaagtgtaacgattattgaaaacttgttgaccaagtaaagagttaattgtactcgaa"
-1201,3300,"da_ScuGale1.1_SUPER_15_extr1",2,0.0128095238095238,3,".N_3_Count_6.N_23_Count_2.N_12_Count_1.N_18_Count_1.","ccg"
-8801,10150,"da_ScuGale1.1_SUPER_15_extr1",2,0.058125,3,".N_3_Count_9.N_23_Count_3.","ccg"
-10151,80400,"da_ScuGale1.1_SUPER_15_extr1",2,0.831677809388336,123,".N_123,124_Count_679.N_94_Count_18.N_154_Count_1.","tcgaatcatcttctaaagagttagttgtactcgattaatcatctaactcaacatagaactaatcgtaactctaagtttaacgattattgaaaacttgttgaccaagcaaagagttaattgtac"
-80401,83760,"da_ScuGale1.1_SUPER_15_extr1",2,0.00783582089552239,36,".N_36_Count_8.N_59_Count_8.","ccagtccatcttaacatatggtgcttttatgggcca"
+"start","end","seqID","numID","score","top_N","top_5_N","representative","class","repeats_number","median_repeat_width","median_score"
+12626,45225,"da_ScuGale1.1_SUPER_15_extr2",1,81.7275237803007,124,"N_123,124_Count_163.N_29,30_Count_24.N_94_Count_11.N_337_Count_10.N_346_Count_9.","acttagagttacggattagttttatgttgagttagaagattaatcgagtacaattaactctttagaagatgattcgagtacaattaactctttacttggtcaataagttttcaataatcgttac","124_1",225,124,8
+8081,83760,"da_ScuGale1.1_SUPER_15_extr1",2,92.115765825294,124,"N_123,124,125_Count_370.N_94,95_Count_129.N_153,154_Count_73.N_30_Count_69.N_119,120,121_Count_16.","acttagagttacggattagttttatattgagttagaagattaatcgagtacaactaactccttagaagatgattcgagtacaattaactctttacttggtcaacaagttttcaataatcgttac","124_1",576,123,11
+1,4545,"da_ScuGale1.1_SUPER_15_extr1",2,23.1753031973539,12,"N_11,12_Count_2.N_23_Count_2.N_18_Count_1.N_30_Count_1.N_35_Count_1.","gacccggcgcac","12_2",17,12,17
