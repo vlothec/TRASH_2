@@ -327,9 +327,10 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
 
           # TODO: maybe check internal duplication of the representative, to split if needed. Symmetrically (so AA into A) or assumetrically (ABB into A B and B)
           consensus <- consensus_N(alignment, arrays$top_N[i])
+          remove(alignment)
         }
         arrays$representative[i] <- consensus
-        remove(top_kmer_list, alignment, consensus)
+        remove(top_kmer_list, consensus)
       }
     } else {
       arrays$top_N[i] <- 0

@@ -25,6 +25,10 @@ sequence_window_score <- function(fasta_sequence, window_size, kmer = 10) {
   scores <- foreach (i = seq_along(starts), .combine = c, .export = c("extract_kmers", "seq_win_score_int")) %dopar% {
     seq_win_score_int(1, window_size, kmer, fasta_sequence[starts[i] : ends[i]], fraction_p)
   }
+  # scores <- NULL
+  # for (i in seq_along(starts)) {
+  #   scores = c(scores, seq_win_score_int(1, window_size, kmer, fasta_sequence[starts[i] : ends[i]], fraction_p))
+  # }
   if ((sum(is.na(scores))>0) || (length(scores) == 0)) {
     stop("sequence_window_score did not produce valid result")
   }

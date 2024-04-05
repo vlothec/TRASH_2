@@ -18,11 +18,14 @@ main <- function(cmd_arguments) {
   log_messages <- file.path(cmd_arguments$output_folder, paste0(basename(cmd_arguments$fasta_file), "_main_log_file.txt")) #TODO make into a flag
   log_messages <- ""
 
+  # cl <- makeCluster(cmd_arguments$cores_no, outfile="")
   cl <- makeCluster(cmd_arguments$cores_no, outfile="")
+  # cl <- makeForkCluster(cmd_arguments$cores_no, outfile="")
   registerDoParallel(cl)
   foreach (i = 1 : getDoParWorkers()) %dopar% {
-    # sink() # brings output back to the console
-    # set.seed(0) # Sets random seed for reproducibility
+    set.seed(0) # Sets random seed for reproducibility
+    # setwd(cmd_arguments$output_folder)
+    # options(error = function() {traceback(2, max.lines=500); if(!interactive()) quit(save="no", status=1, runLast=T)})
   }
 
   if (log_messages != "") {
@@ -65,13 +68,17 @@ main <- function(cmd_arguments) {
   cat("################################################################################\n")
   # pb <- txtProgressBar(min = 0, max = length(fasta_content), style = 1)
   repeat_scores <- list()
-  cat("\n")
+  # cat("\n")
+  # repeat_scores <- foreach (i = seq_along(fasta_content), .combine = c, .export = c("sequence_window_score", "seq_win_score_int", "extract_kmers", "genomic_bins_starts")) %dopar% {
+  #   return(list(sequence_window_score(fasta_content[[i]], window_size, kmer)))
+  # }
+    
   for (i in seq_along(fasta_content)) {
     cat(i, " ")
     repeat_scores <- append(repeat_scores, list(sequence_window_score(fasta_content[[i]], window_size, kmer))) # it's parallel inside
-    # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
+  #   # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
   }
-  cat("\n")
+  cat("\n", cmd_arguments$fasta_file, "\n")
   # close(pb)
   gc()
   times$time <- append(times$time, as.numeric(Sys.time()))
@@ -113,9 +120,11 @@ main <- function(cmd_arguments) {
   progress_values <- region_sizes / sum(region_sizes)
   # pb <- txtProgressBar(min = 0, max = 1, style = 1)
   print("where error")
+  arrays <- NULL
   arrays <- foreach (i = seq_len(nrow(repetitive_regions)),
                      .combine = rbind,
                      .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read", "seq_win_score_int")) %dopar% {
+    cat(i, " ")
     out <- split_and_check_arrays(start = repetitive_regions$starts[i],
                                   end = repetitive_regions$ends[i],
                                   sequence = fasta_content[[repetitive_regions$numID[i]]][repetitive_regions$starts[i] : repetitive_regions$ends[i]],

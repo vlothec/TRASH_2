@@ -57,7 +57,7 @@ merge_windows <- function(list_of_scores, window_size, sequence_full_length, log
   while (i < nrow(repetitive_regions)) {
     if ((repetitive_regions$ends[i] + 1) >= (repetitive_regions$starts[i + 1])) {
       repetitive_regions$scores[i] <- ((repetitive_regions$scores[i] * (repetitive_regions$ends[i] - repetitive_regions$starts[i])) +
-                                         (repetitive_regions$scores[i + 1] * (repetitive_regions$ends[i + 1] - repetitive_regions$starts[i + 1]))) / (repetitive_regions$ends[i + 1] - repetitive_regions$starts[i])
+                                         (repetitive_regions$scores[i + 1] * (repetitive_regions$ends[i + 1] - repetitive_regions$starts[i + 1]))) / (repetitive_regions$ends[i + 1] - repetitive_regions$starts[i + 1] + repetitive_regions$ends[i] - repetitive_regions$starts[i])
       repetitive_regions$ends[i] <- repetitive_regions$ends[i + 1]
       repetitive_regions <- repetitive_regions[-(i + 1), ]
       i <- i - 1

@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-options(error=recover) 
+# options(error = function() {traceback(2, max.lines=500); if(!interactive()) quit(save="no", status=1, runLast=T)})
 timeA <- as.numeric(Sys.time())
 this_file <- function() {
   cmd_args <- commandArgs(trailingOnly = FALSE)
