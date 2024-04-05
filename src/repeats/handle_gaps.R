@@ -54,6 +54,5 @@ handle_gaps <- function(repeat_table, representative_len) {
         #                                                 gap_to_next = 0)
     }
   }
-
   return(repeat_table[c("seqID", "arrayID", "start", "end", "strand", "score", "eval", "width", "class")])
 }

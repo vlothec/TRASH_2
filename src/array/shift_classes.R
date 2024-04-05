@@ -16,5 +16,7 @@ shift_classes <- function(arrays, kmer = 6) {
   for (i in seq_along(sequences_to_realign)) {
     sequences_shifted[i] = compare_kmer_grep(class_sequence_kmers, sequences_to_realign[i], 1, string_length, kmer = kmer)
   }
+  remove(arrays, class_sequence, string_length, class_sequence_extended, class_sequence_kmers, sequences_to_realign)
+  gc()
   return(sequences_shifted)
 }

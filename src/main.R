@@ -123,6 +123,7 @@ main <- function(cmd_arguments) {
   arrays <- NULL
   arrays <- foreach (i = seq_len(nrow(repetitive_regions)),
                      .combine = rbind,
+                     .packages =c("Biostrings", "msa"),
                      .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read", "seq_win_score_int")) %dopar% {
     cat(i, " ")
     out <- split_and_check_arrays(start = repetitive_regions$starts[i],
@@ -139,6 +140,7 @@ main <- function(cmd_arguments) {
                                   sink_output = FALSE,
                                   kmer = kmer)
     # setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
+    gc()
     warnings()
     return(out)
   }
@@ -172,7 +174,9 @@ main <- function(cmd_arguments) {
   times$data_type <- append(times$data_type, "Number of templates")
   times$data_value <- append(times$data_value, length_templates)
 
-  arrays$representative <- foreach (i = seq_len(nrow(arrays)), .combine = c, .export = c("shift_and_compare", "shift_sequence", "compare_circular", "rev_comp_string", "kmer_hash_score")) %dopar% {
+  arrays$representative <- foreach (i = seq_len(nrow(arrays)),
+                                    .combine = c,
+                                    .export = c("shift_and_compare", "shift_sequence", "compare_circular", "rev_comp_string", "kmer_hash_score")) %dopar% {
     # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
     if (!inherits(arrays$representative[i], "character")) return("_")
     return(shift_and_compare(arrays$representative[i], templates))
@@ -218,6 +222,7 @@ main <- function(cmd_arguments) {
       arrays_class <- arrays[arrays$class == classes[i], ]
       arrays_class$representative <- shift_classes(arrays_class, kmer = 6)
       # setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
+      gc()
       return(arrays_class)
     }
     arrays <- rbind(arrays_t, arrays[which(arrays$class %in% c(names(templates), "none_identified")), ])
@@ -242,7 +247,10 @@ main <- function(cmd_arguments) {
   array_sizes <- arrays$end - arrays$start
   progress_values <- array_sizes / sum(array_sizes)
   # pb <- txtProgressBar(style = 1)
-  repeats <- foreach (i = seq_len(nrow(arrays)), .combine = rbind, .export = c("fill_gaps", "write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
+  repeats <- foreach (i = seq_len(nrow(arrays)),
+                      .combine = rbind,
+                      .packages = c("Biostrings", "seqinr", "msa"),
+                      .export = c("fill_gaps", "write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
     time_report_df <- as.numeric(Sys.time())
     default_df = data.frame(seqID = vector(mode = "character"),
                         arrayID = vector(mode = "numeric"),
@@ -316,6 +324,8 @@ main <- function(cmd_arguments) {
                                     name = paste(basename(cmd_arguments$fasta_file), arrays$seqID[i], arrays$numID[i], i, runif(1, 0, 1), sep = "_"))
       consensus <- consensus_N(alignment, arrays$top_N[i])
       if (length(consensus) != 0) repeats_df$representative <- consensus
+      remove(alignment, consensus, repeats_seq, strands)
+      gc()
     }
     time_report_df <- c(time_report_df, as.numeric(Sys.time()))
 
@@ -371,6 +381,7 @@ main <- function(cmd_arguments) {
       }
       i = i + 1
     }
+    remove(repeats_seq)
     time_report_df <- c(time_report_df, as.numeric(Sys.time()))
     gc()
     # setTxtProgressBar(pb, getTxtProgressBar(pb) + progress_values[i])
@@ -390,6 +401,7 @@ main <- function(cmd_arguments) {
     repeats_df$representative <- as.character(repeats_df$representative)
     repeats_df$score_template <- as.numeric(repeats_df$score_template)
     warnings()
+    gc()
     return(repeats_df)
   }
   # close(pb)

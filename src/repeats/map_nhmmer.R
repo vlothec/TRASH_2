@@ -21,5 +21,7 @@ map_nhmmer = function(output_folder, i, representative, seqID, start, end, fasta
   file.remove(repeat_file)
   file.remove(array_file)
   file.remove(nhmmer_table_output)
+  remove(representative, fasta_sequence, nhmmer_table_output)
+  gc()
   return(repeats_df)
 }

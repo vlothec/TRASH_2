@@ -22,7 +22,8 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
   start <- 1
   end <- end_fasta_relative - start_fasta_relative + 1
 
-  kmers_list <- unlist(lapply(X = (start : (end - kmer)), FUN = extract_kmers, kmer, sequence))
+  # kmers_list <- unlist(lapply(X = (start : (end - kmer)), FUN = extract_kmers, kmer, sequence))
+  kmers_list <- unlist(lapply(X = (start : (end - kmer)), function(X) return(paste(sequence[X : (X + kmer - 1)], collapse = ""))))
 
   ### Find breaks  ========================================================================================
   window_size <- max_repeat
@@ -58,7 +59,8 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
       windows_comparison_score[i] <- sum(kmers_window_B %in% kmers_window_A) / length(kmers_window_B)
     }
   }
-
+  remove(window_starts, window_ends)
+  gc()
   if (length(windows_comparison_score) == 0) {
     # the region is too small to compare anything, analyse it as is
     arrays <- data.frame(start = start, end = end, seqID = seqID, numID = numID, score = -4, top_N = 0, top_5_N = "", representative = "")
@@ -130,6 +132,8 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
                                    representative = ""))
     }
   }
+  remove(window_starts_compare, window_ends_compare, array_breaks_coordinates)
+  gc()
   if (!inherits(arrays, "data.frame")) { # sanity check, this should not happen
     arrays <- data.frame(start = start, end = end, seqID = seqID, numID = numID, score = -3, top_N = 0, top_5_N = "", representative = "")
   } else if (nrow(arrays) == 0) {
@@ -188,7 +192,8 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     for (j in seq_along(collapsed_kmers)) {
       collapsed_kmers[[j]]$locations <- which(kmers_list_local %in% collapsed_kmers[[j]]$kmers) - 1 + arrays$start[i]
     }
-
+    remove(kmers_list_local, counts_kmers, kmer_names)
+    gc()
     ## calculate distances ====================================================================
     time_report_df <- c(time_report_df, as.numeric(Sys.time())) # col km
     distances <- NULL
@@ -244,8 +249,12 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
       distances <- distances[!which_distances]
     }
     time_report_df <- c(time_report_df, as.numeric(Sys.time())) #N B
+    remove(kmer_starts, kmer_starts_2, distances, window_starts, window_ends)
+    gc()
 
     top_N_array <- sort(table(moving_top_distance[moving_top_distance != 0]), decreasing = TRUE)
+    remove(moving_top_distance)
+    gc()
     # merge N values that are only 1 bp apart,
     # TODO: consider removing low count N values in case a region contains them all,
     # or limit to top X Ns to be merged only
@@ -281,6 +290,8 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
       top_N_distances <- as.numeric(top_N_distances)
       arrays$top_N[i] <- floor(mean(top_N_distances))
     }
+    remove(top_N_array, count_Ns)
+    gc()
 
     ## Identify kmers likely forming the repeat ===============================================
     # Use the best kmer and extract up to max_repeats_to_align, align and get consensus
@@ -300,6 +311,8 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     top_kmer$locations <- top_kmer$locations[top_kmer$distances %in% top_N_distances]
     top_kmer$distances <- top_kmer$distances[top_kmer$distances %in% top_N_distances]
 
+    remove(collapsed_kmers, collapsed_kmers_topN_counts, collapsed_kmers_topN_ratio, top_N_distances)
+    gc()
 
     time_report_df <- c(time_report_df, as.numeric(Sys.time())) # identify kmers A
 
@@ -328,14 +341,18 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
           # TODO: maybe check internal duplication of the representative, to split if needed. Symmetrically (so AA into A) or assumetrically (ABB into A B and B)
           consensus <- consensus_N(alignment, arrays$top_N[i])
           remove(alignment)
+          gc()
         }
         arrays$representative[i] <- consensus
         remove(top_kmer_list, consensus)
+        gc()
       }
     } else {
       arrays$top_N[i] <- 0
       arrays$representative[i] <- ""
     }
+    remove(top_kmer, max_repeats_to_align)
+    gc()
     time_report_df <- c(time_report_df, as.numeric(Sys.time()))  # identify kmers B
     # write.csv(time_report_df, paste("Array_06_times", i, seqID, numID, arrID, ".csv", sep = "_"))
   }
@@ -345,7 +362,9 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
   arrays$end <- arrays$end + start_fasta_relative - 1
   # sink()
   # if(!sink_output) file.remove(file.path(temp_dir, paste0(seqID, "_", arrID, "_logfile.txt")))
-  remove(start, end, sequence, seqID, numID, max_repeat, min_repeat, mafft, temp_dir, src_dir, kmers_list, counts_kmers, distances, kmer_starts)
+  remove(start, end, sequence, seqID, numID, max_repeat, min_repeat, mafft, temp_dir, src_dir, kmers_list, start_fasta_relative,
+  end_fasta_relative, window_step, min_windows_comparison_score_to_detach_array, min_windows_comparison_score_to_split_array, array_overlaps,
+  global_min_kmers_count, max_edit, small_window_for_N_count, small_window_step_for_N_count, small_window_min_percentage_of_distances)
   gc()
   return(arrays)
 }

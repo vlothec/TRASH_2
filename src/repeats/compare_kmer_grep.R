@@ -16,6 +16,8 @@ compare_kmer_grep = function(sequence_kmers, sequence_to_realign, max_size_dif, 
   if(sum(kmers_distances) == 0) return(sequence_to_realign)
   shift = as.numeric(names(table(kmers_distances[kmers_distances != 0]))[which.max(table(kmers_distances[kmers_distances != 0]))])
   shifted = paste(unlist(lapply(seq_to_realign_kmers[shift : (shift + realign_string_length - 1)], function(X) strsplit(X, split = "")[[1]][1])), collapse = "")
+  remove(sequence_kmers, sequence_to_realign, seq_to_realign_kmers_ext, seq_to_realign_kmers, shift, kmers_distances)
+  gc()
   return(shifted)
 }
 # class_sequence = "aagcagtttcacagatagcttctttctagtttttatctggggatattcggtttttccccataggcctcaatgggctcccaaatgtcccttcgcagattctccaaaagagtgtttccaacctgctgaatcaaaagaaaggtttaactctgtgagatgaatccacacatcaca"

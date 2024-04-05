@@ -7,6 +7,8 @@ collapse_kmers <- function(kmer_counts, kmer_names, max_edit = 3, verbose = FALS
     for(i in seq_along(kmer_counts)) {
       return_list[[i]] <- list(count = kmer_counts[i], kmers = kmer_names[[i]])
     }
+    remove(kmer_counts, kmer_names, max_edit)
+    gc()
     return(return_list)
   }
 
@@ -35,5 +37,7 @@ collapse_kmers <- function(kmer_counts, kmer_names, max_edit = 3, verbose = FALS
   for (i in seq_along(collapsed_kmers_counts)) {
     return_list[[i]] <- list(count = collapsed_kmers_counts[i], kmers = collapsed_kmer_names[[i]])
   }
+  remove(collapsed_kmers_counts, collapsed_kmer_names, kmer_names, kmer_counts, max_edit, distances)
+  gc()
   return(return_list)
 }

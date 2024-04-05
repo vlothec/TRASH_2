@@ -17,6 +17,7 @@ map_default = function(i, representative, seqID, start, fasta_sequence) {
     match_fw$eval = -1
     repeats_df = rbind(repeats_df, match_fw)
   }
+  remove(match_fw)
 
   ## find reverse
   match_rev <- Biostrings::matchPattern(pattern = rev_comp_string(representative), subject = fasta_sequence, max.mismatch = max_mismatch)
@@ -33,7 +34,8 @@ map_default = function(i, representative, seqID, start, fasta_sequence) {
     match_rev$eval = -1
     repeats_df = rbind(repeats_df, match_rev)
   }
-
+  remove(match_rev, fasta_sequence, representative)
+  gc()
   if(inherits(repeats_df, "data.frame")) {
     repeats_df <- repeats_df[c("seqID", "arrayID", "start", "end", "strand", "score", "eval")]
     return(repeats_df)

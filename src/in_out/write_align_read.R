@@ -29,6 +29,9 @@ write_align_read <- function(mafft_exe, temp_dir, sequences, name = "", options 
   if (msa_message != "using Gonnet") {
     print(msa_message)
   }
+  remove(sequences_bs, name, seq_names, sequences)
+  gc()
+
   return(alignment)
 
   # alignment <- as.matrix(Biostrings::unmasked(alignment))
