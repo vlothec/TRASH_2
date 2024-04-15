@@ -1,4 +1,4 @@
-map_default = function(i, representative, seqID, start, fasta_sequence) {
+map_default = function(arrayID, representative, seqID, start, fasta_sequence) {
 
   repeats_df = NULL
   max_mismatch = ceiling(nchar(representative) / 10)
@@ -10,7 +10,7 @@ map_default = function(i, representative, seqID, start, fasta_sequence) {
     match_fw$end[match_fw$end > nchar(fasta_sequence)] = nchar(fasta_sequence)
     match_fw$strand = "+"
     match_fw$seqID = seqID
-    match_fw$arrayID = i
+    match_fw$arrayID = arrayID
     match_fw$start = match_fw$start + start - 1
     match_fw$end = match_fw$end + start - 1
     match_fw$score = 0
@@ -27,7 +27,7 @@ map_default = function(i, representative, seqID, start, fasta_sequence) {
     match_rev$end[match_rev$end > nchar(fasta_sequence)] = nchar(fasta_sequence)
     match_rev$strand = "-"
     match_rev$seqID = seqID
-    match_rev$arrayID = i
+    match_rev$arrayID = arrayID
     match_rev$start = match_rev$start + start - 1
     match_rev$end = match_rev$end + start - 1
     match_rev$score = 0

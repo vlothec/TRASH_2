@@ -62,6 +62,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     remove(window_starts, window_ends_compare)
   }
   gc()
+
   if (length(windows_comparison_score) == 0) {
     # the region is too small to compare anything, analyse it as is
     arrays <- data.frame(start = start, end = end, seqID = seqID, numID = numID, score = -4, top_N = 0, top_5_N = "", representative = "")
