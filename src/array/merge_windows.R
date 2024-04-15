@@ -15,7 +15,7 @@ merge_windows <- function(list_of_scores, window_size, sequence_full_length, log
   }
 
   # window definition needs to be propagated from sequence_window_score() funtion
-  sliding_window_distance <- ceiling(window_size / 1) #if 1, it's off, use 4
+  sliding_window_distance <- ceiling(window_size / 4) #if 1, it's off, use 4
   if(sliding_window_distance >= sequence_full_length) {
     starts <- 1
     ends <- sequence_full_length

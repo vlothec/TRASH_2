@@ -7,7 +7,7 @@ sequence_window_score <- function(fasta_sequence, window_size, kmer = 10, output
   sequence_full_length <- length(fasta_sequence)
 
   # window definition needs to be propagated into merge_windows() funtion
-  sliding_window_distance <- ceiling(window_size / 1) #if 1, it's off, use 4
+  sliding_window_distance <- ceiling(window_size / 4) #if 1, it's off, use 4
   if(sliding_window_distance >= sequence_full_length) {
     starts <- 1
     ends <- sequence_full_length
