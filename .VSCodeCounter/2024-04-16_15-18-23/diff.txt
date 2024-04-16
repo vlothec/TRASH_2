@@ -1,0 +1,88 @@
+Date : 2024-04-16 15:18:23
+Directory : c:\Users\vlothec\Documents\GitHub\TRASH_dev\src
+Total : 42 files,  -194297 codes, -574 comments, -1404 blanks, all -196275 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| R DCF      |          1 |         -4 |          0 |         -1 |         -5 |
+| PowerShell |          1 |        -11 |       -161 |         -5 |       -177 |
+| Batch      |          1 |        -22 |         -6 |         -6 |        -34 |
+| Markdown   |          4 |        -87 |          0 |        -16 |       -103 |
+| Ruby       |          1 |       -374 |        -67 |        -65 |       -506 |
+| Perl       |          2 |       -668 |       -106 |       -292 |     -1,066 |
+| R          |         25 |     -3,738 |       -234 |     -1,012 |     -4,984 |
+| CSV        |          7 |   -189,393 |          0 |         -7 |   -189,400 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                     | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                        |         42 |   -194,297 |       -574 |     -1,404 |   -196,275 |
+| ..                                                                                                                       |         42 |   -194,297 |       -574 |     -1,404 |   -196,275 |
+| .. (Files)                                                                                                               |          8 |   -169,332 |          0 |        -20 |   -169,352 |
+| ..\dep                                                                                                                   |          5 |     -1,075 |       -340 |       -368 |     -1,783 |
+| ..\dep\mafft-7.520-win64-signed                                                                                          |          5 |     -1,075 |       -340 |       -368 |     -1,783 |
+| ..\dep\mafft-7.520-win64-signed\mafft-win                                                                                |          5 |     -1,075 |       -340 |       -368 |     -1,783 |
+| ..\dep\mafft-7.520-win64-signed\mafft-win (Files)                                                                        |          2 |        -33 |       -167 |        -11 |       -211 |
+| ..\dep\mafft-7.520-win64-signed\mafft-win\usr                                                                            |          3 |     -1,042 |       -173 |       -357 |     -1,572 |
+| ..\dep\mafft-7.520-win64-signed\mafft-win\usr\bin                                                                        |          1 |       -374 |        -67 |        -65 |       -506 |
+| ..\dep\mafft-7.520-win64-signed\mafft-win\usr\lib                                                                        |          2 |       -668 |       -106 |       -292 |     -1,066 |
+| ..\dep\mafft-7.520-win64-signed\mafft-win\usr\lib\mafft                                                                  |          2 |       -668 |       -106 |       -292 |     -1,066 |
+| ..\old_src                                                                                                               |         19 |     -2,681 |       -114 |       -664 |     -3,459 |
+| ..\optimisations                                                                                                         |          5 |    -20,259 |          0 |        -27 |    -20,286 |
+| ..\optimisations (Files)                                                                                                 |          4 |       -720 |          0 |        -26 |       -746 |
+| ..\optimisations\array_csvs                                                                                              |          1 |    -19,539 |          0 |         -1 |    -19,540 |
+| ..\src_new_unplaced                                                                                                      |          5 |       -950 |       -120 |       -325 |     -1,395 |
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                                                 | language   | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\.lintr                                                                       | R DCF      |         -4 |          0 |         -1 |         -5 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\GCA_028009825.2_Col-CC_genomic.fna_arrays.csv                                | CSV        |    -19,177 |          0 |         -1 |    -19,178 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\GCA_028009825.2_Col-CC_genomic.fna_repeats.csv                               | CSV        |   -150,061 |          0 |         -1 |   -150,062 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\README.md                                                                    | Markdown   |        -13 |          0 |         -4 |        -17 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\dep\mafft-7.520-win64-signed\mafft-win\mafft-signed.ps1                      | PowerShell |        -11 |       -161 |         -5 |       -177 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\dep\mafft-7.520-win64-signed\mafft-win\mafft.bat                             | Batch      |        -22 |         -6 |         -6 |        -34 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\dep\mafft-7.520-win64-signed\mafft-win\usr\bin\mafft-homologs.rb             | Ruby       |       -374 |        -67 |        -65 |       -506 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\dep\mafft-7.520-win64-signed\mafft-win\usr\lib\mafft\mafftash_premafft.pl    | Perl       |       -282 |        -41 |       -142 |       -465 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\dep\mafft-7.520-win64-signed\mafft-win\usr\lib\mafft\seekquencer_premafft.pl | Perl       |       -386 |        -65 |       -150 |       -601 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\hors.md                                                                      | Markdown   |        -11 |          0 |         -3 |        -14 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\TRASH_install.R                                                      | R          |       -240 |         -1 |        -44 |       -285 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\TRASH_run.R                                                          | R          |       -562 |        -26 |        -99 |       -687 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_HOR_wrapper.R                                                     | R          |       -121 |          0 |        -38 |       -159 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_circos.R                                                          | R          |       -220 |        -10 |        -69 |       -299 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_consensus_N.R                                                     | R          |        -28 |         -1 |        -37 |        -66 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_draw_scaffold_repeat_plots.R                                      | R          |        -85 |         -1 |        -15 |       -101 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_edit_distance.R                                                   | R          |       -124 |        -10 |        -58 |       -192 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_export_gff.R                                                      | R          |        -45 |          0 |        -12 |        -57 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_extract_all_repeats.R                                             | R          |        -58 |         -1 |        -12 |        -71 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_extract_kmers.R                                                   | R          |        -12 |          0 |         -3 |        -15 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_hash_and_reverse.R                                                | R          |       -108 |        -13 |         -6 |       -127 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_kmer_compare.R                                                    | R          |        -26 |          0 |         -3 |        -29 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_movav.R                                                           | R          |         -4 |          0 |         -2 |         -6 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_new_distance_N.R                                                  | R          |        -31 |         -2 |        -21 |        -54 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_plot_edit.R                                                       | R          |        -64 |         -3 |        -30 |        -97 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_plot_rep.R                                                        | R          |        -61 |         -1 |        -27 |        -89 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_repeat_identifier.R                                               | R          |       -823 |        -44 |       -155 |     -1,022 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_repetitiveness.R                                                  | R          |        -65 |         -1 |        -30 |        -96 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\old_src\fn_rev_comp_string.R                                                 | R          |         -4 |          0 |         -3 |         -7 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\optimisations\array_csvs\CreinhardtiiCC_4532_707_v6.0.fa_arrays.csv          | CSV        |    -19,539 |          0 |         -1 |    -19,540 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\optimisations\assembly_times.csv                                             | CSV        |         -2 |          0 |         -1 |         -3 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\optimisations\csv06_times.csv                                                | CSV        |       -460 |          0 |         -1 |       -461 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\optimisations\csv09_times.csv                                                | CSV        |       -151 |          0 |         -1 |       -152 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\optimisations\sumar.R                                                        | R          |       -107 |          0 |        -23 |       -130 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\plots.md                                                                     | Markdown   |         -9 |          0 |         -2 |        -11 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\repeats.md                                                                   | Markdown   |        -54 |          0 |         -7 |        -61 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src_new_unplaced\TRASH.v2.R                                                  | R          |        -79 |        -21 |        -55 |       -155 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src_new_unplaced\count.unique.kmers.in.windows.R                             | R          |       -437 |        -30 |       -132 |       -599 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src_new_unplaced\ffs.R                                                       | R          |        -88 |        -24 |        -39 |       -151 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src_new_unplaced\new.repeat.identification.R                                 | R          |       -161 |        -35 |        -35 |       -231 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src_new_unplaced\useful.scripts.R                                            | R          |       -185 |        -10 |        -64 |       -259 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\times.csv                                                                    | CSV        |         -3 |          0 |         -1 |         -4 |
+| Total                                                                                                                    |            |   -194,297 |       -574 |     -1,404 |   -196,275 |
++--------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

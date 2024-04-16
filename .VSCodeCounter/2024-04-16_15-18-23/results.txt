@@ -1,0 +1,77 @@
+Date : 2024-04-16 15:18:23
+Directory : c:\Users\vlothec\Documents\GitHub\TRASH_dev\src
+Total : 44 files,  2314 codes, 294 comments, 285 blanks, all 2893 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| R        |         44 |      2,314 |        294 |        285 |      2,893 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                               | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                  |         44 |      2,314 |        294 |        285 |      2,893 |
+| . (Files)                                                                          |          3 |        588 |         50 |         46 |        684 |
+| array                                                                              |          8 |        560 |        102 |         70 |        732 |
+| auxi                                                                               |          8 |        128 |          3 |         19 |        150 |
+| flow                                                                               |          2 |        113 |         10 |          7 |        130 |
+| hort                                                                               |          8 |        353 |         42 |         58 |        453 |
+| hort (Files)                                                                       |          1 |        203 |         15 |         44 |        262 |
+| hort\flow                                                                          |          7 |        150 |         27 |         14 |        191 |
+| in_out                                                                             |          4 |        166 |         24 |         39 |        229 |
+| repeats                                                                            |         11 |        406 |         63 |         46 |        515 |
++------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                           | language | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\HORT.R                             | R        |         28 |          1 |          3 |         32 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\TRASH.R                            | R        |         30 |          2 |          3 |         35 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\array\classify_repeats.R           | R        |         67 |          7 |          9 |         83 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\array\merge_windows.R              | R        |         53 |          7 |          8 |         68 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\array\seq_win_score_int.R          | R        |         12 |         11 |          3 |         26 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\array\sequence_window_score.R      | R        |         48 |         20 |          5 |         73 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\array\shift_and_compare.R          | R        |         33 |          3 |          3 |         39 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\array\shift_classes.R              | R        |         17 |          2 |          3 |         22 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\array\shift_sequence.R             | R        |         27 |         13 |          6 |         46 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\array\split_and_check_arrays.R     | R        |        303 |         39 |         33 |        375 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\auxi\calculations_gc.R             | R        |          9 |          0 |          3 |         12 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\auxi\collapse_kmers.R              | R        |         39 |          0 |          5 |         44 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\auxi\consensus_N.R                 | R        |         27 |          2 |          6 |         35 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\auxi\dhms.R                        | R        |          7 |          1 |          0 |          8 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\auxi\extract_kmers.R               | R        |          4 |          0 |          1 |          5 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\auxi\genomic_bins_starts.R         | R        |         32 |          0 |          2 |         34 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\auxi\kmer_hash_score.R             | R        |          9 |          0 |          1 |         10 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\auxi\rev_comp_string.R             | R        |          1 |          0 |          1 |          2 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\flow\installed_and_checked.R       | R        |         50 |          9 |          1 |         60 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\flow\parse_arguments.R             | R        |         63 |          1 |          6 |         70 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\hort\flow\calc_plot_regs.R         | R        |         30 |          0 |          3 |         33 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\hort\flow\dhms.R                   | R        |          7 |          1 |          0 |          8 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\hort\flow\installed_and_checked.R  | R        |         26 |         24 |          1 |         51 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\hort\flow\parse_arguments.R        | R        |         36 |          0 |          3 |         39 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\hort\flow\read_fasta_and_list.R    | R        |         18 |          0 |          2 |         20 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\hort\flow\rev_comp_string.R        | R        |          1 |          0 |          1 |          2 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\hort\flow\write_align_read.R       | R        |         32 |          2 |          4 |         38 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\hort\hort.R                        | R        |        203 |         15 |         44 |        262 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\in_out\export_gff.R                | R        |         56 |          3 |         18 |         77 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\in_out\read_and_format_nhmmer.R    | R        |         62 |          1 |         10 |         73 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\in_out\read_fasta_and_list.R       | R        |         18 |          0 |          2 |         20 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\in_out\write_align_read.R          | R        |         30 |         20 |          9 |         59 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\main.R                             | R        |        530 |         47 |         40 |        617 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\repeats\compare_circular.R         | R        |         16 |          2 |          0 |         18 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\repeats\compare_kmer_grep.R        | R        |         20 |          2 |          3 |         25 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\repeats\fill_gaps.R                | R        |         42 |          0 |          0 |         42 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\repeats\find_edge_best_start_end.R | R        |         44 |          1 |         10 |         55 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\repeats\handle_edge_repeat.R       | R        |        106 |         14 |         17 |        137 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\repeats\handle_gaps.R              | R        |         42 |         13 |          4 |         59 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\repeats\handle_overlaps.R          | R        |         35 |         12 |          2 |         49 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\repeats\kmer_hash_score.R          | R        |          9 |          0 |          1 |         10 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\repeats\map_default.R              | R        |         46 |          2 |          4 |         52 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\repeats\map_nhmmer.R               | R        |         21 |          6 |          0 |         27 |
+| c:\Users\vlothec\Documents\GitHub\TRASH_dev\src\repeats\shift_sequence.R           | R        |         25 |         11 |          5 |         41 |
+| Total                                                                              |          |      2,314 |        294 |        285 |      2,893 |
++------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
