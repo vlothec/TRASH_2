@@ -146,7 +146,7 @@ main <- function(cmd_arguments) {
       start_adjust <- repetitive_regions_chr$starts[region_chunk[j]] - 1
       foreach::foreach (k = (region_chunk[j] : (region_chunk[j+1] - 1)),
                     .export = c("split_and_check_arrays", "extract_kmers", "collapse_kmers", "genomic_bins_starts", "consensus_N", "write_align_read", "seq_win_score_int")) %dopar% {
-
+        
         out <- split_and_check_arrays(start = repetitive_regions_chr$starts[k],
                                       end = repetitive_regions_chr$ends[k],
                                       sequence = sequence_substring[(repetitive_regions_chr$starts[k] - start_adjust) : (repetitive_regions_chr$ends[k] - start_adjust)],
@@ -345,6 +345,7 @@ main <- function(cmd_arguments) {
           return(0)
         }
         array_sequence <- sequence_substring[(arrays_chr$start[i] - adjust_start) : (arrays_chr$end[i] - adjust_start)]
+        cat(i, "_ ", sep = "")
         if (arrays_chr$top_N[i] >= 14) {
           # nhmmer for repeats of 14+ bp =======================================
           repeats_df <- map_nhmmer(cmd_arguments$output_folder, arrayID = arrays_chr$array_num_ID[i], arrays_chr$representative[i], arrays_chr$seqID[i], arrays_chr$start[i],
@@ -412,7 +413,7 @@ main <- function(cmd_arguments) {
         if (sum(repeats_df$strand == "+") > 0) repeats_df$score[repeats_df$strand == "+"] <- adist(repeats_df$representative[1], repeats_seq[repeats_df$strand == "+"], costs)[1, ]  / nchar(repeats_df$representative[1]) * 100
         if (sum(repeats_df$strand == "-") > 0) repeats_df$score[repeats_df$strand == "-"] <- adist(rev_comp_string(repeats_df$representative[1]), repeats_seq[repeats_df$strand == "-"])[1, ]  / nchar(repeats_df$representative[1]) * 100
         if (arrays_chr$class[i] %in% names(templates)) {
-          template <- paste(templates[[which(arrays_chr$class[i] == names(templates))]], collapse = "")
+          template <- paste(templates[[which(names(templates) == arrays_chr$class[i])]], collapse = "")
           if (sum(repeats_df$strand == "+") > 0) repeats_df$score_template[repeats_df$strand == "+"] <- adist(template, repeats_seq[repeats_df$strand == "+"], costs)[1, ]  / nchar(template) * 100
           if (sum(repeats_df$strand == "-") > 0) repeats_df$score_template[repeats_df$strand == "-"] <- adist(rev_comp_string(template), repeats_seq[repeats_df$strand == "-"])[1, ]  / nchar(template) * 100
         }
@@ -434,6 +435,7 @@ main <- function(cmd_arguments) {
                 repeats_seq[i_r] = paste0(sequence_substring[(repeats_df$start[i_r] - adjust_start) : (repeats_df$end[i_r] - adjust_start)], collapse = "")
                 repeats_df$score[i_r] = new_score
                 if (arrays_chr$class[i_r] %in% names(templates)) {
+                  template <- paste(templates[[which(names(templates) == arrays_chr$class[i_r])]], collapse = "")
                   repeats_df$score_template[i_r] <- adist(template, repeats_seq[i_r])[1, ]  / nchar(template) * 100
                 }
               }
@@ -446,6 +448,7 @@ main <- function(cmd_arguments) {
                 repeats_seq[i_r] = paste0(sequence_substring[(repeats_df$start[i_r] - adjust_start) : (repeats_df$end[i_r] - adjust_start)], collapse = "")
                 repeats_df$score[i_r] = new_score
                 if (arrays_chr$class[i_r] %in% names(templates)) {
+                  template <- paste(templates[[which(names(templates) == arrays_chr$class[i_r])]], collapse = "")
                   repeats_df$score_template[i_r] <- adist(rev_comp_string(template), repeats_seq[i_r])[1, ]  / nchar(template) * 100
                 }
               }
