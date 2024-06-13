@@ -8,8 +8,8 @@ main <- function(cmd_arguments) {
   if (Sys.info()["sysname"] == "Windows") {
     mafft_dir <- "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat"
     # nhmmer_dir <- "../dep/hmmer/nhmmer.exe"
-    # nhmmer_dir <- "C:/cygwin64/home/Piotr Włodzimierz/hmmer/hmmer-3.4/src/nhmmer.exe"
-    nhmmer_dir <- "C:/cygwin64/home/vlothec/bin/nhmmer.exe"
+    nhmmer_dir <- "C:/cygwin64/home/Piotr Włodzimierz/hmmer/hmmer-3.4/src/nhmmer.exe"
+    # nhmmer_dir <- "C:/cygwin64/home/vlothec/bin/nhmmer.exe"
   } else {
     mafft_dir <- "mafft"
     nhmmer_dir <- "nhmmer"
@@ -169,7 +169,7 @@ main <- function(cmd_arguments) {
       cat(j, "")
       for (k in (region_chunk[j] : (region_chunk[j+1] - 1))) {
         load(paste0(cmd_arguments$output_folder, "/", i, "_", j, "_", k, "_", date, "_06_data"))
-        file.remove(paste0(cmd_arguments$output_folder, "/", i, "_", j, "_", k, "_", date, "_06_data"))
+        unlink(paste0(cmd_arguments$output_folder, "/", i, "_", j, "_", k, "_", date, "_06_data"))
         arrays <- rbind(arrays, out)
         remove(out)
       }
@@ -264,7 +264,7 @@ main <- function(cmd_arguments) {
     arrays_t <- NULL
     for (i in seq_along(classes)) {
       load(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_08_data"))
-      file.remove(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_08_data"))
+      unlink(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_08_data"))
       arrays_t <- rbind(arrays_t, arrays_class)
       remove(arrays_class)
     }
@@ -485,7 +485,7 @@ main <- function(cmd_arguments) {
       }
       for(i in arrays_chunk_IDs) {
         load(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
-        file.remove(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
+        unlink(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
         if(sum(names(repeats) != names(repeats_df)) > 0) {
           print(paste(i, names(repeats), names(repeats_df)))
           print(str(repeats))

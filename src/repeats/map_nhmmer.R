@@ -18,9 +18,9 @@ map_nhmmer = function(output_folder, arrayID, representative, seqID, start, end,
   }
   # write.csv(repeats_df, file.path(output_folder, "nhmmer.csv"))
   ## remove generated files ================================================
-  file.remove(repeat_file)
-  file.remove(array_file)
-  file.remove(nhmmer_table_output)
+  unlink(repeat_file)
+  unlink(array_file)
+  unlink(nhmmer_table_output)
   remove(representative, fasta_sequence, nhmmer_table_output)
   gc()
   return(repeats_df)

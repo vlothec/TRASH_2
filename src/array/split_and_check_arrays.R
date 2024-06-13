@@ -366,7 +366,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
   arrays$start <- arrays$start + start_fasta_relative - 1
   arrays$end <- arrays$end + start_fasta_relative - 1
   # sink()
-  # if(!sink_output) file.remove(file.path(temp_dir, paste0(seqID, "_", arrID, "_logfile.txt")))
+  # if(!sink_output) unlink(file.path(temp_dir, paste0(seqID, "_", arrID, "_logfile.txt")))
   remove(start, end, sequence, seqID, numID, max_repeat, min_repeat, mafft, temp_dir, src_dir, kmers_list, start_fasta_relative,
   end_fasta_relative, window_step, min_windows_comparison_score_to_detach_array, min_windows_comparison_score_to_split_array, array_overlaps,
   global_min_kmers_count, max_edit, small_window_for_N_count, small_window_step_for_N_count, small_window_min_percentage_of_distances)

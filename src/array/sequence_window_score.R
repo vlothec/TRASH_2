@@ -47,7 +47,7 @@ sequence_window_score <- function(fasta_sequence, window_size, kmer = 10, output
     cat(i, "")
     for(j in (chunk_starts[i] : (chunk_starts[i + 1] - 1))) {
       load(paste0(output_dir, "/", i, "_", j, "_", date, "_sequence_window_score_data"))
-      file.remove(paste0(output_dir, "/", i, "_", j, "_", date, "_sequence_window_score_data"))
+      unlink(paste0(output_dir, "/", i, "_", j, "_", date, "_sequence_window_score_data"))
       scores <- c(scores, result)
       remove(result)
     }
