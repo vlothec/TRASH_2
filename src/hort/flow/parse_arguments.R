@@ -5,13 +5,21 @@ parse_arguments <- function(arguments, run_dir) {
                    "hor_min_len", "l", 2, "integer",   # def is 3, as in at least 3 repeats to form a HOR
                    "class", "c", 1, "character",
                    "repeats", "r", 1, "character",
-                   "chrA", "A", 1, "character"),
+                   "method", "m", 1, "integer",       # TODO: sanitise this
+                   "chrA", "A", 1, "character",
+                   "chrB", "B", 2, "character",       # TODO: sanitise this
+                   "repeatsB", "b", 2, "character",   # TODO: sanitise this
+                   "classB", "C", 2, "character",   # TODO: sanitise this
+                   "genomeA", "g", 1, "character",   # TODO: sanitise this
+                   "genomeB", "G", 2, "character",   # TODO: sanitise this
+                   "saveR", "s", 2, "character",   # TODO: sanitise this
+                   "plot_simple", "p", 2, "character"),    # TODO: sanitise this
                  ncol = 4, byrow = TRUE)
 
   arg_options <- getopt::getopt(spec)
 
   if (is.null(arg_options$hor_threshold)) {
-    arg_options$hor_threshold <- 10
+    arg_options$hor_threshold <- 25
   }
   if (is.null(arg_options$hor_min_len)) {
     arg_options$hor_min_len <- 3

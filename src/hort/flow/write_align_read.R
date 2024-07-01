@@ -16,10 +16,15 @@ write_align_read <- function(mafft_exe, temp_dir, sequences, name = "", options 
                          " > ", paste0("\"", file.path(temp_dir, paste0(name, "temp.aligned.fasta")), "\""), sep = ""),
             wait = TRUE, stdout = TRUE, stderr = TRUE)
     file.remove(file.path(temp_dir, paste0(name, "temp.fasta")))
+
+    alignment <- seqinr::read.alignment(file.path(temp_dir, paste0(name, "temp.aligned.fasta")), format = "FASTA", forceToLower = TRUE)
+    seqinr::write.fasta(sequences = alignment$seq, 
+                        file.out = file.path(temp_dir, paste0(name, "temp.aligned.fasta")),
+                        names = alignment$nam)
     # Sys.sleep(0.1)
     if (remove_ali_mafft) file.remove(file.path(temp_dir, paste0(name, "temp.aligned.fasta")))
     if (return_ali_mafft) {
-      return(seqinr::read.alignment(file.path(temp_dir, paste0(name, "temp.aligned.fasta")), format = "FASTA", forceToLower = TRUE)) 
+      return(alignment) 
     } else {
       return()
     }
