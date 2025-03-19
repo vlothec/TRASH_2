@@ -11,15 +11,19 @@ This is an early-development version of TRASH 2, update of https://github.com/vl
 
 ## Installation:
 1. R needs to be installed.
-2. Running ```TRASH.R``` for the first time will install the required R packages. See below for the required run settings
+2. mafft and nhmmer need to be installed.
+3. Running ```TRASH.R``` from the ```/src/``` directory for the first time will install the required R packages. See below for the required run settings
 
 ```TRASH.R``` needs to be called directly from its directory, or added to the PATH variable for easy access
 
 If ```TRASH.R``` does not execute, add permissions by ```chmod +x ./TRASH.R```. Using ```Rscript ./TRASH.R``` might be necessary if R code is not being recognised
 
+mafft and nhmmer need to be installed and added to the PATH variable. Alternatively, both can be installed locally and their paths can be added to the ```src/main.R``` script, replacing lines 12 and 13 on Windows or 15 and 16 on Linux. **Windows** installation of nhmmer will require a Unix-like enviroment interface like Cygwin.
+
+
 ## Run
 
-TRASH is run through the ```TRASH.R``` script, with fasta file and output directory arguments:
+TRASH is run through the ```TRASH.R``` script founr in the ```/src/``` directory, with fasta file and output directory arguments:
 
 ### Required run settings:
 ```
