@@ -18,8 +18,9 @@ This is an early-development version of TRASH 2, update of https://github.com/vl
 
 If ```TRASH.R``` does not execute, add permissions by ```chmod +x ./TRASH.R```. Using ```Rscript ./TRASH.R``` might be necessary if R code is not being recognised
 
-mafft and nhmmer need to be installed and added to the PATH variable. Alternatively, both can be installed locally and their paths can be added to the ```src/main.R``` script, replacing lines 12 and 13 on Windows or 15 and 16 on Linux. **Windows** installation of nhmmer will require a Unix-like enviroment interface like Cygwin.
-
+mafft and nhmmer need to be installed and added to the PATH variable. Alternatively, both can be installed locally and their paths can be added to the ```src/main.R``` script, replacing lines 12 and 13 on Windows or 15 and 16 on Linux. 
+**Windows** installation of nhmmer will require a Unix-like enviroment interface like Cygwin.
+**mafft** Windows version is available and can be used by uncommenting line 10 of the ```src/main.R``` script
 
 ## Run
 
