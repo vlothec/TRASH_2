@@ -12,7 +12,9 @@ This is an early-development version of TRASH 2, update of https://github.com/vl
 ## Installation:
 1. R needs to be installed.
 2. Running ```TRASH.R``` for the first time will install the required R packages. See below for the required run settings
+
 ```TRASH.R``` needs to be called directly from its directory, or added to the PATH variable for easy access
+
 If ```TRASH.R``` does not execute, add permissions by ```chmod +x ./TRASH.R```. Using ```Rscript ./TRASH.R``` might be necessary if R code is not being recognised
 
 ## Run
