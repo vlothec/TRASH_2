@@ -69,8 +69,8 @@ horb <- function(cmd_arguments) {
   split_after <- nrow(repeats)
 
   repeats <- rbind(repeats, repeatsB)
-
-  threshold_SNV <- floor(threshold_SNV * 100 / median(repeats$width))
+  
+  threshold_SNV <- floor(threshold_SNV * median(repeats$width) / 100)
   cat("================================================================================\n")
 
   ### 04 / 00 Align all repeats =========================================================================================

@@ -43,7 +43,7 @@ main <- function(cmd_arguments) {
 
   ### 02 / 14 Settings ==================================================================================================
   kmer <- 10
-  window_size <- (cmd_arguments$max_rep_size + kmer) * 2
+  window_size <- round((cmd_arguments$max_rep_size + kmer) * 1.1)
   report_runtime <- TRUE
   add_sequence_info <- TRUE
 
@@ -72,10 +72,24 @@ main <- function(cmd_arguments) {
   cat("################################################################################\n")
   chromosome_lengths <- unlist(lapply(seq_along(fasta_content), function(X) length(fasta_content[[X]])))
   cat("  Assembly total length:\t", round(sum(chromosome_lengths) / 1000000, 1), "Mbp \n")
-  cat("  Sequences count:\t\t", length(chromosome_lengths), " \n")
-  cat("  Sequences names:\t\t", names(fasta_content), "\n")
+  cat("  Sequences count:\t\t\t", length(chromosome_lengths), " \n")
+  cat("  Sequences names:\t\t\t", names(fasta_content), "\n")
   cat("  Sequences lengths (bp):\t", chromosome_lengths, "\n\n")
-  
+
+  if (length(names(fasta_content)) != length(unique(names(fasta_content)))) {
+    warning(paste0("\nWARNING: Sequence names in the ", basename(cmd_arguments$fasta_file), " fasta file are not unique \n They were appended to avoid assignment errors \n"))
+    cat(paste0("\nWARNING: Sequence names in the ", basename(cmd_arguments$fasta_file), " fasta file are not unique \n They were appended to avoid assignment errors \n"))
+    cat("\n", "Adjustments made: \n", paste = "")
+
+    for (i in seq_along(unique(names(fasta_content)))) {
+      if (sum(names(fasta_content) %in% unique(names(fasta_content))[i]) > 1) {
+        cat("Old names:",  names(fasta_content)[names(fasta_content) == unique(names(fasta_content))[i]])
+        cat("\n New names:",   paste0(unique(names(fasta_content))[i], 1:sum(names(fasta_content) %in% unique(names(fasta_content))[i])), "\n\n\n")
+        names(fasta_content)[names(fasta_content) == unique(names(fasta_content))[i]] <- paste0(unique(names(fasta_content))[i], 1:sum(names(fasta_content) %in% unique(names(fasta_content))[i]))
+      }
+    }
+  }
+
   repeat_scores <- list()
   for (i in seq_along(fasta_content)) {
     cat("  Fasta sequence ", i, ": ", names(fasta_content)[i], " \t", sep = "")
@@ -336,12 +350,9 @@ main <- function(cmd_arguments) {
       foreach::foreach (i = arrays_chunk_IDs,
                         .combine = rbind,
                         # .packages = c("Biostrings", "seqinr", "msa"),
-                        .export = c("fill_gaps", "write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
+                        .export = c("find_edge_best_start_end", "handle_edge_repeat", "fill_gaps", "write_align_read", "consensus_N", "read_and_format_nhmmer", "handle_overlaps", "handle_gaps", "export_gff", "map_nhmmer", "map_default", "rev_comp_string")) %dopar% {
         if (arrays_chr$representative[i] == "") {
-          repeats_df <- default_df
-          save(repeats_df, file = paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
           cat(i, "")
-          remove(repeats_df)
           return(0)
         }
         array_sequence <- sequence_substring[(arrays_chr$start[i] - adjust_start) : (arrays_chr$end[i] - adjust_start)]
@@ -355,10 +366,7 @@ main <- function(cmd_arguments) {
           repeats_df <- map_default(arrayID = arrays_chr$array_num_ID[i], arrays_chr$representative[i], arrays_chr$seqID[i], arrays_chr$start[i], paste(array_sequence, collapse = ""))
         }
         if (nrow(repeats_df) < 2) {
-          repeats_df <- default_df
-          save(repeats_df, file = paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
           cat(i, "")
-          remove(repeats_df)
           return(0)
         }
         # add width and class ============================================================
@@ -366,21 +374,15 @@ main <- function(cmd_arguments) {
         repeats_df$class <- arrays_chr$class[i]
         # Handle overlaps ======================================================
         repeats_df <- handle_overlaps(repeats_df, overlap_threshold = 0.1)
-        if (nrow(repeats_df) < 2) {
-          repeats_df <- default_df
-          save(repeats_df, file = paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
+        if (nrow(repeats_df) < 3) {
           cat(i, "")
-          remove(repeats_df)
           return(0)
         }
         # handle gaps if proper array ==========================================
         repeats_df <- handle_gaps(repeats_df, representative_len = arrays_chr$top_N[i])
         # Return nothing if handle_gaps removed all repeats ====================
-        if (nrow(repeats_df) < 2) {
-          repeats_df <- default_df
-          save(repeats_df, file = paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
+        if (nrow(repeats_df) < 3) {
           cat(i, "")
-          remove(repeats_df)
           return(0)
         }
         # Recalculate representative ===========================================
@@ -456,13 +458,14 @@ main <- function(cmd_arguments) {
           }
           i_r = i_r + 1
         }
+        # Handle edge repeats =================================================
+        repeats_df <- handle_edge_repeat(repeats_df, sequence_substring, adjust_start)
+        # TODO: make sure the edge repeats have their template score recalculated too
+
         remove(repeats_seq)
         gc()
-        if (nrow(repeats_df) < 2) {
-          repeats_df <- default_df
-          save(repeats_df, file = paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
+        if (nrow(repeats_df) < 3) {
           cat(i, "")
-          remove(repeats_df)
           return(0)
         }
         repeats_df <- repeats_df[c("seqID", "arrayID", "start", "end", "strand", "score", "eval", "width", "class", "representative", "score_template")]
@@ -484,15 +487,17 @@ main <- function(cmd_arguments) {
         gc()
       }
       for(i in arrays_chunk_IDs) {
-        load(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
-        unlink(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
-        if(sum(names(repeats) != names(repeats_df)) > 0) {
+        if(file.exists(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))) {
+          load(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
+          unlink(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))
+          if(sum(names(repeats) != names(repeats_df)) > 0) {
           print(paste(i, names(repeats), names(repeats_df)))
           print(str(repeats))
           print(str(repeats_df))
         }
         if(nrow(repeats_df) > 0) repeats <- rbind(repeats, repeats_df)
         remove(repeats_df)
+        }
       }
     }
     cat("\n")

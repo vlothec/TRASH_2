@@ -15,8 +15,8 @@ classify_repeats <- function(repeat_df) {
 
   ## Classify; TODO: do in parallel if it takes too much time
   kmer = 7
-  size_dif_to_check <- 0.1 # fraction of the checked rep size to check against
-  max_distance_to_classify <- 0.8 # kmer in kmer based score threshold to classify as similar
+  size_dif_to_check <- 0.15 # fraction of the checked rep size to check against
+  max_distance_to_classify <- 0.85 # kmer in kmer based score threshold to classify as similar
 
   # Make lists of kmer vectors to help with 
   repeat_df_kmers_fw = NULL

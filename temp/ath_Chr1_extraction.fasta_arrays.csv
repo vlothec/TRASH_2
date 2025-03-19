@@ -1,7 +1,3 @@
-"start","end","seqID","numID","score","top_N","top_5_N","representative"
-1,1100,"Chr1_extraction",1,0.008,0,".",""
-2201,3300,"Chr1_extraction",1,0,0,".",""
-4401,5500,"Chr1_extraction",1,0,0,".",""
-6601,7700,"Chr1_extraction",1,0,0,".",""
-8801,11000,"Chr1_extraction",1,0.013625,0,".",""
-17601,50711,"Chr1_extraction",1,0.668817757009346,159,".N_158,159,160_Count_329.","gaggctaaaaccaacaaaaaattgcttagaagcagtaaatagctttgttagtgtttctatggtcaaaatgtgtcacaatccaatgcatttgactaattataagagttagagatggattaggagtgtttagacaacacttatacccattttctcccaaaa"
+"start","end","seqID","numID","score","top_N","top_5_N","representative","class","array_num_ID","repeats_number","median_repeat_width","median_score"
+8586,11615,"Chr1_extraction",1,7.8476821192053,159,"N_159_Count_3.N_81_Count_1.","tgcaattttttgttggttttagccccttttgggagaaaatgggtataagtgttgtctaatcactcctaatccatctttaactcttacaattagtcaaaggctttggattgggacacattttgaccatagaaacactaacatagctattgactgcttcta","159_1",1,3,130,23
+17171,50711,"Chr1_extraction",1,94.2829023888342,159,"N_156,157,158,159,160_Count_302.N_162,163_Count_18.N_22_Count_1.N_168_Count_1.N_318_Count_1.","agcaattttttgttggttttagcctcttttgggagaaaatgggtataagtgttgtctaaacactcctaatccatctttaactcttataattagtcaaatgcattggattgtgacacattttgaccatagaaacactaacaaagctatttactgcttcta","159_1",2,202,159,8

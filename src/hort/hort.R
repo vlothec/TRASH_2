@@ -23,8 +23,8 @@ hort <- function(cmd_arguments) {
   max_block_dif <- 1000
   threshold_SNV <- cmd_arguments$hor_threshold
   method_hor <- 1
-  hor_c_verbose = TRUE
-  SNV_per_kbp_in_red = 25 # from which hor$SNV_per_kbp value plotted lines will be red
+  hor_c_verbose = FALSE
+  SNV_per_kbp_in_red = threshold_SNV*10 # from which hor$SNV_per_kbp value plotted lines will be red
 
   ### 00 / 00 Read repeats ==============================================================================================
   cat(paste0(" 00 / 00 ", paste(rep(" ", 50), collapse = "")))
@@ -44,14 +44,16 @@ hort <- function(cmd_arguments) {
   # seqID	arrayID	start	end	strand	score	eval	width	class	score_template          # repeats df col names
 
   repeats <- repeats[repeats$class == cmd_arguments$class, ]
-  if (nrow(repeats) == 0) stop(paste0("No repeats of the class ", cmd_arguments$class, " found"))
+  if (nrow(repeats) < (cmd_arguments$hor_min_len * 2)) stop(paste0("Not enough repeats of the class ", cmd_arguments$class, " found: ", nrow(repeats)))
   repeats <- repeats[repeats$seqID == cmd_arguments$chrA, ]
-  if (nrow(repeats) == 0) stop(paste0("No repeats on the sequence ", cmd_arguments$chrA, " found"))
+  if (nrow(repeats) < (cmd_arguments$hor_min_len * 2)) stop(paste0("Not enough repeats on the sequence ", cmd_arguments$chrA, " found: ", nrow(repeats)))
 
   repeats$strand[repeats$strand == "+"] <- "1"
   repeats$strand[repeats$strand == "-"] <- "2"
-
-  threshold_SNV <- floor(threshold_SNV * 100 / median(repeats$width))
+  
+  repeats <- repeats[order(repeats$start, decreasing = FALSE),]
+  
+  threshold_SNV <- floor(threshold_SNV * median(repeats$width) / 100)
   split_after <- 1
   cat("================================================================================\n")
 
@@ -136,7 +138,6 @@ hort <- function(cmd_arguments) {
 
   } else {
     print("Noh HORs identified")
-    return(0)
   }
   file.remove(hor.output.file)
   file.remove(file.path(cmd_arguments$output_folder, paste0(alignment_name, "temp.aligned.fasta")))
@@ -163,7 +164,8 @@ hort <- function(cmd_arguments) {
   for (i in seq_len(nrow(bins.df))) {
     repeats$start.adjusted[repeats$start >= bins.df$bins.starts[i] & repeats$start < bins.df$bins.ends[i]] =
       repeats$start.adjusted[repeats$start >= bins.df$bins.starts[i] & repeats$start < bins.df$bins.ends[i]] - bins.df$correction[i]
-    hors$start.A.bp[hors$start.A.bp >= bins.df$bins.starts[i] & hors$start.A.bp < bins.df$bins.ends[i]] =
+    if (nrow(hors) > 1) {
+      hors$start.A.bp[hors$start.A.bp >= bins.df$bins.starts[i] & hors$start.A.bp < bins.df$bins.ends[i]] =
       hors$start.A.bp[hors$start.A.bp >= bins.df$bins.starts[i] & hors$start.A.bp < bins.df$bins.ends[i]] - bins.df$correction[i]
     hors$end.A.bp[hors$end.A.bp >= bins.df$bins.starts[i] & hors$end.A.bp < bins.df$bins.ends[i]] =
       hors$end.A.bp[hors$end.A.bp >= bins.df$bins.starts[i] & hors$end.A.bp < bins.df$bins.ends[i]] - bins.df$correction[i]
@@ -171,6 +173,8 @@ hort <- function(cmd_arguments) {
       hors$start.B.bp[hors$start.B.bp >= bins.df$bins.starts[i] & hors$start.B.bp < bins.df$bins.ends[i]] - bins.df$correction[i]
     hors$end.B.bp[hors$end.B.bp >= bins.df$bins.starts[i] & hors$end.B.bp < bins.df$bins.ends[i]] =
       hors$end.B.bp[hors$end.B.bp >= bins.df$bins.starts[i] & hors$end.B.bp < bins.df$bins.ends[i]] - bins.df$correction[i]
+    }
+    
   }
 
   ### 07 / 00 Make line plot ============================================================================================
@@ -195,8 +199,10 @@ hort <- function(cmd_arguments) {
        ylim = c(0, ax.len / unit.val),
        pch = 19, cex = 0.1,
        main = paste0("HORs", cmd_arguments$class, " ", cmd_arguments$chrA))
-
-  colours_SNV <- colorRampPalette(c("green", "yellow", "red"))(length(hors$SNV_per_kbp)) [findInterval(hors$SNV_per_kbp, seq(0, SNV_per_kbp_in_red, length.out = length(hors$SNV_per_kbp)))]
+  if (nrow(hors) > 1) {
+    colours_SNV <- colorRampPalette(c("green", "yellow", "red"))(length(hors$SNV_per_kbp)) [findInterval(hors$SNV_per_kbp, seq(0, SNV_per_kbp_in_red, length.out = length(hors$SNV_per_kbp)))]
+  }
+  
   while (TRUE) {
     if (ax.len >= 10000000) {lwd_plot <- 1; break}
     if (ax.len >= 5000000) {lwd_plot <- 2; break}
@@ -205,12 +211,19 @@ hort <- function(cmd_arguments) {
     lwd_plot <- 5
     break
   }
-  hors = hors[order(hors$SNV_per_kbp, decreasing = TRUE), ]
+  if (nrow(hors) > 1) {
+    hors = hors[order(hors$SNV_per_kbp, decreasing = TRUE), ]
   for (j in seq_len(nrow(hors))) {
     lines(x = c(hors$start.A.bp[j] / unit.val, hors$end.A.bp[j] / unit.val),
           y = c(hors$start.B.bp[j] / unit.val, hors$end.B.bp[j] / unit.val),
           pch = 19, lwd = lwd_plot, col = colours_SNV[j])
   }
+  }
+  
+  
+  # add to X and Y axis labels of repeat locations 
+  points(x = repeats$start.adjusted / unit.val, y = rep(0, nrow(repeats)), pch = 15, col = "#22222290", cex = 1)
+  points(y = repeats$start.adjusted / unit.val, x = rep(0, nrow(repeats)), pch = 15, col = "#22222290", cex = 1)
 
   #x axis and vertical breaks
   axis(side = 1, las = 2, lwd.ticks = 4,
@@ -248,9 +261,12 @@ hort <- function(cmd_arguments) {
 
   repeats$hors_formed_count = 0
   repeats$hors_formed_tot_rep_normalised = 0
-  for (i in seq_len(nrow(hors))) {
+  if (nrow(hors) > 1) {
+    for (i in seq_len(nrow(hors))) {
     repeats$hors_formed_count[hors$start_A[i] : (hors$start_A[i] + hors$block.size.in.units[i] - 1)] = repeats$hors_formed_count[hors$start_A[i] : (hors$start_A[i] + hors$block.size.in.units[i] - 1)] + 1
   }
+  }
+  
   repeats$hors_formed_tot_rep_normalised = repeats$hors_formed_count / nrow(repeats)
   write.csv(x = repeats, file = file.path(cmd_arguments$output_folder, paste0("repeats_with_hors_", cmd_arguments$class, "_", cmd_arguments$chrA, ".csv", collapse = "")), row.names = FALSE)
 

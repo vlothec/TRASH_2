@@ -3,7 +3,7 @@ shift_and_compare = function(sequence, templates = 0) {
     return(paste0("_split_", sequence))
   }
   score_threshold = 0.4
-  max_size_dif = 0.15
+  max_size_dif = 0.15 
 
   ### Shift =================================================
   #TODO: fix this for short sequences, for now it's set so it's not working for short
