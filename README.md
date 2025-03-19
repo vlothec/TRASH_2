@@ -29,7 +29,7 @@ TRASH is run through the ```TRASH.R``` script founr in the ```/src/``` directory
 ### Required run settings:
 ```
 -o --output             output directory
--f fasta                file to process
+-f --fasta              file to process
 ```
 
 ### Optional run settings:
