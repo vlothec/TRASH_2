@@ -55,3 +55,24 @@ TRASH is run through the ```TRASH.R``` script founr in the ```/src/``` directory
 │   ├── [fasta_file]_classarrays.csv           temp file, can be removed
 │   └── [fasta_file]_no_repeats_arrays.csv     temp file, can be removed
 ```
+
+## HOR processing
+
+```HORT.R``` instead of ```TRASH.R``` command should be used, with following arguments:
+
+```
+--output_folder", "o", 1, "character",
+--hor_threshold", "t", 2, "integer", 
+--hor_min_len", "l", 2, "integer",  
+--class", "c", 1, "character",
+--repeats", "r", 1, "character",
+--method", "m", 1, "integer",      
+--chrA", "A", 1, "character",
+--chrB", "B", 2, "character",  
+--repeatsB", "b", 2, "character",  
+--classB", "C", 2, "character",  
+--genomeA", "g", 1, "character",  
+--genomeB", "G", 2, "character",  
+--saveR", "s", 2, "character",  
+--plot_simple", "p", 2, "character"
+```
