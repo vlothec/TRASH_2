@@ -12,7 +12,7 @@ This is an early-development version of TRASH 2, update of https://github.com/vl
 ## Installation:
 1. R needs to be installed.
 2. mafft and nhmmer need to be installed.
-3. Running ```TRASH.R``` from the ```/src/``` directory for the first time will install the required R packages. See below for the required run settings
+3. Running ```TRASH.R``` from the ```/src/``` directory for the first time will install the required R packages (if they're missing). See below for the required run settings
 
 ```TRASH.R``` needs to be called directly from its directory, or added to the PATH variable for easy access
 
@@ -39,6 +39,19 @@ TRASH is run through the ```TRASH.R``` script founr in the ```/src/``` directory
 **-t --templates** fasta file with repeat templates and their names 
 ```
 
+### Output
 
-
-
+```bash
+.
+├── [fasta_file]
+│   ├── [fasta_file]_repeats_with_seq.csv  	main output file with identified repeats
+│   ├── [fasta_file]_repeats.gff			main output repeat file in gff format
+│   ├── [fasta_file]_repeats.csv			main output file with identified repeats without sequence column
+│   ├── [fasta_file]_arrays.csv				repeat arrays, start and end are not perfectly aligned with repeats, but can be used to get locations of repeats without loading in potentially big repeat files
+│   ├── [fasta_file]_arrays.gff				repeat arrays as above, in gff format
+│   ├── [fasta_file]_run_time.csv			report of the script run time
+│   ├── [fasta_file]_regarrays.csv        	temp file, can be removed
+│   ├── [fasta_file]_aregarrays.csv  		temp file, can be removed
+│   ├── [fasta_file]_classarrays.csv  		temp file, can be removed
+│   └── [fasta_file]_no_repeats_arrays.csv  temp file, can be removed
+```
