@@ -27,16 +27,16 @@ TRASH is run through the ```TRASH.R``` script founr in the ```/src/``` directory
 
 ### Required run settings:
 ```
--o --output output directory
--f fasta file to process
+-o --output             output directory
+-f fasta                file to process
 ```
 
 ### Optional run settings:
 ```
-**-p --cores_no** number of cores for parallel run, default: 1
-**-m --max_rep_size** maximum repeat size, default: 1000
-**-i --min_rep_size** minimum repeat size, default: 7
-**-t --templates** fasta file with repeat templates and their names 
+-p --cores_no           number of cores for parallel run, default: 1
+-m --max_rep_size       maximum repeat size, default: 1000
+-i --min_rep_size       minimum repeat size, default: 7
+-t --templates          fasta file with repeat templates and their names 
 ```
 
 ### Output
