@@ -2,3 +2,5 @@ R_libs/
 temp/
 testing_fastas/
 src/.Rhistory
+./.vscode
+./.VSCodeCounter
