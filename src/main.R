@@ -6,11 +6,10 @@ main <- function(cmd_arguments) {
   cat("################################################################################\n")
   # TODO: remove this development settings
   if (Sys.info()["sysname"] == "Windows") {
-    # mafft_dir <- "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat"
+    mafft_dir <- "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat"
     # nhmmer_dir <- "../dep/hmmer/nhmmer.exe"
+    nhmmer_dir <- "C:/cygwin64/home/Piotr Włodzimierz/hmmer/hmmer-3.4/src/nhmmer.exe"
     # nhmmer_dir <- "C:/cygwin64/home/vlothec/bin/nhmmer.exe"
-    mafft_dir <- "mafft"
-    nhmmer_dir <- "nhmmer"
   } else {
     mafft_dir <- "mafft"
     nhmmer_dir <- "nhmmer"

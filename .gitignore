@@ -4,3 +4,4 @@ testing_fastas/
 src/.Rhistory
 ./.vscode
 ./.VSCodeCounter
+./lintr

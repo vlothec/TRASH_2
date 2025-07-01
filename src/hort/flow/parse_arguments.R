@@ -1,7 +1,7 @@
 parse_arguments <- function(arguments, run_dir) {
 
   spec <- matrix(c("output_folder", "o", 1, "character",
-                   "hor_threshold", "t", 2, "integer", # def is 2, as in 2% of divergence
+                   "hor_threshold", "t", 2, "integer", # def is 10, as in 10% of divergence
                    "hor_min_len", "l", 2, "integer",   # def is 3, as in at least 3 repeats to form a HOR
                    "class", "c", 1, "character",
                    "repeats", "r", 1, "character",
