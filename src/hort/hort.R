@@ -43,7 +43,7 @@ hort <- function(cmd_arguments) {
 
   # seqID	arrayID	start	end	strand	score	eval	width	class	score_template          # repeats df col names
 
-  repeats <- repeats[repeats$class == cmd_arguments$class, ]
+  repeats <- repeats[repeats$new_class == cmd_arguments$class, ]
   if (nrow(repeats) < (cmd_arguments$hor_min_len * 2)) stop(paste0("Not enough repeats of the class ", cmd_arguments$class, " found: ", nrow(repeats)))
   repeats <- repeats[repeats$seqID == cmd_arguments$chrA, ]
   if (nrow(repeats) < (cmd_arguments$hor_min_len * 2)) stop(paste0("Not enough repeats on the sequence ", cmd_arguments$chrA, " found: ", nrow(repeats)))
