@@ -51,7 +51,7 @@ horb <- function(cmd_arguments) {
   # seqID	arrayID	start	end	strand	score	eval	width	class	score_template          # repeats df col names
 
 
-  repeats <- repeats[repeats$class == cmd_arguments$class, ]
+  repeats <- repeats[repeats$new_class == cmd_arguments$class, ]
   if (nrow(repeats) == 0) stop(paste0("No repeats of the class ", cmd_arguments$class, " found"))
   repeats <- repeats[repeats$seqID == cmd_arguments$chrA, ]
   if (nrow(repeats) == 0) stop(paste0("No repeats on the sequence ", cmd_arguments$chrA, " found"))
@@ -59,7 +59,7 @@ horb <- function(cmd_arguments) {
   repeats$strand[repeats$strand == "-"] <- "2"
 
 
-  repeatsB <- repeatsB[repeatsB$class == cmd_arguments$classB, ]
+  repeatsB <- repeatsB[repeatsB$new_class == cmd_arguments$classB, ]
   if (nrow(repeatsB) == 0) stop(paste0("No repeatsB of the class ", cmd_arguments$classB, " found"))
   repeatsB <- repeatsB[repeatsB$seqID == cmd_arguments$chrB, ]
   if (nrow(repeatsB) == 0) stop(paste0("No repeatsB on the sequence ", cmd_arguments$chrB, " found"))
