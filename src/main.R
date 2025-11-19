@@ -6,11 +6,11 @@ main <- function(cmd_arguments) {
   cat("################################################################################\n")
   # TODO: remove this development settings
   if (Sys.info()["sysname"] == "Windows") {
+    print("Win")
     mafft_dir <- "../dep/mafft-7.520-win64-signed/mafft-win/mafft.bat"
-    # nhmmer_dir <- "../dep/hmmer/nhmmer.exe"
-    nhmmer_dir <- "C:/cygwin64/home/Piotr Włodzimierz/hmmer/hmmer-3.4/src/nhmmer.exe"
-    # nhmmer_dir <- "C:/cygwin64/home/vlothec/bin/nhmmer.exe"
+    nhmmer_dir <- "../dep/hmmer/nhmmer.exe"
   } else {
+    print("Lin")
     mafft_dir <- "mafft"
     nhmmer_dir <- "nhmmer"
   }
@@ -342,11 +342,12 @@ main <- function(cmd_arguments) {
     }
     array_chunk <- seq(1, nrow(arrays_chr), arrays_per_chunk) #divide into up to 100 data frame entries chunks on each chromosome, so up to 100 parallel, too much of a fasta is not good sent into the parallel
     cat("Chunks to complete: ", length(array_chunk), ". Finished: ", sep = "")
-    array_chunk <- c(array_chunk, (nrow(arrays_chr) + 1))
+    array_chunk <- c(array_chunk, (nrow(arrays_chr)))
+    
     for(j in 1 : (length(array_chunk) - 1)) {
-      sequence_substring <- fasta_content[[chromosome]][arrays_chr$start[array_chunk[j]] : (arrays_chr$end[array_chunk[j + 1] - 1])]
+      sequence_substring <- fasta_content[[chromosome]][arrays_chr$start[array_chunk[j]] : (arrays_chr$end[array_chunk[j + 1]] - 1)]
       adjust_start <- arrays_chr$start[array_chunk[j]] - 1
-      arrays_chunk_IDs <- array_chunk[j] : (array_chunk[j + 1] - 1)
+      arrays_chunk_IDs <- array_chunk[j] : (array_chunk[j + 1])
       foreach::foreach (i = arrays_chunk_IDs,
                         .combine = rbind,
                         # .packages = c("Biostrings", "seqinr", "msa"),
