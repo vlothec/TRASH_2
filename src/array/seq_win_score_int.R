@@ -1,7 +1,7 @@
 seq_win_score_int <- function(start, end, kmer, fasta_extraction, fraction_p) {
   if((end - start) <= kmer) return(100)
   # kmers <- unlist(lapply(X = start : (end - kmer), FUN = extract_kmers, kmer, fasta_extraction))
-  kmers <- unlist(lapply(X = (start : (end - kmer)), function(X) return(paste(fasta_extraction[X : (X + kmer - 1)], collapse = ""))))
+  kmers <- unlist(lapply(X = (start : (end - kmer + 1)), function(X) return(paste(fasta_extraction[X : (X + kmer - 1)], collapse = ""))))
   counts_kmers <- table(kmers)
   counts_kmers <- counts_kmers[!grepl("n", names(counts_kmers))]
   counts_kmers <- counts_kmers[!grepl("N", names(counts_kmers))]

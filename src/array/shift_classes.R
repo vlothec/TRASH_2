@@ -2,7 +2,7 @@ shift_classes <- function(arrays, kmer = 6) {
   # This takes part of the array df with the same class to shift the representative to align with the one that's most common
   # start	end	seqID	numID	score	top_N	top_5_N	representative	class
 
-  arrays$width <- arrays$end - arrays$start
+  arrays$width <- arrays$end - arrays$start + 1
   arrays$importance <- arrays$width * arrays$score
   if(sum(which(arrays$score == 0)) > 0) arrays$importance[arrays$score == 0] <- 1 * arrays$width[arrays$score == 0]
 

@@ -4,37 +4,28 @@ compare_kmer_grep = function(sequence_kmers, sequence_to_realign, max_size_dif, 
   if(!(realign_string_length %in% floor(string_length * (1 - max_size_dif)) : ceiling(string_length * (1 + max_size_dif)))) {
     return(sequence_to_realign)
   }
-  seq_to_realign_kmers_ext = paste0(rep(sequence_to_realign, 1 + ceiling((realign_string_length + kmer) / realign_string_length)), collapse = "")
-  seq_to_realign_kmers = unlist(lapply(seq_len(realign_string_length * ceiling((realign_string_length + kmer) / realign_string_length)), function(X) substr(seq_to_realign_kmers_ext, X, (X + kmer - 1))))
-
   sequence_to_realign_rev <- rev_comp_string(sequence_to_realign)
-  seq_to_realign_rev_kmers_ext = paste0(rep(sequence_to_realign_rev, 1 + ceiling((realign_string_length + kmer) / realign_string_length)), collapse = "")
-  seq_to_realign_rev_kmers = unlist(lapply(seq_len(realign_string_length * ceiling((realign_string_length + kmer) / realign_string_length)), function(X) substr(seq_to_realign_rev_kmers_ext, X, (X + kmer - 1))))
-
-
-  kmers_distances = rep(0, length(sequence_kmers))
-  for(i in seq_along(sequence_kmers)) {
-    min = grep(sequence_kmers[i], seq_to_realign_kmers[i : length(seq_to_realign_kmers)])
-    if(length(min) == 0) min = 0 else min = min(min)
-    kmers_distances[i] = min
+  score_orientation <- function(candidate) {
+    candidate_extended <- paste0(rep(candidate, 2), collapse = "")
+    candidate_kmers <- vapply(seq_len(realign_string_length), function(position) {
+      substr(candidate_extended, position, position + kmer - 1)
+    }, character(1))
+    vapply(seq_len(realign_string_length), function(shift) {
+      shifted_kmers <- candidate_kmers[((seq_len(length(sequence_kmers)) + shift - 2) %% realign_string_length) + 1]
+      sum(sequence_kmers == shifted_kmers)
+    }, numeric(1))
   }
-  kmers_distances_rev = rep(0, length(sequence_kmers))
-  for(i in seq_along(sequence_kmers)) {
-    min = grep(sequence_kmers[i], seq_to_realign_rev_kmers[i : length(seq_to_realign_rev_kmers)])
-    if(length(min) == 0) min = 0 else min = min(min)
-    kmers_distances_rev[i] = min
-  }
-  if((sum(kmers_distances) + sum(kmers_distances_rev)) == 0) return(sequence_to_realign)
-  if(length(which(kmers_distances != 0)) > length(which(kmers_distances_rev != 0)))
-  {
-    shift = as.numeric(names(table(kmers_distances[kmers_distances != 0]))[which.max(table(kmers_distances[kmers_distances != 0]))])
-    shifted = paste(unlist(lapply(seq_to_realign_kmers[shift : (shift + realign_string_length - 1)], function(X) strsplit(X, split = "")[[1]][1])), collapse = "")
+
+  scores <- score_orientation(sequence_to_realign)
+  scores_rev <- score_orientation(sequence_to_realign_rev)
+  if (max(scores, scores_rev) == 0) return(sequence_to_realign)
+  if (max(scores) > max(scores_rev)) {
+    shifted <- paste0(strsplit(sequence_to_realign, split = "")[[1]][((seq_len(realign_string_length) + which.max(scores) - 2) %% realign_string_length) + 1], collapse = "")
   } else {
-    shift = as.numeric(names(table(kmers_distances_rev[kmers_distances_rev != 0]))[which.max(table(kmers_distances_rev[kmers_distances_rev != 0]))])
-    shifted = paste(unlist(lapply(seq_to_realign_rev_kmers[shift : (shift + realign_string_length - 1)], function(X) strsplit(X, split = "")[[1]][1])), collapse = "")
+    shifted <- paste0(strsplit(sequence_to_realign_rev, split = "")[[1]][((seq_len(realign_string_length) + which.max(scores_rev) - 2) %% realign_string_length) + 1], collapse = "")
   }
   
-  remove(sequence_kmers, sequence_to_realign, seq_to_realign_kmers_ext, seq_to_realign_kmers, shift, kmers_distances)
+  remove(sequence_kmers, sequence_to_realign, sequence_to_realign_rev)
   gc()
   return(shifted)
 }

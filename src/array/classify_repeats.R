@@ -8,7 +8,7 @@ classify_repeats <- function(repeat_df) {
   ## make a temp df for easier handling
   which_to_classify <- which(repeat_df$class == "")
   repeat_df_temp <- repeat_df[which_to_classify, ]
-  repeat_df_temp$width <- repeat_df_temp$end - repeat_df_temp$start
+  repeat_df_temp$width <- repeat_df_temp$end - repeat_df_temp$start + 1
   repeat_df_temp$importance <- repeat_df_temp$width * repeat_df_temp$score
   repeat_df_temp$importance[repeat_df_temp$score == 0] <- 1 * repeat_df_temp$width[repeat_df_temp$score == 0]
   repeat_df_temp$rep_width = nchar(repeat_df_temp$representative)

@@ -23,7 +23,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
   end <- end_fasta_relative - start_fasta_relative + 1
 
   # kmers_list <- unlist(lapply(X = (start : (end - kmer)), FUN = extract_kmers, kmer, sequence))
-  kmers_list <- unlist(lapply(X = (start : (end - kmer)), function(X) return(paste(sequence[X : (X + kmer - 1)], collapse = ""))))
+  kmers_list <- unlist(lapply(X = (start : (end - kmer + 1)), function(X) return(paste(sequence[X : (X + kmer - 1)], collapse = ""))))
 
   ### Find breaks  ========================================================================================
   window_size <- max_repeat
@@ -147,7 +147,7 @@ split_and_check_arrays <- function(start, end, sequence, seqID, numID, arrID, ma
     time_report_df <- as.numeric(arrays$end[i] - arrays$start[i])
 
     ## extract kmers ==========================================================================
-    kmers_list_local <- kmers_list[arrays$start[i] : (arrays$end[i] - kmer)]
+    kmers_list_local <- kmers_list[arrays$start[i] : (arrays$end[i] - kmer + 1)]
     counts_kmers <- table(kmers_list_local)
     counts_kmers <- counts_kmers[order(counts_kmers, decreasing = TRUE)]
     kmer_names <- names(counts_kmers)
