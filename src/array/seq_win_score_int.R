@@ -8,8 +8,6 @@ seq_win_score_int <- function(start, end, kmer, fasta_extraction, fraction_p) {
  if (length(kmers) < (kmer * 2)) return(100)
   counts_kmers <- tabulate(match(kmers, unique(kmers)))
   score <- 100 * sum(counts_kmers == 1) / length(kmers)
-  remove(start, end, kmer, fasta_extraction, fraction_p, counts_kmers, kmers)
-  gc()
   return(score)
 
   # counts_kmers <- sort(counts_kmers, decreasing = TRUE)

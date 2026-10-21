@@ -8,7 +8,7 @@ shift_and_compare = function(sequence, templates = 0) {
   ### Shift =================================================
   #TODO: fix this for short sequences, for now it's set so it's not working for short
   sequence = shift_sequence(sequence)
-  gc()
+  # gc()
   if(!inherits(sequence, "character")) {
     print(paste0("shift_and_compare: sequence is not character"))
     return("_split_")
@@ -33,6 +33,6 @@ shift_and_compare = function(sequence, templates = 0) {
   }
   if(!inherits(sequence, "character")) print(paste0("shift_and_compare: sequence is not character"))
   remove(templates)
-  gc()
+  # gc()
   return(sequence)
 }

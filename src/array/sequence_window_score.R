@@ -41,7 +41,7 @@ sequence_window_score <- function(fasta_sequence, window_size, kmer = 10, output
       result <- seq_win_score_int(1, window_size, kmer, sequence_substring[(starts[j] - starts[chunk_starts[i]] + 1) : (ends[j] - starts[chunk_starts[i]] + 1)], fraction_p)
       save(result, file = paste0(output_dir, "/", i, "_", j, "_", date, "_sequence_window_score_data"))
       remove(result)
-      gc()
+
       # return(result)
     }
     cat(i, "")
