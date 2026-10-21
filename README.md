@@ -1,4 +1,4 @@
-Fork of TRASH 2 with performance patches: vectorised k-mer extraction and removal of redundant garbage-collector calls.
+This is an early-development version of TRASH 2, update of https://github.com/vlothec/TRASH software for repeat identification
 
 ## New features:
 1. Classification of repeats to repeat families/classes across the fasta file
