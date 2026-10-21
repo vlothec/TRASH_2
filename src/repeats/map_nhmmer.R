@@ -22,6 +22,6 @@ map_nhmmer = function(output_folder, arrayID, representative, seqID, start, end,
   unlink(array_file)
   unlink(nhmmer_table_output)
   remove(representative, fasta_sequence, nhmmer_table_output)
-  gc()
+  # gc()
   return(repeats_df)
 }
