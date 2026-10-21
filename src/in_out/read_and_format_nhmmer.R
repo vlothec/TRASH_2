@@ -67,7 +67,7 @@ read_and_format_nhmmer <- function(nhmmer_file, seqID, arrayID) { # nolint
   nhmmer$end <- as.numeric(nhmmer$end)
   nhmmer$score <- as.numeric(nhmmer$score)
   nhmmer$eval <- as.numeric(nhmmer$eval)
-  gc()
+  # gc()
   return(nhmmer)
 
 }

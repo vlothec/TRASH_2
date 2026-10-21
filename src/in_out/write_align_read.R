@@ -30,7 +30,6 @@ write_align_read <- function(mafft_exe, temp_dir, sequences, name = "", options 
     print(msa_message)
   }
   remove(sequences_bs, name, seq_names, sequences)
-  gc()
 
   return(alignment)
 
