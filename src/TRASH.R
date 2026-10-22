@@ -1,5 +1,14 @@
 #!/usr/bin/env Rscript
 # options(error = function() {traceback(2, max.lines=500); if(!interactive()) quit(save="no", status=1, runLast=T)})
+
+Sys.setenv(
+  OPENBLAS_NUM_THREADS = "1",
+  OMP_NUM_THREADS = "1",
+  MKL_NUM_THREADS = "1",
+  BLIS_NUM_THREADS = "1",
+  VECLIB_MAXIMUM_THREADS = "1"
+)
+
 timeA <- as.numeric(Sys.time())
 this_file <- function() {
   cmd_args <- commandArgs(trailingOnly = FALSE)

@@ -60,9 +60,18 @@ parse_arguments <- function(arguments, run_dir) {
   if (is.null(arg_options$max_N_split)) arg_options$max_N_split <- 12
   if (is.null(arg_options$smooth_percent)) arg_options$smooth_percent <- 2
 
-  if(!is.na(detectCores()) & ((detectCores() - 1) < arg_options$cores_no)) {
+  slurm_cores <- suppressWarnings(as.integer(Sys.getenv("SLURM_CPUS_PER_TASK", "")))
+  if (!is.na(slurm_cores) && slurm_cores > 0 && arg_options$cores_no > slurm_cores) {
+    warning(paste0("Requested ", arg_options$cores_no,
+                   " workers but Slurm allocated ", slurm_cores,
+                   " CPUs; using ", slurm_cores, " workers"))
+    arg_options$cores_no <- slurm_cores
+  }
+
+  detected_cores <- parallel::detectCores()
+  if(!is.na(detected_cores) & ((detected_cores - 1) < arg_options$cores_no)) {
     print("TRASH warning: set amount of cores higher than the available detected, adjusting to max cores - 1")
-    arg_options$cores_no <- (detectCores() - 1)
+    arg_options$cores_no <- (detected_cores - 1)
   }
   if(arg_options$cores_no < 1) arg_options$cores_no <- 1
 
