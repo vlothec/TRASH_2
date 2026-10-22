@@ -403,7 +403,7 @@ main <- function(cmd_arguments) {
                                         sequences = repeats_seq,
                                         name = paste(basename(cmd_arguments$fasta_file), arrays_chr$seqID[i], arrays_chr$array_num_ID[i], i, runif(1, 0, 1), sep = "_"))
           consensus <- consensus_N(alignment, arrays_chr$top_N[i])
-          if (length(consensus) != 0) repeats_df$representative <- consensus
+          if (length(consensus) == arrays_chr$top_N[i] && !anyNA(consensus)) repeats_df$representative <- consensus
           remove(alignment, consensus, repeats_seq, strands)
           gc()
         }
@@ -519,7 +519,10 @@ main <- function(cmd_arguments) {
 
   for (i in seq_len(nrow(arrays))) {
     if (sum((repeats$arrayID == arrays$array_num_ID[i]) > 0)) {
-      arrays$representative[i] <- repeats$representative[which(repeats$arrayID == i)[1]]
+      representative_id <- which(repeats$arrayID == arrays$array_num_ID[i])[1]
+      if (!is.na(representative_id) && !is.na(repeats$representative[representative_id])) {
+        arrays$representative[i] <- repeats$representative[representative_id]
+      }
     }
   }
   repeats <- repeats[c("seqID", "arrayID", "start", "end", "strand", "score", "eval", "width", "class", "score_template")]
