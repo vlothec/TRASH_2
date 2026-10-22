@@ -176,7 +176,6 @@ main <- function(cmd_arguments) {
                                       kmer = kmer)
         save(out, file = paste0(cmd_arguments$output_folder, "/", i, "_", j, "_", k, "_", date, "_06_data"))
         remove(out)
-        gc()
         # warnings()
         # return(out)
       }
@@ -272,7 +271,6 @@ main <- function(cmd_arguments) {
       setTxtProgressBar(pb, getTxtProgressBar(pb) + 1)
       save(arrays_class, file = paste0(cmd_arguments$output_folder, "/", i, "_", date, "_08_data"))
       remove(arrays_class)
-      gc()
       # return(arrays_class)
     }
     arrays_t <- NULL
@@ -405,7 +403,6 @@ main <- function(cmd_arguments) {
           consensus <- consensus_N(alignment, arrays_chr$top_N[i])
           if (length(consensus) == arrays_chr$top_N[i] && !anyNA(consensus)) repeats_df$representative <- consensus
           remove(alignment, consensus, repeats_seq, strands)
-          gc()
         }
         # check if short gaps contain the repeat ===============================
         repeats_df <- fill_gaps(repeats_df, array_sequence, arrays_chr$start[i])
@@ -464,7 +461,6 @@ main <- function(cmd_arguments) {
         # TODO: make sure the edge repeats have their template score recalculated too
 
         remove(repeats_seq)
-        gc()
         if (nrow(repeats_df) < 3) {
           cat(i, "")
           return(0)
@@ -485,7 +481,6 @@ main <- function(cmd_arguments) {
         remove(repeats_df)
         cat(i, "")
         return(0)
-        gc()
       }
       for(i in arrays_chunk_IDs) {
         if(file.exists(paste0(cmd_arguments$output_folder, "/", i, "_", date, "_09_data"))) {

@@ -37,6 +37,6 @@ fill_gaps <- function(repeat_table, fasta_content, array_start) {
     i <- i + 1
   }
   remove(fasta_content)
-  gc()
+  # gc()
   return(repeat_table)
 }

@@ -29,7 +29,7 @@ consensus_N = function(alignment, N)
     }
   }
   remove(alignment.matrix, frequencies, alignment, N, is.in.consensus, consensus.ID)
-  gc()
+  # gc()
   consensus <- tolower(paste(consensus, collapse = ""))
   return(consensus)
 }

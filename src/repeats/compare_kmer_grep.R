@@ -26,7 +26,7 @@ compare_kmer_grep = function(sequence_kmers, sequence_to_realign, max_size_dif, 
   }
   
   remove(sequence_kmers, sequence_to_realign, sequence_to_realign_rev)
-  gc()
+  # gc()
   return(shifted)
 }
 # class_sequence = "aagcagtttcacagatagcttctttctagtttttatctggggatattcggtttttccccataggcctcaatgggctcccaaatgtcccttcgcagattctccaaaagagtgtttccaacctgctgaatcaaaagaaaggtttaactctgtgagatgaatccacacatcaca"

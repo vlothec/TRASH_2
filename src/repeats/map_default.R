@@ -35,7 +35,7 @@ map_default = function(arrayID, representative, seqID, start, fasta_sequence) {
     repeats_df = rbind(repeats_df, match_rev)
   }
   remove(match_rev, fasta_sequence, representative)
-  gc()
+  # gc()
   if(inherits(repeats_df, "data.frame")) {
     repeats_df <- repeats_df[c("seqID", "arrayID", "start", "end", "strand", "score", "eval")]
     return(repeats_df)

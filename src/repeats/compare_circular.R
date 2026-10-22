@@ -13,6 +13,6 @@ compare_circular = function(sequence, template, max_size_dif) {
   scores = adist(template, shifted_strings_all, costs = list(ins = 1, del = 1, sub = 1))[1,] / max(c(nchar(sequence), nchar(template)))
   sequence_shifted = shifted_strings_all[which.min(scores)]
   remove(string_length, start_substrings, end_substrings, shifted_strings, shifted_strings_reverse, shifted_strings_all, sequence, template)
-  gc()
+  # gc()
   return(list(score = min(scores), sequence_shifted = sequence_shifted))
 }
