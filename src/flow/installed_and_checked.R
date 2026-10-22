@@ -41,7 +41,7 @@ installed_and_checked <- function() {
     suppressMessages(library(doParallel))
     suppressMessages(library(getopt))
     suppressMessages(library(ape))
-    # suppressMessages(library(Biostrings))
+    suppressMessages(library(Biostrings))
   } else {
     library(stringr)
     library(stringdist)
@@ -49,7 +49,7 @@ installed_and_checked <- function() {
     library(doParallel)
     library(getopt)
     library(ape)
-    # library(Biostrings)
+    library(Biostrings)
   }
   return(TRUE)
 }
